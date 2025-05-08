@@ -1,15 +1,17 @@
 import Foundation
 
+
+struct TokenResponse: Decodable {
+    let access_token: String
+    let token_type: String
+    let user: User
+}
+
 struct User: Codable {
     let id: Int
     let username: String
     let email: String
     let phone: String
-}
-
-struct TokenResponse: Codable {
-    let access_token: String
-    let token_type: String
 }
 
 struct Talk: Codable, Identifiable {
@@ -19,7 +21,7 @@ struct Talk: Codable, Identifiable {
     let description: String?
 }
 
-struct HistoryItem: Codable {
+struct HistoryItem: Codable, Identifiable {
     let id: Int
     let talk_title: String
     let accessed_at: String
