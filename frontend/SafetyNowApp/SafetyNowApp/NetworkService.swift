@@ -1,6 +1,5 @@
 import Foundation
 
-
 class NetworkService {
     static let shared = NetworkService()
     private let baseURL = "http://192.168.4.25:8000"
@@ -67,7 +66,7 @@ class NetworkService {
             }
         }.resume()
     }
-    
+
     func getHistory(token: String, completion: @escaping (Result<[HistoryItem], Error>) -> Void) {
         guard let url = URL(string: "\(baseURL)/history/") else {
             completion(.failure(NetworkError.invalidURL))
@@ -97,4 +96,41 @@ class NetworkService {
         }.resume()
     }
 
+    func register(username: String, email: String, phone: String, password: String, completion: @escaping (Result<Void, Error>) -> Void) {
+        guard let url = URL(string: "\(baseURL)/auth/register") else {
+            completion(.failure(NetworkError.invalidURL))
+            return
+        }
+
+        let body: [String: String] = [
+            "username": username,
+            "email": email,
+            "phone": phone,
+            "password": password
+        ]
+
+        guard let httpBody = try? JSONSerialization.data(withJSONObject: body) else {
+            completion(.failure(NetworkError.encodingError))
+            return
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.httpBody = httpBody
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+
+            guard let response = response as? HTTPURLResponse, (200...299).contains(response.statusCode) else {
+                completion(.failure(NetworkError.serverError))
+                return
+            }
+
+            completion(.success(()))
+        }.resume()
+    }
 }

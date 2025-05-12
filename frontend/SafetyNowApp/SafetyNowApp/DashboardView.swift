@@ -4,6 +4,7 @@ struct DashboardView: View {
     @AppStorage("access_token") var accessToken: String = ""
     @State private var history: [HistoryItem] = []
     @AppStorage("username") var storedUsername: String = ""
+    @State private var showFindTalk = false
 
     var body: some View {
         NavigationStack {
@@ -27,7 +28,12 @@ struct DashboardView: View {
 
                 // ACTION TILES
                 HStack(spacing: 16) {
-                    actionTile(title: "Find a Talk", systemIcon: "text.bubble")
+                    NavigationLink(destination: FindTalkView(), isActive: $showFindTalk) {
+                        actionTile(title: "Find a Talk", systemIcon: "text.bubble")
+                            .onTapGesture {
+                                showFindTalk = true
+                            }
+                    }
                     actionTile(title: "Talk to SafetyNow", systemIcon: "mic")
                 }
                 .padding(.horizontal)

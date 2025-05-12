@@ -11,7 +11,7 @@ import SwiftUI
 struct SafetyNowAppApp: App {
     var body: some Scene {
         WindowGroup {
-            LoginView()
+            OnboardingView()
         }
     }
 }

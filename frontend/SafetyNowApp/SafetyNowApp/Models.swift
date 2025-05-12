@@ -27,9 +27,20 @@ struct HistoryItem: Codable, Identifiable {
     let accessed_at: String
 }
 
+struct TalkCategory: Identifiable {
+    let id = UUID()
+    let icon: String
+    let title: String
+    let description: String
+}
+
+
 enum NetworkError: Error {
     case invalidURL
     case noData
     case decodingError
+    case encodingError
+    case serverError
 }
+
 
