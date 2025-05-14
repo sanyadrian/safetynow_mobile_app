@@ -2,9 +2,10 @@ import SwiftUI
 
 struct DashboardView: View {
     @AppStorage("access_token") var accessToken: String = ""
-    @State private var history: [HistoryItem] = []
     @AppStorage("username") var storedUsername: String = ""
-    @State private var showFindTalk = false
+    @State private var history: [HistoryItem] = []
+    @Binding var selectedTab: Tab
+    @State private var navigateToFindTalk = false
 
     var body: some View {
         NavigationStack {
@@ -28,13 +29,12 @@ struct DashboardView: View {
 
                 // ACTION TILES
                 HStack(spacing: 16) {
-                    NavigationLink(destination: FindTalkView(), isActive: $showFindTalk) {
-                        actionTile(title: "Find a Talk", systemIcon: "text.bubble")
-                            .onTapGesture {
-                                showFindTalk = true
-                            }
+                    actionTile(title: "Find a Talk", systemIcon: "text.bubble") {
+                        selectedTab = .search
                     }
-                    actionTile(title: "Talk to SafetyNow", systemIcon: "mic")
+                    actionTile(title: "Talk to SafetyNow", systemIcon: "mic") {
+                        // You can handle this action later
+                    }
                 }
                 .padding(.horizontal)
 
@@ -80,19 +80,6 @@ struct DashboardView: View {
 
                 Spacer()
 
-                // TAB BAR
-                HStack {
-                    Image(systemName: "house.fill")
-                    Spacer()
-                    Image(systemName: "magnifyingglass")
-                    Spacer()
-                    Image(systemName: "arrow.clockwise")
-                    Spacer()
-                    Image(systemName: "person.crop.circle")
-                }
-                .padding()
-                .background(Color.white)
-                .shadow(radius: 2)
             }
             .padding(.top)
             .onAppear {
@@ -110,18 +97,23 @@ struct DashboardView: View {
         }
     }
 
-    private func actionTile(title: String, systemIcon: String) -> some View {
+    private func actionTile(title: String, systemIcon: String, action: @escaping () -> Void) -> some View {
         VStack {
-            Image(systemName: systemIcon)
-                .resizable()
-                .scaledToFit()
-                .frame(height: 40)
-                .foregroundColor(.white)
-                .padding()
-                .background(Color.blue)
-                .cornerRadius(12)
-            Text(title)
-                .font(.footnote)
+            Button(action: action) {
+                VStack {
+                    Image(systemName: systemIcon)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: 40)
+                        .foregroundColor(.white)
+                        .padding()
+                        .background(Color.blue)
+                        .cornerRadius(12)
+                    Text(title)
+                        .font(.footnote)
+                        .foregroundColor(.primary)
+                }
+            }
         }
         .frame(maxWidth: .infinity)
         .padding()
