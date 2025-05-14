@@ -10,6 +10,9 @@ struct FindTalkView: View {
         ("Calendar", "We’ve already built your annual safety training plan, just click and go.", "doc.on.doc")
     ]
 
+    @Environment(\.dismiss) var dismiss
+    @Binding var selectedTab: Tab
+
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 20) {
@@ -39,7 +42,6 @@ struct FindTalkView: View {
                         .background(Color(.systemGray6))
                         .cornerRadius(20)
                     }
-
                 }
 
                 Spacer()

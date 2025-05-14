@@ -42,5 +42,3 @@ enum NetworkError: Error {
     case encodingError
     case serverError
 }
-
-

@@ -9,6 +9,7 @@ struct LoginView: View {
     @AppStorage("username") var storedUsername: String = ""
     @State private var isLoggedIn = false
     @State private var showRegister = false
+    @State private var selectedTab: Tab = .home
 
     var body: some View {
         NavigationStack {
@@ -81,7 +82,9 @@ struct LoginView: View {
                 .font(.footnote)
 
                 // Navigation links
-                NavigationLink(destination: DashboardView(), isActive: $isLoggedIn) { EmptyView() }
+                NavigationLink(destination: MainView(), isActive: $isLoggedIn) {
+                    EmptyView()
+                }
                 NavigationLink(destination: RegisterView(currentIndex: $currentIndex), isActive: $showRegister) {
                     EmptyView()
                 }
