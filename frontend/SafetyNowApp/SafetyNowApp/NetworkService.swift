@@ -133,26 +133,26 @@ class NetworkService {
             completion(.success(()))
         }.resume()
     }
-    func uploadProfileImage(token: String, imageData: Data, completion: @escaping (Result<String, Error>) -> Void) {
+
+    func uploadProfileImage(image: Data, token: String, completion: @escaping (Result<String, Error>) -> Void) {
         guard let url = URL(string: "\(baseURL)/profile/upload-image") else {
             completion(.failure(NetworkError.invalidURL))
             return
         }
 
+        let boundary = UUID().uuidString
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-
-        let boundary = UUID().uuidString
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
 
         var body = Data()
-
-        body.append("--\(boundary)\r\n")
-        body.append("Content-Disposition: form-data; name=\"file\"; filename=\"profile.jpg\"\r\n")
-        body.append("Content-Type: image/jpeg\r\n\r\n")
-        body.append(imageData)
-        body.append("\r\n--\(boundary)--\r\n")
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"file\"; filename=\"profile.jpg\"\r\n".data(using: .utf8)!)
+        body.append("Content-Type: image/jpeg\r\n\r\n".data(using: .utf8)!)
+        body.append(image)
+        body.append("\r\n".data(using: .utf8)!)
+        body.append("--\(boundary)--\r\n".data(using: .utf8)!)
 
         request.httpBody = body
 
@@ -162,17 +162,23 @@ class NetworkService {
                 return
             }
 
-            guard let data = data,
-                  let result = try? JSONDecoder().decode([String: String].self, from: data),
-                  let imagePath = result["profile_image"] else {
-                completion(.failure(NetworkError.decodingError))
+            guard let data = data else {
+                completion(.failure(NetworkError.noData))
                 return
             }
 
-            completion(.success(imagePath))
+            do {
+                let response = try JSONDecoder().decode([String: String].self, from: data)
+                if let profileImage = response["profile_image"] {
+                    completion(.success(profileImage))
+                } else {
+                    completion(.failure(NetworkError.decodingError))
+                }
+            } catch {
+                completion(.failure(NetworkError.decodingError))
+            }
         }.resume()
     }
-
 }
 
 extension Data {
