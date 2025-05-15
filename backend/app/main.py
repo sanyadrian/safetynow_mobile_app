@@ -2,9 +2,12 @@
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routes import auth, talks, history, tickets
+from fastapi.staticfiles import StaticFiles
+from app.routes import auth, talks, history, tickets, profile
+
 
 app = FastAPI()
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 app.add_middleware(
     CORSMiddleware,
@@ -19,6 +22,7 @@ app.include_router(auth.router)
 app.include_router(talks.router)
 app.include_router(history.router)
 app.include_router(tickets.router)
+app.include_router(profile.router)
 
 
 @app.get("/")

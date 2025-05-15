@@ -2,7 +2,7 @@ import Foundation
 
 class NetworkService {
     static let shared = NetworkService()
-    private let baseURL = "http://192.168.4.25:8000"
+    let baseURL = "http://192.168.4.25:8000"
 
     private init() {}
 
@@ -133,4 +133,53 @@ class NetworkService {
             completion(.success(()))
         }.resume()
     }
+    func uploadProfileImage(token: String, imageData: Data, completion: @escaping (Result<String, Error>) -> Void) {
+        guard let url = URL(string: "\(baseURL)/profile/upload-image") else {
+            completion(.failure(NetworkError.invalidURL))
+            return
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+
+        let boundary = UUID().uuidString
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+
+        var body = Data()
+
+        body.append("--\(boundary)\r\n")
+        body.append("Content-Disposition: form-data; name=\"file\"; filename=\"profile.jpg\"\r\n")
+        body.append("Content-Type: image/jpeg\r\n\r\n")
+        body.append(imageData)
+        body.append("\r\n--\(boundary)--\r\n")
+
+        request.httpBody = body
+
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+
+            guard let data = data,
+                  let result = try? JSONDecoder().decode([String: String].self, from: data),
+                  let imagePath = result["profile_image"] else {
+                completion(.failure(NetworkError.decodingError))
+                return
+            }
+
+            completion(.success(imagePath))
+        }.resume()
+    }
+
 }
+
+extension Data {
+    mutating func append(_ string: String) {
+        if let data = string.data(using: .utf8) {
+            append(data)
+        }
+    }
+}
+
