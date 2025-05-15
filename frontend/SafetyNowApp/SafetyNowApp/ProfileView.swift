@@ -2,123 +2,88 @@ import SwiftUI
 import PhotosUI
 
 struct ProfileView: View {
-    @AppStorage("username") var username: String = ""
-    @AppStorage("email") var email: String = ""
-    @AppStorage("profile_image_url") var profileImageURL: String = ""
-
-    @State private var isNotificationsOn = true
-    @State private var selectedItem: PhotosPickerItem? = nil
-    @State private var profileImage: Image? = nil
-    @State private var imageData: Data? = nil
+    @AppStorage("access_token") var accessToken: String = ""
+    @AppStorage("profile_image") var profileImage: String = ""
+    @State private var selectedItem: PhotosPickerItem?
+    @State private var selectedImageData: Data?
+    @State private var showingImagePicker = false
+    @State private var isLoading = false
+    @State private var errorMessage: String?
     @Binding var selectedTab: Tab
 
     var body: some View {
-        VStack(spacing: 24) {
-            VStack(spacing: 8) {
-                // Image Picker UI
-                VStack {
-                    if let image = profileImage {
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: 100, height: 100)
-                            .clipShape(Circle())
-                    } else {
-                        Circle()
-                            .fill(Color.gray.opacity(0.3))
-                            .frame(width: 100, height: 100)
-                            .overlay(Text("Tap to add photo").font(.caption))
-                    }
-
-                    PhotosPicker(
-                        selection: $selectedItem,
-                        matching: .images,
-                        photoLibrary: .shared()
-                    ) {
-                        Text("Choose Photo")
-                            .foregroundColor(.blue)
-                    }
+        VStack {
+            // Profile Image
+            if let imageData = selectedImageData,
+               let uiImage = UIImage(data: imageData) {
+                Image(uiImage: uiImage)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 120, height: 120)
+                    .clipShape(Circle())
+                    .overlay(Circle().stroke(Color.blue, lineWidth: 2))
+            } else if let profileImageUrl = URL(string: "http://192.168.4.25:8000\(profileImage)") {
+                AsyncImage(url: profileImageUrl) { image in
+                    image
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 120, height: 120)
+                        .clipShape(Circle())
+                        .overlay(Circle().stroke(Color.blue, lineWidth: 2))
+                } placeholder: {
+                    ProgressView()
                 }
-                .onChange(of: selectedItem) { newItem in
-                    Task {
-                        if let data = try? await newItem?.loadTransferable(type: Data.self),
-                           let uiImage = UIImage(data: data) {
-                            imageData = data
-                            profileImage = Image(uiImage: uiImage)
-
-                            if let token = UserDefaults.standard.string(forKey: "access_token") {
-                                NetworkService.shared.uploadProfileImage(token: token, imageData: data) { result in
-                                    switch result {
-                                    case .success(let imagePath):
-                                        DispatchQueue.main.async {
-                                            profileImageURL = "\(NetworkService.shared.baseURL)/\(imagePath)"
-                                        }
-                                    case .failure(let error):
-                                        print("Upload failed: \(error.localizedDescription)")
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // Name & Email
-                Text(username)
-                    .font(.headline)
-                Text(email)
-                    .font(.subheadline)
+            } else {
+                Image(systemName: "person.circle.fill")
+                    .resizable()
+                    .frame(width: 120, height: 120)
                     .foregroundColor(.gray)
             }
 
-            HStack {
-                Text("Notification")
-                    .font(.subheadline)
-                Spacer()
-                Toggle("", isOn: $isNotificationsOn)
-                    .labelsHidden()
+            PhotosPicker(selection: $selectedItem,
+                        matching: .images,
+                        photoLibrary: .shared()) {
+                Text("Change Photo")
+                    .foregroundColor(.blue)
             }
-            .padding(.horizontal)
-
-            // Menu Items
-            VStack(spacing: 24) {
-                profileRow(title: "Settings")
-                profileRow(title: "Language")
-                profileRow(title: "Security")
-                profileRow(title: "Help Center")
-            }
-            .padding(.horizontal)
-
-            Spacer()
-        }
-        .padding(.top)
-        .onAppear {
-            loadProfileImage()
-        }
-    }
-
-    private func loadProfileImage() {
-        guard let url = URL(string: profileImageURL), !profileImageURL.isEmpty else { return }
-
-        URLSession.shared.dataTask(with: url) { data, _, _ in
-            if let data = data, let uiImage = UIImage(data: data) {
-                DispatchQueue.main.async {
-                    self.profileImage = Image(uiImage: uiImage)
+            .onChange(of: selectedItem) { newItem in
+                Task {
+                    if let data = try? await newItem?.loadTransferable(type: Data.self) {
+                        selectedImageData = data
+                        uploadImage(data)
+                    }
                 }
             }
-        }.resume()
+
+            if isLoading {
+                ProgressView()
+            }
+
+            if let error = errorMessage {
+                Text(error)
+                    .foregroundColor(.red)
+                    .font(.caption)
+            }
+
+            Spacer()
+        }
+        .padding()
     }
 
-    private func profileRow(title: String) -> some View {
-        HStack {
-            Text(title)
-                .font(.headline)
-            Spacer()
-            Image(systemName: "arrow.right")
-                .foregroundColor(.blue)
-                .padding(8)
-                .background(Color.white)
-                .cornerRadius(20)
-                .shadow(radius: 1)
+    private func uploadImage(_ imageData: Data) {
+        isLoading = true
+        errorMessage = nil
+        
+        NetworkService.shared.uploadProfileImage(image: imageData, token: accessToken) { result in
+            DispatchQueue.main.async {
+                isLoading = false
+                switch result {
+                case .success(let imagePath):
+                    profileImage = imagePath
+                case .failure(let error):
+                    errorMessage = error.localizedDescription
+                }
+            }
         }
     }
 }
