@@ -5,7 +5,7 @@ struct FindTalkView: View {
         ("Hazards", "Search for a safety talk by workplace hazard.", "pencil"),
         ("Industry", "Search for a safety talk by Industry.", "pencil"),
         ("Send a Talk", "Send a safety talk to employees.", "calendar"),
-        ("Translate", "Get a translated safety talk.", "character.cursor.ibeam"),
+        ("Translate", "Get a translated safety talk.", "globe"),
         ("Tools", "Access games, checklists, and other safety tools.", "lightbulb"),
         ("Calendar", "We’ve already built your annual safety training plan, just click and go.", "doc.on.doc")
     ]

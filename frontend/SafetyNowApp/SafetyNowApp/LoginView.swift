@@ -5,6 +5,7 @@ struct LoginView: View {
     @State private var username = ""
     @State private var password = ""
     @State private var loginMessage = ""
+    @AppStorage("profile_image") var profileImage: String = ""
     @AppStorage("access_token") var accessToken: String = ""
     @AppStorage("username") var storedUsername: String = ""
     @State private var isLoggedIn = false
@@ -101,6 +102,7 @@ struct LoginView: View {
                 case .success(let response):
                     accessToken = response.access_token
                     storedUsername = response.user.username
+                    profileImage = response.user.profile_image ?? ""
                     isLoggedIn = true
                 case .failure(let error):
                     loginMessage = "\(error.localizedDescription)"

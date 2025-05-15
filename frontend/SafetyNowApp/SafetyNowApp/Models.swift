@@ -12,6 +12,7 @@ struct User: Codable {
     let username: String
     let email: String
     let phone: String
+    let profile_image: String?
 }
 
 struct Talk: Codable, Identifiable {

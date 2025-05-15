@@ -13,6 +13,7 @@ class User(Base):
     email = Column(String, unique=True, index=True)
     phone = Column(String, nullable=True)
     hashed_password = Column(String)
+    profile_image = Column(String, nullable=True)
 
 
 class TalkHistory(Base):

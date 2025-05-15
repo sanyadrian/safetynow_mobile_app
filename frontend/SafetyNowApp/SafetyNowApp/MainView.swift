@@ -11,9 +11,9 @@ struct MainView: View {
             case .search:
                 FindTalkView(selectedTab: $selectedTab)
             case .refresh:
-                Text("Refresh Page")
+                HistoryView(selectedTab: $selectedTab)
             case .profile:
-                Text("Profile Page")
+                ProfileView(selectedTab: $selectedTab)
             }
 
             BottomNavBar(selectedTab: selectedTab) { tab in
