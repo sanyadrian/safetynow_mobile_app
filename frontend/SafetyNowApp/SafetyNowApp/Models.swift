@@ -35,6 +35,13 @@ struct TalkCategory: Identifiable {
     let description: String
 }
 
+struct Ticket: Codable {
+    let name: String
+    let email: String
+    let phone: String
+    let topic: String
+    let message: String
+}
 
 enum NetworkError: Error {
     case invalidURL

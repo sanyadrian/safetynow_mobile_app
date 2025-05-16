@@ -103,6 +103,8 @@ struct LoginView: View {
                     accessToken = response.access_token
                     storedUsername = response.user.username
                     profileImage = response.user.profile_image ?? ""
+                    UserDefaults.standard.set(response.user.email, forKey: "email")
+                    UserDefaults.standard.set(response.user.phone, forKey: "phone")
                     isLoggedIn = true
                 case .failure(let error):
                     loginMessage = "\(error.localizedDescription)"
