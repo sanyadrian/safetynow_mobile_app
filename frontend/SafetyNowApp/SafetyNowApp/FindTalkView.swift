@@ -7,7 +7,7 @@ struct FindTalkView: View {
         ("Send a Talk", "Send a safety talk to employees.", "calendar"),
         ("Translate", "Get a translated safety talk.", "globe"),
         ("Tools", "Access games, checklists, and other safety tools.", "lightbulb"),
-        ("Calendar", "We’ve already built your annual safety training plan, just click and go.", "doc.on.doc")
+        ("Calendar", "We've already built your annual safety training plan, just click and go.", "doc.on.doc")
     ]
 
     @Environment(\.dismiss) var dismiss
@@ -44,20 +44,23 @@ struct FindTalkView: View {
                     }
                 }
 
-                Spacer()
-
-                Button(action: {
-                    // Handle Access More action
-                }) {
-                    Text("ACCESS MORE")
-                        .font(.footnote)
-                        .foregroundColor(.white)
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(Color.blue)
-                        .cornerRadius(20)
+                HStack {
+                    Spacer()
+                    Button(action: {
+                        // Handle Access More action
+                    }) {
+                        Text("ACCESS MORE")
+                            .font(.footnote)
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 24)
+                            .padding(.vertical, 12)
+                            .background(Color(red: 59/255, green: 89/255, blue: 255/255))
+                            .cornerRadius(20)
+                    }
                 }
-                .padding(.top, 16)
+                .padding(.trailing, 8)
+
+                Spacer()
             }
             .padding(.horizontal)
         }

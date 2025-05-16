@@ -11,7 +11,7 @@ struct OnboardingView: View {
     @State private var currentIndex = 0
 
     private let slides: [OnboardingSlide] = [
-        OnboardingSlide(imageName: "onboarding1", title: "Keep Workplace Safety Top of Mind", description: "Make sure your OHS message is compliant & engaging so that it's effective too."),
+        OnboardingSlide(imageName: "onboarding1", title: "Keep Workplace Safety Top of Mind \n", description: "Make sure your OHS message is compliant & engaging so that it's effective too."),
         OnboardingSlide(imageName: "onboarding2", title: "Reduce Accidents & Incidents in Your Workplace", description: "The right safety message at the right time makes all the difference.")
     ]
 
@@ -28,7 +28,7 @@ struct OnboardingView: View {
                 .tag(slides.count)
         }
         .tabViewStyle(PageTabViewStyle())
-        .edgesIgnoringSafeArea(.all)
+        .ignoresSafeArea(.all)
     }
 }
 
@@ -39,13 +39,23 @@ struct OnboardingSlideView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Color.gray
-                .frame(height: UIScreen.main.bounds.height * 0.5)
-                .overlay(
-                    Image(slide.imageName)
-                        .resizable()
-                        .scaledToFit()
-                )
+            ZStack {
+                Color.gray
+                Group {
+                    if let uiImage = UIImage(named: slide.imageName) {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                    } else {
+                        Image(systemName: "photo")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .foregroundColor(.white)
+                            .padding(40)
+                    }
+                }
+            }
+            .frame(height: UIScreen.main.bounds.height * 0.5)
 
             VStack(spacing: 16) {
                 HStack(spacing: 8) {
@@ -68,5 +78,6 @@ struct OnboardingSlideView: View {
             }
             .padding()
         }
+        .ignoresSafeArea(edges: .top)
     }
 }
