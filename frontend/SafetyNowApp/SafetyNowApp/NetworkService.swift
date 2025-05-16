@@ -179,6 +179,54 @@ class NetworkService {
             }
         }.resume()
     }
+
+    func submitTicket(ticket: Ticket, completion: @escaping (Result<Void, Error>) -> Void) {
+        guard let url = URL(string: "\(baseURL)/ticket/") else {
+            completion(.failure(NetworkError.invalidURL))
+            return
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        // Get the access token from AppStorage
+        if let token = UserDefaults.standard.string(forKey: "access_token") {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        } else {
+            completion(.failure(NetworkError.serverError))
+            return
+        }
+
+        do {
+            let jsonData = try JSONEncoder().encode(ticket)
+            request.httpBody = jsonData
+        } catch {
+            completion(.failure(NetworkError.encodingError))
+            return
+        }
+
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+
+            guard let httpResponse = response as? HTTPURLResponse else {
+                completion(.failure(NetworkError.serverError))
+                return
+            }
+
+            switch httpResponse.statusCode {
+            case 200...299:
+                completion(.success(()))
+            case 401:
+                completion(.failure(NetworkError.serverError))
+            default:
+                completion(.failure(NetworkError.serverError))
+            }
+        }.resume()
+    }
 }
 
 extension Data {

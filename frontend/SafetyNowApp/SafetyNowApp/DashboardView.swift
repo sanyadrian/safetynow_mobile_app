@@ -6,6 +6,7 @@ struct DashboardView: View {
     @State private var history: [HistoryItem] = []
     @Binding var selectedTab: Tab
     @State private var navigateToFindTalk = false
+    @State private var showTicketSubmission = false
 
     var body: some View {
         NavigationStack {
@@ -33,7 +34,7 @@ struct DashboardView: View {
                         selectedTab = .search
                     }
                     actionTile(title: "Talk to SafetyNow", systemIcon: "mic") {
-                        // You can handle this action later
+                        showTicketSubmission = true
                     }
                 }
                 .padding(.horizontal)
@@ -82,6 +83,9 @@ struct DashboardView: View {
 
             }
             .padding(.top)
+            .sheet(isPresented: $showTicketSubmission) {
+                TicketSubmissionView()
+            }
             .onAppear {
                 NetworkService.shared.getHistory(token: accessToken) { result in
                     DispatchQueue.main.async {

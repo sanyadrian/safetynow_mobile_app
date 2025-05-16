@@ -32,6 +32,7 @@ class Ticket(Base):
     name = Column(String)
     email = Column(String)
     phone = Column(String)
+    topic = Column(String)
     message = Column(String)
     user_id = Column(Integer)
 

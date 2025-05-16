@@ -34,4 +34,5 @@ class TicketCreate(BaseModel):
     name: str
     email: str
     phone: str
+    topic: str
     message: str
