@@ -3,6 +3,7 @@ import SwiftUI
 struct TalkDetailView: View {
     let talk: TalkModel
     var onBack: (() -> Void)? = nil
+    @AppStorage("access_token") var accessToken: String = ""
 
     var body: some View {
         VStack(spacing: 0) {
@@ -81,6 +82,16 @@ struct TalkDetailView: View {
                 Spacer()
         }
         .background(Color.white.ignoresSafeArea())
+        .onAppear {
+            NetworkService.shared.addToHistory(token: accessToken, talkTitle: talk.title) { result in
+                switch result {
+                case .success:
+                    print("Successfully added talk to history")
+                case .failure(let error):
+                    print("Failed to add talk to history: \(error.localizedDescription)")
+                }
+            }
+        }
     }
 }
 
