@@ -190,7 +190,6 @@ class NetworkService {
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
-        // Get the access token from AppStorage
         if let token = UserDefaults.standard.string(forKey: "access_token") {
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         } else {

@@ -5,7 +5,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from app import models, schemas
 from app.database import SessionLocal, engine
-from app.token import create_access_token
+from app.jwt_token import create_access_token
 
 from passlib.context import CryptContext
 

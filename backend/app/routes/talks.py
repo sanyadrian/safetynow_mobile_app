@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from app.database import SessionLocal
-from app.token import verify_access_token
+from app.jwt_token import verify_access_token
 from app import models
 
 router = APIRouter(
@@ -25,19 +25,35 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
     return payload["user_id"]
 
-@router.get("/")
-def get_talks(
-    db: Session = Depends(get_db),
-    user_id: int = Depends(get_current_user)
-):
-    return db.query(models.Talk).all()
+@router.get("/hazards")
+def get_unique_hazards(db: Session = Depends(get_db), current_user = Depends(get_current_user)):
+    hazards = db.query(models.Talk.hazard).distinct().all()
+    return [h[0] for h in hazards if h[0]]
 
+@router.get("/industries")
+def get_unique_industries(db: Session = Depends(get_db), current_user = Depends(get_current_user)):
+    industries = db.query(models.Talk.industry).distinct().all()
+    return [i[0] for i in industries if i[0]]
+
+@router.get("/by_hazard/{hazard}")
+def get_talks_by_hazard(hazard: str, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
+    talks = db.query(models.Talk).filter(models.Talk.hazard == hazard).all()
+    return talks
+
+@router.get("/by_industry/{industry}")
+def get_talks_by_industry(industry: str, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
+    talks = db.query(models.Talk).filter(models.Talk.industry == industry).all()
+    return talks
+
+@router.get("/")
+def get_talks(db: Session = Depends(get_db), current_user = Depends(get_current_user)):
+    return db.query(models.Talk).all()
 
 @router.get("/{talk_id}")
 def get_talk_by_id(
     talk_id: int,
     db: Session = Depends(get_db),
-    user_id: int = Depends(get_current_user)
+    current_user = Depends(get_current_user)
 ):
     talk = db.query(models.Talk).filter(models.Talk.id == talk_id).first()
     if not talk:

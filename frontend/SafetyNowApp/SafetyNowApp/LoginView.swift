@@ -17,7 +17,6 @@ struct LoginView: View {
             VStack(spacing: 30) {
                 Spacer()
 
-                // Title
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Welcome To")
                         .font(.largeTitle).bold()
@@ -31,29 +30,24 @@ struct LoginView: View {
                         .foregroundColor(.gray)
                 }.frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal)
 
-                // Username field
                 TextField("Username", text: $username)
                     .padding()
                     .background(Color(.systemGray6))
                     .cornerRadius(10)
 
-                // Password field
                 SecureField("Password", text: $password)
                     .padding()
                     .background(Color(.systemGray6))
                     .cornerRadius(10)
 
-                // Forgot Password
                 HStack {
                     Spacer()
                     Button("Forgot Password?") {
-                        // Handle later
                     }
                     .font(.footnote)
                     .foregroundColor(.blue)
                 }
 
-                // Login button
                 Button(action: login) {
                     Text("Login")
                         .frame(maxWidth: .infinity)
@@ -63,7 +57,6 @@ struct LoginView: View {
                         .cornerRadius(10)
                 }
 
-                // Login message
                 if !loginMessage.isEmpty {
                     Text(loginMessage)
                         .foregroundColor(.red)
@@ -71,7 +64,6 @@ struct LoginView: View {
 
                 Spacer()
 
-                // Register link
                 HStack {
                     Text("Don't have an account?")
                     Button("Register") {

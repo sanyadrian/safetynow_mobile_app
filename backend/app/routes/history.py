@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from app import models, schemas
 from app.database import SessionLocal
 from fastapi.security import OAuth2PasswordBearer
-from app.token import verify_access_token
+from app.jwt_token import verify_access_token
 from datetime import datetime
 
 router = APIRouter(

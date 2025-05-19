@@ -43,3 +43,5 @@ class Talk(Base):
     title = Column(String, nullable=False)
     category = Column(String, nullable=False)
     description = Column(String, nullable=True)
+    hazard = Column(String, nullable=True)
+    industry = Column(String, nullable=True)
