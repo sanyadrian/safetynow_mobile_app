@@ -4,6 +4,7 @@ enum SubScreen {
     case hazardTiles
     case industryTiles
     case talksList(filterType: TalkFilterType, filterValue: String)
+    case talkDetail(talk: TalkModel, filterType: TalkFilterType, filterValue: String)
 }
 
 struct MainView: View {
@@ -27,7 +28,17 @@ struct MainView: View {
                             self.subScreen = .talksList(filterType: .industry, filterValue: value)
                         })
                     case .talksList(let filterType, let filterValue):
-                        TalksListView(filterType: filterType, filterValue: filterValue)
+                        TalksListView(
+                                    filterType: filterType,
+                                    filterValue: filterValue,
+                                    onTalkTap: { talk in
+                                        self.subScreen = .talkDetail(talk: talk, filterType: filterType, filterValue: filterValue)
+                                    }
+                                )
+                    case .talkDetail(let talk, let filterType, let filterValue):
+                                TalkDetailView(talk: talk, onBack: {
+                                    self.subScreen = .talksList(filterType: filterType, filterValue: filterValue)
+                                })
                     }
                 } else {
                     FindTalkView(

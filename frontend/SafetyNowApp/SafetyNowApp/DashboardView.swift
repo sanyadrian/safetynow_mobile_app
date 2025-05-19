@@ -10,7 +10,26 @@ struct DashboardView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 16) {
+            VStack {
+                Button(action: {
+                    // Clear all UserDefaults
+                    if let bundleID = Bundle.main.bundleIdentifier {
+                        UserDefaults.standard.removePersistentDomain(forName: bundleID)
+                    }
+                    // Force app restart
+                    exit(0)
+                }) {
+                    Text("RESET APP STATE")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(Color.red)
+                        .cornerRadius(10)
+                }
+                .padding(.horizontal)
+                .padding(.top, 20)
+
                 HStack {
                     Image(systemName: "line.horizontal.3")
                     Spacer()

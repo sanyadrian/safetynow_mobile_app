@@ -17,6 +17,7 @@ struct TalkModel: Identifiable, Decodable {
 struct TalksListView: View {
     let filterType: TalkFilterType
     let filterValue: String
+    let onTalkTap: (TalkModel) -> Void
     @AppStorage("access_token") var accessToken: String = ""
     @State private var talks: [TalkModel] = []
     @State private var isLoading = true
@@ -34,26 +35,26 @@ struct TalksListView: View {
                 ScrollView {
                     VStack(spacing: 16) {
                         ForEach(talks) { talk in
-                            HStack(alignment: .center, spacing: 12) {
-                                Image(systemName: "text.bubble")
-                                    .foregroundColor(Color.blue)
-                                    .frame(width: 32, height: 32)
-                                Text(talk.title)
-                                    .font(.body)
-                                    .foregroundColor(.primary)
-                                    .multilineTextAlignment(.leading)
-                                Spacer()
-                                Button(action: {
-                                    // Handle more action
-                                }) {
-                                    Image(systemName: "ellipsis")
+                            Button(action: {
+                                onTalkTap(talk)
+                            }) {
+                                HStack(alignment: .center, spacing: 12) {
+                                    Image(systemName: "text.bubble")
+                                        .foregroundColor(Color.blue)
+                                        .frame(width: 32, height: 32)
+                                    Text(talk.title)
+                                        .font(.body)
+                                        .foregroundColor(.primary)
+                                        .multilineTextAlignment(.leading)
+                                    Spacer()
+                                    Image(systemName: "chevron.right")
                                         .foregroundColor(.gray)
                                 }
-                            }
-                            .padding()
-                            .background(Color(.systemGray6))
-                            .cornerRadius(16)
-                            .shadow(color: Color(.systemGray4).opacity(0.2), radius: 4, x: 0, y: 2)
+                                    .padding()
+                                    .background(Color(.systemGray6))
+                                    .cornerRadius(16)
+                                    .shadow(color: Color(.systemGray4).opacity(0.2), radius: 4, x: 0, y: 2)
+                                }
                         }
                     }
                     .padding(.top, 24)
@@ -111,5 +112,5 @@ struct TalksListView: View {
 }
 
 #Preview {
-    TalksListView(filterType: .hazard, filterValue: "Hazard A")
+    TalksListView(filterType: .hazard, filterValue: "Hazard A", onTalkTap: { _ in })
 } 
