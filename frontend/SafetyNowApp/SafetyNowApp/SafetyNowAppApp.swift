@@ -9,9 +9,14 @@ import SwiftUI
 
 @main
 struct SafetyNowAppApp: App {
+    @AppStorage("isLoggedIn") var isLoggedIn: Bool = false
     var body: some Scene {
         WindowGroup {
-            OnboardingView()
+            if isLoggedIn {
+                MainView()
+            } else {
+                OnboardingView()
+            }
         }
     }
 }

@@ -1,41 +1,51 @@
 import SwiftUI
 
+enum SubScreen {
+    case hazardTiles
+    case industryTiles
+    case talksList(filterType: TalkFilterType, filterValue: String)
+}
+
 struct MainView: View {
     @State private var selectedTab: Tab = .home
+    @State private var subScreen: SubScreen? = nil
 
     var body: some View {
-        TabView(selection: $selectedTab) {
-            NavigationStack {
+        VStack(spacing: 0) {
+            switch selectedTab {
+            case .home:
                 DashboardView(selectedTab: $selectedTab)
-            }
-            .tabItem {
-                Label("Home", systemImage: "house")
-            }
-            .tag(Tab.home)
-
-            NavigationStack {
-                FindTalkView(selectedTab: $selectedTab)
-            }
-            .tabItem {
-                Label("Find a Talk", systemImage: "magnifyingglass")
-            }
-            .tag(Tab.search)
-
-            NavigationStack {
+            case .search:
+                if let subScreen = subScreen {
+                    switch subScreen {
+                    case .hazardTiles:
+                         HazardTilesView(onTalksTap: { value in
+                            self.subScreen = .talksList(filterType: .hazard, filterValue: value)
+                        })
+                    case .industryTiles:
+                        IndustryTilesView(onTalksTap: { value in
+                            self.subScreen = .talksList(filterType: .industry, filterValue: value)
+                        })
+                    case .talksList(let filterType, let filterValue):
+                        TalksListView(filterType: filterType, filterValue: filterValue)
+                    }
+                } else {
+                    FindTalkView(
+                        selectedTab: $selectedTab,
+                        onHazardTap: { self.subScreen = .hazardTiles },
+                        onIndustryTap: { self.subScreen = .industryTiles }
+                    )
+                }
+            case .refresh:
                 HistoryView(selectedTab: $selectedTab)
-            }
-            .tabItem {
-                Label("History", systemImage: "clock.arrow.circlepath")
-            }
-            .tag(Tab.refresh)
-
-            NavigationStack {
+            case .profile:
                 ProfileView(selectedTab: $selectedTab)
             }
-            .tabItem {
-                Label("Profile", systemImage: "person")
+
+            BottomNavBar(selectedTab: selectedTab) { tab in
+                selectedTab = tab
+                subScreen = nil // Reset subScreen when switching tabs
             }
-            .tag(Tab.profile)
         }
     }
 }

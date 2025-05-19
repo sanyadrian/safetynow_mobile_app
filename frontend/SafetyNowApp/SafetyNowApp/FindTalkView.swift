@@ -12,8 +12,8 @@ struct FindTalkView: View {
 
     @Environment(\.dismiss) var dismiss
     @Binding var selectedTab: Tab
-    @State private var showHazards = false
-    @State private var showIndustries = false
+    let onHazardTap: () -> Void
+    let onIndustryTap: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -26,15 +26,13 @@ struct FindTalkView: View {
                 ForEach(categories.indices, id: \.self) { index in
                     let category = categories[index]
                     if category.0 == "Hazards" {
-                        NavigationLink(destination: HazardTilesView(), isActive: $showHazards) {
+                        Button(action: onHazardTap) {
                             tileView(category: category)
                         }
-                        .simultaneousGesture(TapGesture().onEnded { showHazards = true })
                     } else if category.0 == "Industry" {
-                        NavigationLink(destination: IndustryTilesView(), isActive: $showIndustries) {
+                        Button(action: onIndustryTap) {
                             tileView(category: category)
                         }
-                        .simultaneousGesture(TapGesture().onEnded { showIndustries = true })
                     } else {
                         tileView(category: category)
                     }

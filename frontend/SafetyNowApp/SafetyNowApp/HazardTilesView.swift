@@ -5,7 +5,7 @@ struct HazardTilesView: View {
     @State private var hazards: [String] = []
     @State private var isLoading = true
     @State private var selectedHazard: String? = nil
-    @State private var showTalks = false
+    let onTalksTap: (String) -> Void
     
     var body: some View {
         VStack {
@@ -16,8 +16,7 @@ struct HazardTilesView: View {
                     LazyVGrid(columns: [GridItem(.adaptive(minimum: 120))], spacing: 20) {
                         ForEach(hazards, id: \.self) { hazard in
                             Button(action: {
-                                selectedHazard = hazard
-                                showTalks = true
+                                onTalksTap(hazard)
                             }) {
                                 Text(hazard)
                                     .frame(maxWidth: .infinity, minHeight: 80)
@@ -34,11 +33,6 @@ struct HazardTilesView: View {
         }
         .navigationTitle("Hazards")
         .onAppear(perform: fetchHazards)
-        .navigationDestination(isPresented: $showTalks) {
-            if let hazard = selectedHazard {
-                TalksListView(filterType: .hazard, filterValue: hazard)
-            }
-        }
     }
     
     func fetchHazards() {
@@ -61,5 +55,5 @@ struct HazardTilesView: View {
 }
 
 #Preview {
-    HazardTilesView()
+    HazardTilesView(onTalksTap: { _ in })
 } 
