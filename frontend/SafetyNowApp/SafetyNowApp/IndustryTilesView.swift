@@ -5,7 +5,7 @@ struct IndustryTilesView: View {
     @State private var industries: [String] = []
     @State private var isLoading = true
     @State private var selectedIndustry: String? = nil
-    @State private var showTalks = false
+    let onTalksTap: (String) -> Void
     
     var body: some View {
         VStack {
@@ -16,8 +16,7 @@ struct IndustryTilesView: View {
                     LazyVGrid(columns: [GridItem(.adaptive(minimum: 120))], spacing: 20) {
                         ForEach(industries, id: \.self) { industry in
                             Button(action: {
-                                selectedIndustry = industry
-                                showTalks = true
+                                onTalksTap(industry)
                             }) {
                                 Text(industry)
                                     .frame(maxWidth: .infinity, minHeight: 80)
@@ -34,11 +33,6 @@ struct IndustryTilesView: View {
         }
         .navigationTitle("Industries")
         .onAppear(perform: fetchIndustries)
-        .navigationDestination(isPresented: $showTalks) {
-            if let industry = selectedIndustry {
-                TalksListView(filterType: .industry, filterValue: industry)
-            }
-        }
     }
     
     func fetchIndustries() {
@@ -61,5 +55,5 @@ struct IndustryTilesView: View {
 }
 
 #Preview {
-    IndustryTilesView()
+    IndustryTilesView(onTalksTap: { _ in })
 } 

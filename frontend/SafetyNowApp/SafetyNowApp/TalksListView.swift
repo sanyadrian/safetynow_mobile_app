@@ -51,7 +51,7 @@ struct TalksListView: View {
                                 }
                             }
                             .padding()
-                            .background(Color.white)
+                            .background(Color(.systemGray6))
                             .cornerRadius(16)
                             .shadow(color: Color(.systemGray4).opacity(0.2), radius: 4, x: 0, y: 2)
                         }
@@ -78,7 +78,7 @@ struct TalksListView: View {
                 .padding(.bottom, 24)
             }
         }
-        .background(Color(.systemGroupedBackground).ignoresSafeArea())
+        .background(Color.white.ignoresSafeArea())
         .navigationTitle(filterValue)
         .navigationBarTitleDisplayMode(.inline)
         .onAppear(perform: fetchTalks)

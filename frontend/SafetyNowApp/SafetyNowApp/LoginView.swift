@@ -8,7 +8,7 @@ struct LoginView: View {
     @AppStorage("profile_image") var profileImage: String = ""
     @AppStorage("access_token") var accessToken: String = ""
     @AppStorage("username") var storedUsername: String = ""
-    @State private var isLoggedIn = false
+    @AppStorage("isLoggedIn") var isLoggedIn: Bool = false
     @State private var showRegister = false
     @State private var selectedTab: Tab = .home
 
@@ -74,10 +74,7 @@ struct LoginView: View {
                 }
                 .font(.footnote)
 
-                // Navigation links
-                NavigationLink(destination: MainView(), isActive: $isLoggedIn) {
-                    EmptyView()
-                }
+                // Navigation link for register only
                 NavigationLink(destination: RegisterView(currentIndex: $currentIndex), isActive: $showRegister) {
                     EmptyView()
                 }

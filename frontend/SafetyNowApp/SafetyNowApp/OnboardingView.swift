@@ -17,13 +17,11 @@ struct OnboardingView: View {
 
     var body: some View {
         TabView(selection: $currentIndex) {
-            // First 2 slides
             ForEach(slides.indices, id: \.self) { index in
                 OnboardingSlideView(slide: slides[index], currentIndex: currentIndex, totalSlides: slides.count + 1)
                     .tag(index)
             }
 
-            // Third slide is actual login view
             LoginView(currentIndex: $currentIndex)
                 .tag(slides.count)
         }
