@@ -36,3 +36,18 @@ class TicketCreate(BaseModel):
     phone: str
     topic: str
     message: str
+
+class TalkBase(BaseModel):
+    title: str
+    category: str
+    description: Optional[str] = None
+    hazard: Optional[str] = None
+    industry: Optional[str] = None
+
+class TalkCreate(TalkBase):
+    pass
+
+class TalkOut(TalkBase):
+    id: int
+    class Config:
+        orm_mode = True

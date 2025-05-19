@@ -4,21 +4,38 @@ struct MainView: View {
     @State private var selectedTab: Tab = .home
 
     var body: some View {
-        VStack(spacing: 0) {
-            switch selectedTab {
-            case .home:
+        TabView(selection: $selectedTab) {
+            NavigationStack {
                 DashboardView(selectedTab: $selectedTab)
-            case .search:
+            }
+            .tabItem {
+                Label("Home", systemImage: "house")
+            }
+            .tag(Tab.home)
+
+            NavigationStack {
                 FindTalkView(selectedTab: $selectedTab)
-            case .refresh:
+            }
+            .tabItem {
+                Label("Find a Talk", systemImage: "magnifyingglass")
+            }
+            .tag(Tab.search)
+
+            NavigationStack {
                 HistoryView(selectedTab: $selectedTab)
-            case .profile:
+            }
+            .tabItem {
+                Label("History", systemImage: "clock.arrow.circlepath")
+            }
+            .tag(Tab.refresh)
+
+            NavigationStack {
                 ProfileView(selectedTab: $selectedTab)
             }
-
-            BottomNavBar(selectedTab: selectedTab) { tab in
-                selectedTab = tab
+            .tabItem {
+                Label("Profile", systemImage: "person")
             }
+            .tag(Tab.profile)
         }
     }
 }

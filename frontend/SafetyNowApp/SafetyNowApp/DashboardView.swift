@@ -11,7 +11,6 @@ struct DashboardView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 16) {
-                // HEADER
                 HStack {
                     Image(systemName: "line.horizontal.3")
                     Spacer()
@@ -28,7 +27,6 @@ struct DashboardView: View {
                 }
                 .padding(.horizontal)
 
-                // ACTION TILES
                 HStack(spacing: 16) {
                     actionTile(title: "Find a Talk", systemIcon: "text.bubble") {
                         selectedTab = .search
@@ -56,7 +54,6 @@ struct DashboardView: View {
                 .cornerRadius(16)
                 .padding(.horizontal)
 
-                // HISTORY
                 VStack(alignment: .leading, spacing: 8) {
                     Text("History")
                         .font(.title3)
