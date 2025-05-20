@@ -15,6 +15,7 @@ struct FindTalkView: View {
     let onHazardTap: () -> Void
     let onIndustryTap: () -> Void
     @State private var showUpgrade = false
+    @State private var showCalendar = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -35,6 +36,10 @@ struct FindTalkView: View {
                         Button(action: onIndustryTap) {
                             tileView(category: category)
                         }
+                    } else if category.0 == "Calendar" {
+                        Button(action: { showCalendar = true }) {
+                            tileView(category: category)
+                        }
                     } else {
                         tileView(category: category)
                     }
@@ -42,6 +47,7 @@ struct FindTalkView: View {
             }
             Spacer()
             NavigationLink(destination: UpgradePlanView(), isActive: $showUpgrade) { EmptyView() }
+            NavigationLink(destination: CalendarView(), isActive: $showCalendar) { EmptyView() }
             HStack {
                 Spacer()
                 Button(action: { showUpgrade = true }) {
