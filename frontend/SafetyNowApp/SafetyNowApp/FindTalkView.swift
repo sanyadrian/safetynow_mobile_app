@@ -14,12 +14,14 @@ struct FindTalkView: View {
     @Binding var selectedTab: Tab
     let onHazardTap: () -> Void
     let onIndustryTap: () -> Void
+    @State private var showUpgrade = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             Text("Explore")
                 .font(.title)
                 .bold()
+                .frame(maxWidth: .infinity, alignment: .center)
                 .padding(.top)
 
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 20) {
@@ -38,26 +40,24 @@ struct FindTalkView: View {
                     }
                 }
             }
-
+            Spacer()
+            NavigationLink(destination: UpgradePlanView(), isActive: $showUpgrade) { EmptyView() }
             HStack {
                 Spacer()
-                Button(action: {
-                    // Handle Access More action
-                }) {
+                Button(action: { showUpgrade = true }) {
                     Text("ACCESS MORE")
                         .font(.footnote)
                         .foregroundColor(.white)
                         .padding(.horizontal, 24)
                         .padding(.vertical, 12)
-                        .background(Color(red: 59/255, green: 89/255, blue: 255/255))
+                        .background(Color.blue)
                         .cornerRadius(20)
                 }
+                .padding(.trailing, 32)
+                .padding(.bottom, 24)
             }
-            .padding(.trailing, 8)
-
-            Spacer()
         }
-        .padding(.horizontal)
+        .background(Color.white.ignoresSafeArea())
     }
 
     private func tileView(category: (String, String, String)) -> some View {

@@ -21,6 +21,7 @@ struct TalksListView: View {
     @AppStorage("access_token") var accessToken: String = ""
     @State private var talks: [TalkModel] = []
     @State private var isLoading = true
+    @State private var showUpgrade = false
     
     var body: some View {
         VStack(spacing: 0) {
@@ -64,8 +65,9 @@ struct TalksListView: View {
             Spacer()
             HStack {
                 Spacer()
+                NavigationLink(destination: UpgradePlanView(), isActive: $showUpgrade) { EmptyView() }
                 Button(action: {
-                    // Handle Access More action
+                    showUpgrade = true
                 }) {
                     Text("ACCESS MORE")
                         .font(.footnote)

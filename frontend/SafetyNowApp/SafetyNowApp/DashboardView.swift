@@ -10,95 +10,96 @@ struct DashboardView: View {
 
     var body: some View {
         NavigationStack {
-            VStack {
-                Button(action: {
-                    // Clear all UserDefaults
-                    if let bundleID = Bundle.main.bundleIdentifier {
-                        UserDefaults.standard.removePersistentDomain(forName: bundleID)
-                    }
-                    // Force app restart
-                    exit(0)
-                }) {
-                    Text("RESET APP STATE")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(Color.red)
-                        .cornerRadius(10)
-                }
-                .padding(.horizontal)
-                .padding(.top, 20)
-
-                HStack {
-                    Image(systemName: "line.horizontal.3")
-                    Spacer()
-                    VStack(alignment: .center) {
-                        Text("Welcome Back")
-                            .font(.subheadline)
-                            .foregroundColor(.gray)
-                        Text("\(storedUsername)")
-                            .font(.headline)
-                            .bold()
-                    }
-                    Spacer()
-                    Image(systemName: "bell")
-                }
-                .padding(.horizontal)
-
-                HStack(spacing: 16) {
-                    actionTile(title: "Find a Talk", systemIcon: "text.bubble") {
-                        selectedTab = .search
-                    }
-                    actionTile(title: "Talk to SafetyNow", systemIcon: "mic") {
-                        showTicketSubmission = true
-                    }
-                }
-                .padding(.horizontal)
-
-                // PROMO BOX
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("SafetyNow ILT")
-                        .foregroundColor(.blue)
-                        .bold()
-                    Text("Gain access to essential features")
-                        .foregroundColor(.gray)
-                    Text("Unlock Videos, Tools & eLearning")
-                        .font(.footnote)
-                        .foregroundColor(.blue)
-                        .underline()
-                }
-                .padding()
-                .background(Color(.systemGray6))
-                .cornerRadius(16)
-                .padding(.horizontal)
-
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("History")
-                        .font(.title3)
-                        .bold()
-                    ForEach(history) { item in
-                        HStack {
-                            Image(systemName: "doc.text")
-                                .foregroundColor(.blue)
-                            VStack(alignment: .leading) {
-                                Text(item.talk_title)
-                                    .font(.body)
-                            }
-                            Spacer()
-                            Image(systemName: "ellipsis")
+            ScrollView {
+                VStack {
+                    Button(action: {
+                        // Clear all UserDefaults
+                        if let bundleID = Bundle.main.bundleIdentifier {
+                            UserDefaults.standard.removePersistentDomain(forName: bundleID)
                         }
-                        .padding()
-                        .background(Color(.systemGray6))
-                        .cornerRadius(12)
+                        // Force app restart
+                        exit(0)
+                    }) {
+                        Text("RESET APP STATE")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(Color.red)
+                            .cornerRadius(10)
                     }
+                    .padding(.horizontal)
+                    .padding(.top, 20)
+
+                    HStack {
+                        Image(systemName: "line.horizontal.3")
+                        Spacer()
+                        VStack(alignment: .center) {
+                            Text("Welcome Back")
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                            Text("\(storedUsername)")
+                                .font(.headline)
+                                .bold()
+                        }
+                        Spacer()
+                        Image(systemName: "bell")
+                    }
+                    .padding(.horizontal)
+
+                    HStack(spacing: 16) {
+                        actionTile(title: "Find a Talk", systemIcon: "text.bubble") {
+                            selectedTab = .search
+                        }
+                        actionTile(title: "Talk to SafetyNow", systemIcon: "mic") {
+                            showTicketSubmission = true
+                        }
+                    }
+                    .padding(.horizontal)
+
+                    // PROMO BOX
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("SafetyNow ILT")
+                            .foregroundColor(.blue)
+                            .bold()
+                        Text("Gain access to essential features")
+                            .foregroundColor(.gray)
+                        Text("Unlock Videos, Tools & eLearning")
+                            .font(.footnote)
+                            .foregroundColor(.blue)
+                            .underline()
+                    }
+                    .padding()
+                    .background(Color(.systemGray6))
+                    .cornerRadius(16)
+                    .padding(.horizontal)
+
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("History")
+                            .font(.title3)
+                            .bold()
+                        ForEach(history) { item in
+                            HStack {
+                                Image(systemName: "doc.text")
+                                    .foregroundColor(.blue)
+                                VStack(alignment: .leading) {
+                                    Text(item.talk_title)
+                                        .font(.body)
+                                }
+                                Spacer()
+                                Image(systemName: "ellipsis")
+                            }
+                            .padding()
+                            .background(Color(.systemGray6))
+                            .cornerRadius(12)
+                        }
+                    }
+                    .padding(.horizontal)
+
+                    Spacer()
                 }
-                .padding(.horizontal)
-
-                Spacer()
-
+                .padding(.top)
             }
-            .padding(.top)
             .sheet(isPresented: $showTicketSubmission) {
                 TicketSubmissionView()
             }
