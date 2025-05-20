@@ -7,6 +7,11 @@ struct DashboardView: View {
     @Binding var selectedTab: Tab
     @State private var navigateToFindTalk = false
     @State private var showTicketSubmission = false
+    @State private var showCalendar = false
+    @State private var showMenu = false
+    @State private var showSettings = false
+    @State private var showLanguage = false
+    @State private var showHelpCenter = false
 
     var body: some View {
         NavigationStack {
@@ -32,7 +37,9 @@ struct DashboardView: View {
                     .padding(.top, 20)
 
                     HStack {
-                        Image(systemName: "line.horizontal.3")
+                        Button(action: { showMenu = true }) {
+                            Image(systemName: "line.horizontal.3")
+                        }
                         Spacer()
                         VStack(alignment: .center) {
                             Text("Welcome Back")
@@ -103,6 +110,39 @@ struct DashboardView: View {
             .sheet(isPresented: $showTicketSubmission) {
                 TicketSubmissionView()
             }
+            .sheet(isPresented: $showMenu) {
+                VStack(spacing: 32) {
+                    Spacer().frame(height: 32)
+                    Text("Menu")
+                        .font(.title2)
+                        .bold()
+                    VStack(spacing: 24) {
+                        Button(action: { showSettings = true; showMenu = false }) {
+                            menuRow(title: "Settings")
+                        }
+                        Button(action: { showLanguage = true; showMenu = false }) {
+                            menuRow(title: "Language")
+                        }
+                        Button(action: { showHelpCenter = true; showMenu = false }) {
+                            menuRow(title: "Help Center")
+                        }
+                    }
+                    .padding(.horizontal)
+                    Spacer()
+                }
+                .presentationDetents([.medium])
+            }
+            .background(
+                NavigationLink(destination: SettingsView(), isActive: $showSettings) { EmptyView() }
+                    .hidden()
+            )
+            .background(
+                NavigationLink(destination: LanguageSelectionView(), isActive: $showLanguage) { EmptyView() }
+                    .hidden()
+            )
+            .sheet(isPresented: $showHelpCenter) {
+                TicketSubmissionView()
+            }
             .onAppear {
                 NetworkService.shared.getHistory(token: accessToken) { result in
                     DispatchQueue.main.async {
@@ -140,5 +180,21 @@ struct DashboardView: View {
         .padding()
         .background(Color(.systemGray6))
         .cornerRadius(16)
+    }
+
+    private func menuRow(title: String) -> some View {
+        HStack {
+            Text(title)
+                .font(.system(size: 20, weight: .bold))
+                .foregroundColor(.primary)
+            Spacer()
+            ZStack {
+                Circle()
+                    .fill(Color(.systemGray6))
+                    .frame(width: 32, height: 32)
+                Image(systemName: "arrow.right")
+                    .foregroundColor(.blue)
+            }
+        }
     }
 }

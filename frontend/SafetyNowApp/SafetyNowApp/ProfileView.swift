@@ -12,6 +12,9 @@ struct ProfileView: View {
     @State private var errorMessage: String?
     @State private var isNotificationsOn = true
     @Binding var selectedTab: Tab
+    @State private var showSettings = false
+    @State private var showLanguage = false
+    @State private var showHelpCenter = false
 
     var body: some View {
         VStack(spacing: 24) {
@@ -72,12 +75,23 @@ struct ProfileView: View {
             .padding(.horizontal)
 
             VStack(spacing: 24) {
-                profileRow(title: "Settings")
-                profileRow(title: "Language")
-                profileRow(title: "Security")
-                profileRow(title: "Help Center")
+                Button(action: { showSettings = true }) {
+                    profileRow(title: "Settings")
+                }
+                Button(action: { showLanguage = true }) {
+                    profileRow(title: "Language")
+                }
+                Button(action: { showHelpCenter = true }) {
+                    profileRow(title: "Help Center")
+                }
             }
             .padding(.horizontal)
+
+            NavigationLink(destination: SettingsView(), isActive: $showSettings) { EmptyView() }
+            NavigationLink(destination: LanguageSelectionView(), isActive: $showLanguage) { EmptyView() }
+            .sheet(isPresented: $showHelpCenter) {
+                TicketSubmissionView()
+            }
 
             if isLoading {
                 ProgressView()
@@ -96,6 +110,7 @@ struct ProfileView: View {
         HStack {
             Text(title)
                 .font(.system(size: 20, weight: .bold))
+                .foregroundColor(.primary)
             Spacer()
             ZStack {
                 Circle()
