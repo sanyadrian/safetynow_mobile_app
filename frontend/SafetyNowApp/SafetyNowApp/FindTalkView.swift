@@ -16,6 +16,7 @@ struct FindTalkView: View {
     let onIndustryTap: () -> Void
     @State private var showUpgrade = false
     @State private var showCalendar = false
+    @State private var showTranslate = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -40,6 +41,10 @@ struct FindTalkView: View {
                         Button(action: { showCalendar = true }) {
                             tileView(category: category)
                         }
+                    } else if category.0 == "Translate" {
+                        Button(action: { showTranslate = true }) {
+                            tileView(category: category)
+                        }
                     } else {
                         tileView(category: category)
                     }
@@ -48,6 +53,7 @@ struct FindTalkView: View {
             Spacer()
             NavigationLink(destination: UpgradePlanView(), isActive: $showUpgrade) { EmptyView() }
             NavigationLink(destination: CalendarView(), isActive: $showCalendar) { EmptyView() }
+            NavigationLink(destination: TranslateTalkView(), isActive: $showTranslate) { EmptyView() }
             HStack {
                 Spacer()
                 Button(action: { showUpgrade = true }) {
