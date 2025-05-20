@@ -12,50 +12,52 @@ struct MainView: View {
     @State private var subScreen: SubScreen? = nil
 
     var body: some View {
-        VStack(spacing: 0) {
-            switch selectedTab {
-            case .home:
-                DashboardView(selectedTab: $selectedTab)
-            case .search:
-                if let subScreen = subScreen {
-                    switch subScreen {
-                    case .hazardTiles:
-                         HazardTilesView(onTalksTap: { value in
-                            self.subScreen = .talksList(filterType: .hazard, filterValue: value)
-                        })
-                    case .industryTiles:
-                        IndustryTilesView(onTalksTap: { value in
-                            self.subScreen = .talksList(filterType: .industry, filterValue: value)
-                        })
-                    case .talksList(let filterType, let filterValue):
-                        TalksListView(
-                                    filterType: filterType,
-                                    filterValue: filterValue,
-                                    onTalkTap: { talk in
-                                        self.subScreen = .talkDetail(talk: talk, filterType: filterType, filterValue: filterValue)
-                                    }
-                                )
-                    case .talkDetail(let talk, let filterType, let filterValue):
-                                TalkDetailView(talk: talk, onBack: {
-                                    self.subScreen = .talksList(filterType: filterType, filterValue: filterValue)
-                                })
+        NavigationStack {
+            VStack(spacing: 0) {
+                switch selectedTab {
+                case .home:
+                    DashboardView(selectedTab: $selectedTab)
+                case .search:
+                    if let subScreen = subScreen {
+                        switch subScreen {
+                        case .hazardTiles:
+                             HazardTilesView(onTalksTap: { value in
+                                self.subScreen = .talksList(filterType: .hazard, filterValue: value)
+                            })
+                        case .industryTiles:
+                            IndustryTilesView(onTalksTap: { value in
+                                self.subScreen = .talksList(filterType: .industry, filterValue: value)
+                            })
+                        case .talksList(let filterType, let filterValue):
+                            TalksListView(
+                                        filterType: filterType,
+                                        filterValue: filterValue,
+                                        onTalkTap: { talk in
+                                            self.subScreen = .talkDetail(talk: talk, filterType: filterType, filterValue: filterValue)
+                                        }
+                                    )
+                        case .talkDetail(let talk, let filterType, let filterValue):
+                                    TalkDetailView(talk: talk, onBack: {
+                                        self.subScreen = .talksList(filterType: filterType, filterValue: filterValue)
+                                    })
+                        }
+                    } else {
+                        FindTalkView(
+                            selectedTab: $selectedTab,
+                            onHazardTap: { self.subScreen = .hazardTiles },
+                            onIndustryTap: { self.subScreen = .industryTiles }
+                        )
                     }
-                } else {
-                    FindTalkView(
-                        selectedTab: $selectedTab,
-                        onHazardTap: { self.subScreen = .hazardTiles },
-                        onIndustryTap: { self.subScreen = .industryTiles }
-                    )
+                case .refresh:
+                    HistoryView(selectedTab: $selectedTab)
+                case .profile:
+                    ProfileView(selectedTab: $selectedTab)
                 }
-            case .refresh:
-                HistoryView(selectedTab: $selectedTab)
-            case .profile:
-                ProfileView(selectedTab: $selectedTab)
-            }
 
-            BottomNavBar(selectedTab: selectedTab) { tab in
-                selectedTab = tab
-                subScreen = nil // Reset subScreen when switching tabs
+                BottomNavBar(selectedTab: selectedTab) { tab in
+                    selectedTab = tab
+                    subScreen = nil // Reset subScreen when switching tabs
+                }
             }
         }
     }
