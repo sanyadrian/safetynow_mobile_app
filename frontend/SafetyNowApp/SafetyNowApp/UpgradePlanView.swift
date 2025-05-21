@@ -4,7 +4,6 @@ struct UpgradePlanView: View {
     var body: some View {
         VStack(spacing: 24) {
             Spacer().frame(height: 24)
-            // Banner placeholder
             Rectangle()
                 .fill(Color(.systemGray5))
                 .frame(width: 200, height: 100)
@@ -16,7 +15,6 @@ struct UpgradePlanView: View {
                 .fontWeight(.bold)
                 .padding(.top, 8)
 
-            // First plan card
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
                     Text("SafetyNow ILT")
@@ -43,7 +41,6 @@ struct UpgradePlanView: View {
             .shadow(color: Color(.systemGray4).opacity(0.2), radius: 8, x: 0, y: 2)
             .padding(.horizontal)
 
-            // Second plan card
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
                     Text("SafetyNow")
