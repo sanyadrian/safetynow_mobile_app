@@ -4,9 +4,10 @@ struct UpgradePlanView: View {
     var body: some View {
         VStack(spacing: 24) {
             Spacer().frame(height: 24)
-            Rectangle()
-                .fill(Color(.systemGray5))
-                .frame(width: 200, height: 100)
+            Image("devices_mockup")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 220, height: 120)
                 .cornerRadius(12)
                 .padding(.top, 16)
 

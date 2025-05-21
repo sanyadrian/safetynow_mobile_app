@@ -53,7 +53,7 @@ struct FindTalkView: View {
             Spacer()
             NavigationLink(destination: UpgradePlanView(), isActive: $showUpgrade) { EmptyView() }
             NavigationLink(destination: CalendarView(), isActive: $showCalendar) { EmptyView() }
-            NavigationLink(destination: TranslateTalkView(), isActive: $showTranslate) { EmptyView() }
+            NavigationLink(destination: LanguageSelectionView(), isActive: $showTranslate) { EmptyView() }
             HStack {
                 Spacer()
                 Button(action: { showUpgrade = true }) {
