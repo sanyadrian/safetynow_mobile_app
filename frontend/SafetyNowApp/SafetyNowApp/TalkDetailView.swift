@@ -4,6 +4,9 @@ struct TalkDetailView: View {
     let talk: TalkModel
     var onBack: (() -> Void)? = nil
     @AppStorage("access_token") var accessToken: String = ""
+    @State private var likeCount: Int = 0
+    @State private var isLiked: Bool = false
+    @State private var isLoading: Bool = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -50,10 +53,20 @@ struct TalkDetailView: View {
                         .cornerRadius(16)
                         .shadow(color: Color(.systemGray4).opacity(0.1), radius: 2, x: 0, y: 1)
                     HStack(spacing: 16) {
-                            Button(action: {}) {
-                                Image(systemName: "hand.thumbsup")
-                                    .foregroundColor(.blue)
+                            Button(action: {
+                                toggleLike()
+                            }) {
+                                HStack(spacing: 4) {
+                                    Image(systemName: isLiked ? "hand.thumbsup.fill" : "hand.thumbsup")
+                                        .foregroundColor(isLiked ? .blue : .gray)
+                                    if likeCount > 0 {
+                                        Text("\(likeCount)")
+                                            .font(.footnote)
+                                            .foregroundColor(.gray)
+                                    }
+                                }
                             }
+                            .disabled(isLoading)
                             Button(action: {}) {
                                 Image(systemName: "square.and.arrow.up")
                                     .foregroundColor(.blue)
@@ -91,7 +104,54 @@ struct TalkDetailView: View {
                     print("Failed to add talk to history: \(error.localizedDescription)")
                 }
             }
+            
+            fetchLikeStatus()
         }
+    }
+    
+    private func fetchLikeStatus() {
+        guard let url = URL(string: "http://localhost:8000/talks/\(talk.id)/likes") else { return }
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
+        
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let data = data,
+               let likeInfo = try? JSONDecoder().decode(LikeInfo.self, from: data) {
+                DispatchQueue.main.async {
+                    self.likeCount = likeInfo.likeCount
+                    self.isLiked = likeInfo.userLiked
+                }
+            }
+        }.resume()
+    }
+    
+    private func toggleLike() {
+        isLoading = true
+        guard let url = URL(string: "http://localhost:8000/talks/\(talk.id)/like") else { return }
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
+        
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            DispatchQueue.main.async {
+                isLoading = false
+                if error == nil {
+                    isLiked.toggle()
+                    likeCount += isLiked ? 1 : -1
+                }
+            }
+        }.resume()
+    }
+}
+
+struct LikeInfo: Decodable {
+    let likeCount: Int
+    let userLiked: Bool
+    
+    enum CodingKeys: String, CodingKey {
+        case likeCount = "like_count"
+        case userLiked = "user_liked"
     }
 }
 
