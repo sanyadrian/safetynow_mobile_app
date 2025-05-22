@@ -3,8 +3,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from app.routes import auth, talks, history, tickets, profile
+from app.routes import auth, talks, history, tickets, profile, leads
+from dotenv import load_dotenv
+import os
 
+# Load environment variables
+load_dotenv()
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
@@ -23,6 +27,7 @@ app.include_router(talks.router)
 app.include_router(history.router)
 app.include_router(tickets.router)
 app.include_router(profile.router)
+app.include_router(leads.router, prefix="/api", tags=["leads"])
 
 
 @app.get("/")
