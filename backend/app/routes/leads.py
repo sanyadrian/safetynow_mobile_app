@@ -7,6 +7,7 @@ import requests
 import json
 from typing import Dict, Any
 import logging
+from .tickets import get_access_token
 
 router = APIRouter()
 
@@ -16,6 +17,59 @@ def get_nutshell_auth():
     if not email or not api_key:
         raise HTTPException(status_code=500, detail="Nutshell email or API key not configured")
     return (email, api_key)
+
+def send_lead_email(first_name, last_name, company, email, phone, plan):
+    access_token = get_access_token()
+    if not access_token:
+        logging.warning("Failed to get access token, skipping lead email send")
+        return
+
+    sender_email = os.getenv('AZURE_SENDER_EMAIL')
+    recipient_email = os.getenv('AZURE_SENDER_EMAIL')
+
+    email_body = f"""
+    New Plan Upgrade Lead Submitted:
+
+    First Name: {first_name}
+    Last Name: {last_name}
+    Company: {company}
+    Email: {email}
+    Phone: {phone}
+    Selected Plan: {plan}
+    """
+
+    email_data = {
+        "message": {
+            "subject": f"New Plan Upgrade Lead: {first_name} {last_name} ({plan})",
+            "body": {
+                "contentType": "Text",
+                "content": email_body
+            },
+            "toRecipients": [
+                {
+                    "emailAddress": {
+                        "address": recipient_email
+                    }
+                }
+            ]
+        }
+    }
+
+    try:
+        response = requests.post(
+            f"https://graph.microsoft.com/v1.0/users/{sender_email}/sendMail",
+            headers={
+                "Authorization": f"Bearer {access_token}",
+                "Content-Type": "application/json"
+            },
+            json=email_data
+        )
+        response.raise_for_status()
+        logging.info("Lead email sent successfully")
+    except Exception as e:
+        logging.warning(f"Failed to send lead email: {str(e)}")
+        if hasattr(e, 'response'):
+            logging.warning(f"Response content: {e.response.content}")
 
 def create_nutshell_lead(first_name: str, last_name: str, company: str, email: str, phone: str, plan: str):
     auth = get_nutshell_auth()
@@ -154,6 +208,16 @@ def create_lead(
         
         # Create lead in Nutshell
         lead_id = create_nutshell_lead(
+            first_name=first_name,
+            last_name=last_name,
+            company=company,
+            email=email,
+            phone=phone,
+            plan=plan
+        )
+        
+        # Send notification email
+        send_lead_email(
             first_name=first_name,
             last_name=last_name,
             company=company,

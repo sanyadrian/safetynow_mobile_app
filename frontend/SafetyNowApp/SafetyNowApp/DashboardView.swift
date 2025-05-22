@@ -17,25 +17,6 @@ struct DashboardView: View {
         NavigationStack {
             ScrollView {
                 VStack {
-                    Button(action: {
-                        // Clear all UserDefaults
-                        if let bundleID = Bundle.main.bundleIdentifier {
-                            UserDefaults.standard.removePersistentDomain(forName: bundleID)
-                        }
-                        // Force app restart
-                        exit(0)
-                    }) {
-                        Text("RESET APP STATE")
-                            .font(.headline)
-                            .foregroundColor(.white)
-                            .padding()
-                            .frame(maxWidth: .infinity)
-                            .background(Color.red)
-                            .cornerRadius(10)
-                    }
-                    .padding(.horizontal)
-                    .padding(.top, 20)
-
                     HStack {
                         Button(action: { showMenu = true }) {
                             Image(systemName: "line.horizontal.3")

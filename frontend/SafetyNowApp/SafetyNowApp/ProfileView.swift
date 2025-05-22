@@ -6,6 +6,7 @@ struct ProfileView: View {
     @AppStorage("profile_image") var profileImage: String = ""
     @AppStorage("username") var username: String = ""
     @AppStorage("email") var email: String = ""
+    @AppStorage("isLoggedIn") var isLoggedIn: Bool = true
     @State private var selectedItem: PhotosPickerItem?
     @State private var selectedImageData: Data?
     @State private var isLoading = false
@@ -84,6 +85,21 @@ struct ProfileView: View {
                 Button(action: { showHelpCenter = true }) {
                     profileRow(title: "Help Center")
                 }
+                Button(action: logout) {
+                    HStack {
+                        Text("Logout")
+                            .font(.system(size: 20, weight: .bold))
+                            .foregroundColor(.red)
+                        Spacer()
+                        ZStack {
+                            Circle()
+                                .fill(Color(.systemGray6))
+                                .frame(width: 32, height: 32)
+                            Image(systemName: "arrow.right")
+                                .foregroundColor(.red)
+                        }
+                    }
+                }
             }
             .padding(.horizontal)
 
@@ -136,5 +152,13 @@ struct ProfileView: View {
                 }
             }
         }
+    }
+
+    private func logout() {
+        accessToken = ""
+        profileImage = ""
+        username = ""
+        email = ""
+        isLoggedIn = false
     }
 }
