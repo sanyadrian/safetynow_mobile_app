@@ -12,6 +12,14 @@ struct TalkModel: Identifiable, Decodable {
     let description: String?
     let hazard: String?
     let industry: String?
+    var likeCount: Int?
+    var userLiked: Bool?
+    
+    enum CodingKeys: String, CodingKey {
+        case id, title, category, description, hazard, industry
+        case likeCount = "like_count"
+        case userLiked = "user_liked"
+    }
 }
 
 struct TalksListView: View {

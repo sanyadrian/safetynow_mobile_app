@@ -1,9 +1,11 @@
 # app/models.py
 
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, func
+from sqlalchemy.orm import relationship
 from app.database import Base
 from sqlalchemy import DateTime
 from datetime import datetime
+from sqlalchemy import UniqueConstraint
 
 class User(Base):
     __tablename__ = "users"
@@ -45,3 +47,27 @@ class Talk(Base):
     description = Column(String, nullable=True)
     hazard = Column(String, nullable=True)
     industry = Column(String, nullable=True)
+    
+    # Relationship with likes
+    likes = relationship("TalkLike", back_populates="talk")
+    
+    @property
+    def like_count(self):
+        return len(self.likes)
+
+
+class TalkLike(Base):
+    __tablename__ = "talk_likes"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    talk_id = Column(Integer, ForeignKey("talks.id"), nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    talk = relationship("Talk", back_populates="likes")
+    user = relationship("User")
+    
+    __table_args__ = (
+        UniqueConstraint('user_id', 'talk_id', name='unique_user_talk_like'),
+    )

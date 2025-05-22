@@ -30,7 +30,8 @@ struct ProfileView: View {
                         .frame(width: 100, height: 100)
                         .clipShape(Circle())
                         .overlay(Circle().stroke(Color.gray.opacity(0.3), lineWidth: 2))
-                } else if let profileImageUrl = URL(string: "http://192.168.4.25:8000\(profileImage)") {
+                } else if !profileImage.isEmpty,
+                          let profileImageUrl = URL(string: "http://192.168.4.25:8000\(profileImage)") {
                     AsyncImage(url: profileImageUrl) { image in
                         image
                             .resizable()
@@ -43,9 +44,11 @@ struct ProfileView: View {
                             .frame(width: 100, height: 100)
                     }
                 } else {
-                    Circle()
-                        .fill(Color.gray.opacity(0.3))
+                    Image(systemName: "person.crop.circle.fill")
+                        .resizable()
+                        .scaledToFill()
                         .frame(width: 100, height: 100)
+                        .foregroundColor(.gray)
                 }
                 PhotosPicker(selection: $selectedItem, matching: .images, photoLibrary: .shared()) {
                     Circle().fill(Color.clear).frame(width: 100, height: 100)
