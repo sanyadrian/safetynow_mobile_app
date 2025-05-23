@@ -1,4 +1,5 @@
 import SwiftUI
+import PDFKit
 
 struct DashboardView: View {
     @AppStorage("access_token") var accessToken: String = ""
@@ -15,6 +16,8 @@ struct DashboardView: View {
     @State private var showActionSheet = false
     @State private var selectedHistoryItem: HistoryItem?
     @State private var openTalkModel: TalkModel? = nil
+    @State private var showShareSheet = false
+    @State private var shareContent: [Any] = []
 
     var body: some View {
         NavigationStack {
@@ -157,6 +160,9 @@ struct DashboardView: View {
                     set: { if !$0 { openTalkModel = nil } }
                 )
             ) { EmptyView() }
+            .sheet(isPresented: $showShareSheet) {
+                ShareSheet(activityItems: shareContent)
+            }
             .onAppear {
                 NetworkService.shared.getHistory(token: accessToken) { result in
                     DispatchQueue.main.async {
@@ -222,7 +228,24 @@ struct DashboardView: View {
         }
     }
     private func shareTalk(_ item: HistoryItem) {
-        print("Share: \(item.talk_title)")
+        NetworkService.shared.getTalkByTitle(token: accessToken, title: item.talk_title) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let talk):
+                    let pdfURL = createPDF(for: talk.title, description: talk.description)
+                    if let pdfURL = pdfURL {
+                        shareContent = [pdfURL]
+                        showShareSheet = true
+                    }
+                case .failure:
+                    let pdfURL = createPDF(for: item.talk_title, description: nil)
+                    if let pdfURL = pdfURL {
+                        shareContent = [pdfURL]
+                        showShareSheet = true
+                    }
+                }
+            }
+        }
     }
     private func openTalk(_ item: HistoryItem) {
         NetworkService.shared.getTalkByTitle(token: accessToken, title: item.talk_title) { result in
