@@ -7,6 +7,7 @@ struct HistoryView: View {
     @Binding var selectedTab: Tab
     @State private var showActionSheet = false
     @State private var selectedHistoryItem: HistoryItem?
+    @State private var openTalkModel: TalkModel? = nil
 
     var body: some View {
         NavigationStack {
@@ -73,6 +74,13 @@ struct HistoryView: View {
                     .padding(.horizontal)
                 }
             }
+            NavigationLink(
+                destination: openTalkModel.map { TalkDetailView(talk: $0) },
+                isActive: Binding(
+                    get: { openTalkModel != nil },
+                    set: { if !$0 { openTalkModel = nil } }
+                )
+            ) { EmptyView() }
         }
         .confirmationDialog("Options", isPresented: $showActionSheet, titleVisibility: .visible) {
             Button("Delete from history", role: .destructive) {
@@ -138,12 +146,27 @@ struct HistoryView: View {
     }
     
     private func deleteFromHistory(_ item: HistoryItem) {
-        history.removeAll { $0.id == item.id }
+        NetworkService.shared.deleteHistoryItem(token: accessToken, historyId: item.id) { result in
+            DispatchQueue.main.async {
+                if case .success = result {
+                    history.removeAll { $0.id == item.id }
+                }
+            }
+        }
     }
     private func shareTalk(_ item: HistoryItem) {
         print("Share: \(item.talk_title)")
     }
     private func openTalk(_ item: HistoryItem) {
-        print("Open: \(item.talk_title)")
+        NetworkService.shared.getTalkByTitle(token: accessToken, title: item.talk_title) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let talk):
+                    self.openTalkModel = talk
+                case .failure(let error):
+                    print("Failed to fetch talk: \(error)")
+                }
+            }
+        }
     }
 }

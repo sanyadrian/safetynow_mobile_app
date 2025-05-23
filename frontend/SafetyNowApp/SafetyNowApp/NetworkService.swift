@@ -265,6 +265,56 @@ class NetworkService {
             }
         }.resume()
     }
+
+    func deleteHistoryItem(token: String, historyId: Int, completion: @escaping (Result<Void, Error>) -> Void) {
+        guard let url = URL(string: "\(baseURL)/history/\(historyId)") else {
+            completion(.failure(NetworkError.invalidURL))
+            return
+        }
+        var request = URLRequest(url: url)
+        request.httpMethod = "DELETE"
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        URLSession.shared.dataTask(with: request) { _, response, error in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+            guard let httpResponse = response as? HTTPURLResponse, 200...299 ~= httpResponse.statusCode else {
+                completion(.failure(NetworkError.serverError))
+                return
+            }
+            completion(.success(()))
+        }.resume()
+    }
+
+    func getTalkByTitle(token: String, title: String, completion: @escaping (Result<TalkModel, Error>) -> Void) {
+        guard let url = URL(string: "\(baseURL)/talks/") else {
+            completion(.failure(NetworkError.invalidURL))
+            return
+        }
+        var request = URLRequest(url: url)
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        URLSession.shared.dataTask(with: request) { data, _, error in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+            guard let data = data else {
+                completion(.failure(NetworkError.noData))
+                return
+            }
+            do {
+                let talks = try JSONDecoder().decode([TalkModel].self, from: data)
+                if let talk = talks.first(where: { $0.title == title }) {
+                    completion(.success(talk))
+                } else {
+                    completion(.failure(NetworkError.noData))
+                }
+            } catch {
+                completion(.failure(error))
+            }
+        }.resume()
+    }
 }
 
 extension Data {
