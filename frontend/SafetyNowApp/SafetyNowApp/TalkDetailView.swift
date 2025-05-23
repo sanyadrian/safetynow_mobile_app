@@ -14,10 +14,12 @@ struct TalkDetailView: View {
         VStack(spacing: 0) {
             // Top bar
             HStack {
-                Button(action: { onBack?() }) {
-                    Image(systemName: "chevron.left")
-                        .font(.title2)
-                        .foregroundColor(.black)
+                if let onBack = onBack {
+                    Button(action: { onBack() }) {
+                        Image(systemName: "chevron.left")
+                            .font(.title2)
+                            .foregroundColor(.black)
+                    }
                 }
                 Spacer()
                 Text("Safety Talk")
