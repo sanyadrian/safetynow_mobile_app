@@ -17,6 +17,7 @@ struct FindTalkView: View {
     @State private var showUpgrade = false
     @State private var showCalendar = false
     @State private var showTranslate = false
+    @State private var showShareTalkInfo = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -45,6 +46,10 @@ struct FindTalkView: View {
                         Button(action: { showTranslate = true }) {
                             tileView(category: category)
                         }
+                    } else if category.0 == "Send a Talk" {
+                        Button(action: { showShareTalkInfo = true }) {
+                            tileView(category: category)
+                        }
                     } else {
                         tileView(category: category)
                     }
@@ -54,6 +59,7 @@ struct FindTalkView: View {
             NavigationLink(destination: UpgradePlanView(), isActive: $showUpgrade) { EmptyView() }
             NavigationLink(destination: CalendarView(), isActive: $showCalendar) { EmptyView() }
             NavigationLink(destination: LanguageSelectionView(), isActive: $showTranslate) { EmptyView() }
+            NavigationLink(destination: ShareTalkInfoView(), isActive: $showShareTalkInfo) { EmptyView() }
             HStack {
                 Spacer()
                 Button(action: { showUpgrade = true }) {
