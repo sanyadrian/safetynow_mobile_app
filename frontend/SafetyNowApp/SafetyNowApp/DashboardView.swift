@@ -12,6 +12,9 @@ struct DashboardView: View {
     @State private var showSettings = false
     @State private var showLanguage = false
     @State private var showHelpCenter = false
+    @State private var showActionSheet = false
+    @State private var selectedHistoryItem: HistoryItem?
+    @State private var openTalkModel: TalkModel? = nil
 
     var body: some View {
         NavigationStack {
@@ -75,7 +78,12 @@ struct DashboardView: View {
                                         .font(.body)
                                 }
                                 Spacer()
-                                Image(systemName: "ellipsis")
+                                Button(action: {
+                                    selectedHistoryItem = item
+                                    showActionSheet = true
+                                }) {
+                                    Image(systemName: "ellipsis")
+                                }
                             }
                             .padding()
                             .background(Color(.systemGray6))
@@ -124,6 +132,31 @@ struct DashboardView: View {
             .sheet(isPresented: $showHelpCenter) {
                 TicketSubmissionView()
             }
+            .confirmationDialog("Options", isPresented: $showActionSheet, titleVisibility: .visible) {
+                Button("Delete from history", role: .destructive) {
+                    if let item = selectedHistoryItem {
+                        deleteFromHistory(item)
+                    }
+                }
+                Button("Share") {
+                    if let item = selectedHistoryItem {
+                        shareTalk(item)
+                    }
+                }
+                Button("Open") {
+                    if let item = selectedHistoryItem {
+                        openTalk(item)
+                    }
+                }
+                Button("Cancel", role: .cancel) {}
+            }
+            NavigationLink(
+                destination: openTalkModel.map { TalkDetailView(talk: $0) },
+                isActive: Binding(
+                    get: { openTalkModel != nil },
+                    set: { if !$0 { openTalkModel = nil } }
+                )
+            ) { EmptyView() }
             .onAppear {
                 NetworkService.shared.getHistory(token: accessToken) { result in
                     DispatchQueue.main.async {
@@ -175,6 +208,31 @@ struct DashboardView: View {
                     .frame(width: 32, height: 32)
                 Image(systemName: "arrow.right")
                     .foregroundColor(.blue)
+            }
+        }
+    }
+
+    private func deleteFromHistory(_ item: HistoryItem) {
+        NetworkService.shared.deleteHistoryItem(token: accessToken, historyId: item.id) { result in
+            DispatchQueue.main.async {
+                if case .success = result {
+                    history.removeAll { $0.id == item.id }
+                }
+            }
+        }
+    }
+    private func shareTalk(_ item: HistoryItem) {
+        print("Share: \(item.talk_title)")
+    }
+    private func openTalk(_ item: HistoryItem) {
+        NetworkService.shared.getTalkByTitle(token: accessToken, title: item.talk_title) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let talk):
+                    self.openTalkModel = talk
+                case .failure(let error):
+                    print("Failed to fetch talk: \(error)")
+                }
             }
         }
     }

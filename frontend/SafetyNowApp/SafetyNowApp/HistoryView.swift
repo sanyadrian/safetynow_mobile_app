@@ -8,6 +8,9 @@ struct HistoryView: View {
     @State private var showActionSheet = false
     @State private var selectedHistoryItem: HistoryItem?
     @State private var openTalkModel: TalkModel? = nil
+    @State private var showPopularActionSheet = false
+    @State private var selectedPopularTalk: TalkModel?
+    @State private var openPopularTalkModel: TalkModel? = nil
 
     var body: some View {
         NavigationStack {
@@ -61,8 +64,13 @@ struct HistoryView: View {
                                     }
                                 }
                                 Spacer()
-                                Image(systemName: "ellipsis")
-                                    .foregroundColor(.gray)
+                                Button(action: {
+                                    selectedPopularTalk = talk
+                                    showPopularActionSheet = true
+                                }) {
+                                    Image(systemName: "ellipsis")
+                                        .foregroundColor(.gray)
+                                }
                             }
                             .padding()
                             .background(Color(.systemGray6))
@@ -81,6 +89,13 @@ struct HistoryView: View {
                     set: { if !$0 { openTalkModel = nil } }
                 )
             ) { EmptyView() }
+            NavigationLink(
+                destination: openPopularTalkModel.map { TalkDetailView(talk: $0) },
+                isActive: Binding(
+                    get: { openPopularTalkModel != nil },
+                    set: { if !$0 { openPopularTalkModel = nil } }
+                )
+            ) { EmptyView() }
         }
         .confirmationDialog("Options", isPresented: $showActionSheet, titleVisibility: .visible) {
             Button("Delete from history", role: .destructive) {
@@ -96,6 +111,19 @@ struct HistoryView: View {
             Button("Open") {
                 if let item = selectedHistoryItem {
                     openTalk(item)
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        }
+        .confirmationDialog("Options", isPresented: $showPopularActionSheet, titleVisibility: .visible) {
+            Button("Share") {
+                if let talk = selectedPopularTalk {
+                    sharePopularTalk(talk)
+                }
+            }
+            Button("Open") {
+                if let talk = selectedPopularTalk {
+                    openPopularTalk(talk)
                 }
             }
             Button("Cancel", role: .cancel) {}
@@ -168,5 +196,11 @@ struct HistoryView: View {
                 }
             }
         }
+    }
+    private func sharePopularTalk(_ talk: TalkModel) {
+        print("Share: \(talk.title)")
+    }
+    private func openPopularTalk(_ talk: TalkModel) {
+        self.openPopularTalkModel = talk
     }
 }
