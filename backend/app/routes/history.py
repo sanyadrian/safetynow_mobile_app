@@ -56,3 +56,19 @@ def get_history_item(history_id: int, db: Session = Depends(get_db), current_use
     if not item:
         raise HTTPException(status_code=404, detail="History item not found")
     return item
+
+@router.delete("/{history_id}")
+def delete_history_item(
+    history_id: int,
+    db: Session = Depends(get_db),
+    user_id: int = Depends(get_current_user)
+):
+    item = db.query(models.TalkHistory).filter(
+        models.TalkHistory.id == history_id,
+        models.TalkHistory.user_id == user_id
+    ).first()
+    if not item:
+        raise HTTPException(status_code=404, detail="History item not found")
+    db.delete(item)
+    db.commit()
+    return {"message": "History item deleted"}
