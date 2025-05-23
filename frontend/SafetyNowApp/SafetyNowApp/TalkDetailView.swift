@@ -7,6 +7,8 @@ struct TalkDetailView: View {
     @State private var likeCount: Int = 0
     @State private var isLiked: Bool = false
     @State private var isLoading: Bool = false
+    @State private var showShareSheet = false
+    @State private var shareContent: [Any] = []
 
     var body: some View {
         VStack(spacing: 0) {
@@ -67,7 +69,12 @@ struct TalkDetailView: View {
                                 }
                             }
                             .disabled(isLoading)
-                            Button(action: {}) {
+                            Button(action: {
+                                if let pdfURL = createPDF(for: talk.title, description: talk.description) {
+                                    shareContent = [pdfURL]
+                                    showShareSheet = true
+                                }
+                            }) {
                                 Image(systemName: "square.and.arrow.up")
                                     .foregroundColor(.blue)
                             }
@@ -106,6 +113,9 @@ struct TalkDetailView: View {
             }
             
             fetchLikeStatus()
+        }
+        .sheet(isPresented: $showShareSheet) {
+            ShareSheet(activityItems: shareContent)
         }
     }
     
