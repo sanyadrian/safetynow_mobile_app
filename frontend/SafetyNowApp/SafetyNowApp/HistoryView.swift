@@ -1,4 +1,5 @@
 import SwiftUI
+import PDFKit
 
 struct HistoryView: View {
     @AppStorage("access_token") var accessToken: String = ""
@@ -11,6 +12,8 @@ struct HistoryView: View {
     @State private var showPopularActionSheet = false
     @State private var selectedPopularTalk: TalkModel?
     @State private var openPopularTalkModel: TalkModel? = nil
+    @State private var showShareSheet = false
+    @State private var shareContent: [Any] = []
 
     var body: some View {
         NavigationStack {
@@ -128,6 +131,9 @@ struct HistoryView: View {
             }
             Button("Cancel", role: .cancel) {}
         }
+        .sheet(isPresented: $showShareSheet) {
+            ShareSheet(activityItems: shareContent)
+        }
         .onAppear {
             // Fetch history
             NetworkService.shared.getHistory(token: accessToken) { result in
@@ -183,7 +189,24 @@ struct HistoryView: View {
         }
     }
     private func shareTalk(_ item: HistoryItem) {
-        print("Share: \(item.talk_title)")
+        NetworkService.shared.getTalkByTitle(token: accessToken, title: item.talk_title) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let talk):
+                    let pdfURL = createPDF(for: talk.title, description: talk.description)
+                    if let pdfURL = pdfURL {
+                        shareContent = [pdfURL]
+                        showShareSheet = true
+                    }
+                case .failure:
+                    let pdfURL = createPDF(for: item.talk_title, description: nil)
+                    if let pdfURL = pdfURL {
+                        shareContent = [pdfURL]
+                        showShareSheet = true
+                    }
+                }
+            }
+        }
     }
     private func openTalk(_ item: HistoryItem) {
         NetworkService.shared.getTalkByTitle(token: accessToken, title: item.talk_title) { result in
@@ -198,7 +221,11 @@ struct HistoryView: View {
         }
     }
     private func sharePopularTalk(_ talk: TalkModel) {
-        print("Share: \(talk.title)")
+        let pdfURL = createPDF(for: talk.title, description: talk.description)
+        if let pdfURL = pdfURL {
+            shareContent = [pdfURL]
+            showShareSheet = true
+        }
     }
     private func openPopularTalk(_ talk: TalkModel) {
         self.openPopularTalkModel = talk
