@@ -32,6 +32,13 @@ def add_to_history(
     db: Session = Depends(get_db),
     user_id: int = Depends(get_current_user)
 ):
+    db.query(models.TalkHistory).filter(
+        models.TalkHistory.user_id == user_id,
+        models.TalkHistory.talk_title == entry.talk_title
+    ).delete()
+    db.commit()
+
+    # Add the new entry
     new_entry = models.TalkHistory(
         user_id=user_id,
         talk_title=entry.talk_title,
@@ -47,7 +54,12 @@ def get_history(
     db: Session = Depends(get_db),
     user_id: int = Depends(get_current_user)
 ):
-    history = db.query(models.TalkHistory).filter(models.TalkHistory.user_id == user_id).all()
+    history = (
+        db.query(models.TalkHistory)
+        .filter(models.TalkHistory.user_id == user_id)
+        .order_by(models.TalkHistory.accessed_at.desc())
+        .all()
+    )
     return history
 
 @router.get("/{history_id}")
