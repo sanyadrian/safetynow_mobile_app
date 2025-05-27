@@ -17,7 +17,6 @@ func createPDF(for title: String, description: String?) -> URL? {
     let data = renderer.pdfData { (context) in
         context.beginPage()
         
-        // Draw logo at the top
         if let logo = UIImage(named: "SafetyNow-LogoArtboard-1-1") {
             let logoMaxWidth: CGFloat = 180
             let logoAspect = logo.size.height / logo.size.width
@@ -27,7 +26,6 @@ func createPDF(for title: String, description: String?) -> URL? {
             logo.draw(in: logoRect)
         }
         
-        // Title and description
         let titleFont = UIFont.boldSystemFont(ofSize: 24)
         let descFont = UIFont.systemFont(ofSize: 16)
         let titleAttributes: [NSAttributedString.Key: Any] = [.font: titleFont]
