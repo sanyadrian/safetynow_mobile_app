@@ -47,6 +47,8 @@ class Talk(Base):
     description = Column(String, nullable=True)
     hazard = Column(String, nullable=True)
     industry = Column(String, nullable=True)
+    language = Column(String, nullable=False, default="en")
+    related_title = Column(String, nullable=False)
     
     # Relationship with likes
     likes = relationship("TalkLike", back_populates="talk")

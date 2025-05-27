@@ -9,7 +9,7 @@ def upload_talks():
     try:
         # Get the absolute path to the Excel file
         current_dir = os.path.dirname(os.path.abspath(__file__))
-        file_path = os.path.join(current_dir, 'Safety Talk App Selections.xlsx')
+        file_path = os.path.join(current_dir, 'Safety Talk App Selections 1.xlsx')
         
         if not os.path.exists(file_path):
             print(f"Error: Excel file not found at {file_path}")
@@ -41,14 +41,26 @@ def upload_talks():
             description = str(row.get('Description', '')).strip() if 'Description' in row else None
             hazard = category
             industry = str(row.get('Industry', '')).strip() if 'Industry' in row else None
+            language_raw = str(row.get('Language', '')).strip() if 'Language' in row else None
+            # Normalize language to code
+            language_map = {
+                'english': 'en',
+                'en': 'en',
+                'spanish': 'es',
+                'es': 'es',
+                'french': 'fr',
+                'fr': 'fr'
+            }
+            language = language_map.get(language_raw.lower(), language_raw.lower()) if language_raw else None
+            related_title = str(row.get('Related Title', '')).strip() if 'Related Title' in row else None
 
-            # Skip if title is empty
-            if not title:
+            # Skip if title, language, or related_title is empty
+            if not title or not language or not related_title:
                 skipped_talks += 1
                 continue
 
-            # Check for duplicate by title
-            existing = session.query(Talk).filter_by(title=title).first()
+            # Check for duplicate by title and language
+            existing = session.query(Talk).filter_by(title=title, language=language).first()
             if existing:
                 skipped_talks += 1
                 continue
@@ -58,7 +70,9 @@ def upload_talks():
                 category=category,
                 description=description,
                 hazard=hazard,
-                industry=industry
+                industry=industry,
+                language=language,
+                related_title=related_title
             )
             session.add(talk)
             new_talks += 1

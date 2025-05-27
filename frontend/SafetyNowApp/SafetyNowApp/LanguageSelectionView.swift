@@ -1,8 +1,8 @@
 import SwiftUI
 
 struct LanguageSelectionView: View {
-    @AppStorage("language") private var language: String = "English"
-    let languages = ["English", "Spanish", "French"]
+    @AppStorage("selectedLanguage") private var selectedLanguage: String = "en"
+    let languages = [("English", "en"), ("Spanish", "es"), ("French", "fr")]
 
     var body: some View {
         VStack(spacing: 24) {
@@ -12,18 +12,18 @@ struct LanguageSelectionView: View {
                 .padding(.top, 32)
 
             List {
-                ForEach(languages, id: \.self) { lang in
+                ForEach(languages, id: \ .1) { (langName, langCode) in
                     HStack {
-                        Text(lang)
+                        Text(langName)
                         Spacer()
-                        if lang == language {
+                        if langCode == selectedLanguage {
                             Image(systemName: "checkmark")
                                 .foregroundColor(.blue)
                         }
                     }
                     .contentShape(Rectangle())
                     .onTapGesture {
-                        language = lang
+                        selectedLanguage = langCode
                     }
                 }
             }

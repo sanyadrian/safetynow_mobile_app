@@ -76,8 +76,12 @@ class NetworkService {
         }.resume()
     }
 
-    func getTalks(token: String, completion: @escaping (Result<[Talk], Error>) -> Void) {
-        guard let url = URL(string: "\(baseURL)/talks/") else {
+    func getTalks(token: String, language: String? = nil, completion: @escaping (Result<[TalkModel], Error>) -> Void) {
+        var urlString = "\(baseURL)/talks/"
+        if let language = language {
+            urlString += "?language=\(language)"
+        }
+        guard let url = URL(string: urlString) else {
             completion(.failure(NetworkError.invalidURL))
             return
         }
@@ -97,7 +101,7 @@ class NetworkService {
             }
 
             do {
-                let talks = try JSONDecoder().decode([Talk].self, from: data)
+                let talks = try JSONDecoder().decode([TalkModel].self, from: data)
                 completion(.success(talks))
             } catch {
                 completion(.failure(NetworkError.decodingError))

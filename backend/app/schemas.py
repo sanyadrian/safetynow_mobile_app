@@ -43,6 +43,8 @@ class TalkBase(BaseModel):
     description: Optional[str] = None
     hazard: Optional[str] = None
     industry: Optional[str] = None
+    language: str
+    related_title: str
 
 class TalkCreate(TalkBase):
     pass

@@ -12,11 +12,13 @@ struct TalkModel: Identifiable, Decodable {
     let description: String?
     let hazard: String?
     let industry: String?
+    let language: String
+    let related_title: String
     var likeCount: Int?
     var userLiked: Bool?
     
     enum CodingKeys: String, CodingKey {
-        case id, title, category, description, hazard, industry
+        case id, title, category, description, hazard, industry, language, related_title
         case likeCount = "like_count"
         case userLiked = "user_liked"
     }
@@ -27,6 +29,7 @@ struct TalksListView: View {
     let filterValue: String
     let onTalkTap: (TalkModel) -> Void
     @AppStorage("access_token") var accessToken: String = ""
+    @AppStorage("selectedLanguage") var selectedLanguage: String = "en"
     @State private var talks: [TalkModel] = []
     @State private var isLoading = true
     @State private var showUpgrade = false
@@ -96,12 +99,13 @@ struct TalksListView: View {
     }
     
     func fetchTalks() {
+        isLoading = true
         let endpoint: String
         switch filterType {
         case .hazard:
-            endpoint = "http://localhost:8000/talks/by_hazard/\(filterValue)"
+            endpoint = "http://localhost:8000/talks/by_hazard/\(filterValue)?language=\(selectedLanguage)"
         case .industry:
-            endpoint = "http://localhost:8000/talks/by_industry/\(filterValue)"
+            endpoint = "http://localhost:8000/talks/by_industry/\(filterValue)?language=\(selectedLanguage)"
         }
         guard let url = URL(string: endpoint.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "") else { return }
         var request = URLRequest(url: url)

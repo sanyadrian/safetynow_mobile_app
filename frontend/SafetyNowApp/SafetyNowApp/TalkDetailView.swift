@@ -168,5 +168,18 @@ struct LikeInfo: Decodable {
 }
 
 #Preview {
-    TalkDetailView(talk: TalkModel(id: 1, title: "Title of Safety Talks", category: "", description: "UI/UX design refers to the process of creating user interfaces (UI) and user experiences (UX) for digital products, such as websites, mobile apps, and software applications.\n\nUI design focuses on the visual elements and layout of a digital product, including components like buttons, icons, typography, color schemes, and overall aesthetics. The goal of UI design is to create an intuitive and visually appealing interface that users can interact with easily.\n\nOn the other hand, UX design is concerned with the overall experience that a user has while interacting with a digital product. It involves understanding user behaviors, preferences, and needs, and designing the product in a way that provides a seamless and satisfying experience. This includes aspects like user research, wireframing, prototyping, and testing to ensure that the product meets user", hazard: nil, industry: nil))
+    TalkDetailView(
+        talk: TalkModel(
+            id: 1,
+            title: "Test Talk",
+            category: "General",
+            description: "A test description.",
+            hazard: "Hazard",
+            industry: "Industry",
+            language: "en",
+            related_title: "test-talk",
+            likeCount: 0,
+            userLiked: false
+        )
+    )
 }
