@@ -51,3 +51,15 @@ class TalkOut(TalkBase):
     id: int
     class Config:
         orm_mode = True
+
+class PasswordResetRequest(BaseModel):
+    email: EmailStr
+
+class PasswordResetVerify(BaseModel):
+    email: EmailStr
+    code: str
+
+class PasswordReset(BaseModel):
+    email: EmailStr
+    code: str
+    new_password: constr(min_length=8)

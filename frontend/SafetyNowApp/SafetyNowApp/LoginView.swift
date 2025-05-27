@@ -10,6 +10,7 @@ struct LoginView: View {
     @AppStorage("username") var storedUsername: String = ""
     @AppStorage("isLoggedIn") var isLoggedIn: Bool = false
     @State private var showRegister = false
+    @State private var showForgotPassword = false
     @State private var selectedTab: Tab = .home
 
     var body: some View {
@@ -43,6 +44,7 @@ struct LoginView: View {
                 HStack {
                     Spacer()
                     Button("Forgot Password?") {
+                        showForgotPassword = true
                     }
                     .font(.footnote)
                     .foregroundColor(.blue)
@@ -76,6 +78,11 @@ struct LoginView: View {
 
                 // Navigation link for register only
                 NavigationLink(destination: RegisterView(currentIndex: $currentIndex), isActive: $showRegister) {
+                    EmptyView()
+                }
+
+                // Navigation link for forgot password
+                NavigationLink(destination: ForgotPasswordView(), isActive: $showForgotPassword) {
                     EmptyView()
                 }
 

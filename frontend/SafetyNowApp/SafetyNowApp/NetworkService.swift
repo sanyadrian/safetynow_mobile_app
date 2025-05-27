@@ -363,6 +363,142 @@ class NetworkService {
             }
         }.resume()
     }
+
+    func requestPasswordReset(email: String, completion: @escaping (Result<Void, Error>) -> Void) {
+        guard let url = URL(string: "\(baseURL)/auth/forgot-password") else {
+            completion(.failure(NetworkError.invalidURL))
+            return
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        let body = ["email": email]
+        do {
+            request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        } catch {
+            completion(.failure(NetworkError.encodingError))
+            return
+        }
+
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+
+            guard let data = data, let httpResponse = response as? HTTPURLResponse else {
+                completion(.failure(NetworkError.serverError))
+                return
+            }
+
+            if !(200...299).contains(httpResponse.statusCode) {
+                if let backendError = try? JSONDecoder().decode([String: String].self, from: data),
+                   let detail = backendError["detail"] ?? backendError["message"] {
+                    completion(.failure(NetworkError.backendMessage(detail)))
+                } else {
+                    completion(.failure(NetworkError.serverError))
+                }
+                return
+            }
+
+            completion(.success(()))
+        }.resume()
+    }
+
+    func verifyResetCode(email: String, code: String, completion: @escaping (Result<Void, Error>) -> Void) {
+        guard let url = URL(string: "\(baseURL)/auth/verify-reset-code") else {
+            completion(.failure(NetworkError.invalidURL))
+            return
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        let body = [
+            "email": email,
+            "code": code
+        ]
+        do {
+            request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        } catch {
+            completion(.failure(NetworkError.encodingError))
+            return
+        }
+
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+
+            guard let data = data, let httpResponse = response as? HTTPURLResponse else {
+                completion(.failure(NetworkError.serverError))
+                return
+            }
+
+            if !(200...299).contains(httpResponse.statusCode) {
+                if let backendError = try? JSONDecoder().decode([String: String].self, from: data),
+                   let detail = backendError["detail"] ?? backendError["message"] {
+                    completion(.failure(NetworkError.backendMessage(detail)))
+                } else {
+                    completion(.failure(NetworkError.serverError))
+                }
+                return
+            }
+
+            completion(.success(()))
+        }.resume()
+    }
+
+    func resetPassword(email: String, code: String, newPassword: String, completion: @escaping (Result<Void, Error>) -> Void) {
+        guard let url = URL(string: "\(baseURL)/auth/reset-password") else {
+            completion(.failure(NetworkError.invalidURL))
+            return
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        let body = [
+            "email": email,
+            "code": code,
+            "new_password": newPassword
+        ]
+        do {
+            request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        } catch {
+            completion(.failure(NetworkError.encodingError))
+            return
+        }
+
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+
+            guard let data = data, let httpResponse = response as? HTTPURLResponse else {
+                completion(.failure(NetworkError.serverError))
+                return
+            }
+
+            if !(200...299).contains(httpResponse.statusCode) {
+                if let backendError = try? JSONDecoder().decode([String: String].self, from: data),
+                   let detail = backendError["detail"] ?? backendError["message"] {
+                    completion(.failure(NetworkError.backendMessage(detail)))
+                } else {
+                    completion(.failure(NetworkError.serverError))
+                }
+                return
+            }
+
+            completion(.success(()))
+        }.resume()
+    }
 }
 
 extension Data {
