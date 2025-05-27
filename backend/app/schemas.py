@@ -1,13 +1,13 @@
 # app/schemas.py
 
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr, constr
 from typing import Optional
 
 class UserCreate(BaseModel):
-    username: str
-    email: str
-    phone: str
-    password: str
+    username: constr(min_length=1)
+    email: EmailStr
+    phone: constr(min_length=1)
+    password: constr(min_length=8)
 
 class UserOut(BaseModel):
     id: int
@@ -51,3 +51,15 @@ class TalkOut(TalkBase):
     id: int
     class Config:
         orm_mode = True
+
+class PasswordResetRequest(BaseModel):
+    email: EmailStr
+
+class PasswordResetVerify(BaseModel):
+    email: EmailStr
+    code: str
+
+class PasswordReset(BaseModel):
+    email: EmailStr
+    code: str
+    new_password: constr(min_length=8)

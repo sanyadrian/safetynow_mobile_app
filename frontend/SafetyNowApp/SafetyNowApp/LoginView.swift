@@ -10,6 +10,7 @@ struct LoginView: View {
     @AppStorage("username") var storedUsername: String = ""
     @AppStorage("isLoggedIn") var isLoggedIn: Bool = false
     @State private var showRegister = false
+    @State private var showForgotPassword = false
     @State private var selectedTab: Tab = .home
 
     var body: some View {
@@ -43,6 +44,7 @@ struct LoginView: View {
                 HStack {
                     Spacer()
                     Button("Forgot Password?") {
+                        showForgotPassword = true
                     }
                     .font(.footnote)
                     .foregroundColor(.blue)
@@ -79,6 +81,11 @@ struct LoginView: View {
                     EmptyView()
                 }
 
+                // Navigation link for forgot password
+                NavigationLink(destination: ForgotPasswordView(), isActive: $showForgotPassword) {
+                    EmptyView()
+                }
+
             }
             .padding()
         }
@@ -96,7 +103,16 @@ struct LoginView: View {
                     UserDefaults.standard.set(response.user.phone, forKey: "phone")
                     isLoggedIn = true
                 case .failure(let error):
-                    loginMessage = "\(error.localizedDescription)"
+                    if let networkError = error as? NetworkError {
+                        switch networkError {
+                        case .backendMessage(let message):
+                            loginMessage = message
+                        default:
+                            loginMessage = error.localizedDescription
+                        }
+                    } else {
+                        loginMessage = error.localizedDescription
+                    }
                 }
             }
         }
