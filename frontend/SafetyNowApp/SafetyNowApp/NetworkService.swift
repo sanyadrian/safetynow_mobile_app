@@ -14,14 +14,37 @@ class NetworkService {
 
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
-        let body = "username=\(username)&password=\(password)"
-        request.httpBody = body.data(using: .utf8)
+        
+        let cleanUsername = username.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        let cleanPassword = password.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        let parameters = [
+            "username": cleanUsername,
+            "password": cleanPassword
+        ]
+        
+        let bodyString = parameters
+            .map { "\($0.key)=\($0.value)" }
+            .joined(separator: "&")
+            .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        
+        request.httpBody = bodyString.data(using: .utf8)
         request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+        
+        // Debug print
+        print("Login attempt for username: \(cleanUsername)")
+        print("Request URL: \(url)")
+        print("Request body: \(bodyString)")
 
         URLSession.shared.dataTask(with: request) { data, response, error in
             if let error = error {
+                print("Network error: \(error.localizedDescription)")
                 completion(.failure(error))
                 return
+            }
+
+            if let httpResponse = response as? HTTPURLResponse {
+                print("Response status code: \(httpResponse.statusCode)")
             }
 
             guard let data = data else {
@@ -29,10 +52,25 @@ class NetworkService {
                 return
             }
 
+            if let httpResponse = response as? HTTPURLResponse, !(200...299).contains(httpResponse.statusCode) {
+                if let responseString = String(data: data, encoding: .utf8) {
+                    print("Error response: \(responseString)")
+                }
+                
+                if let backendError = try? JSONDecoder().decode([String: String].self, from: data),
+                   let detail = backendError["detail"] ?? backendError["message"] {
+                    completion(.failure(NetworkError.backendMessage(detail)))
+                } else {
+                    completion(.failure(NetworkError.serverError))
+                }
+                return
+            }
+
             do {
                 let tokenResponse = try JSONDecoder().decode(TokenResponse.self, from: data)
                 completion(.success(tokenResponse))
             } catch {
+                print("Decoding error: \(error)")
                 completion(.failure(NetworkError.decodingError))
             }
         }.resume()
@@ -164,8 +202,18 @@ class NetworkService {
                 return
             }
 
-            guard let response = response as? HTTPURLResponse, (200...299).contains(response.statusCode) else {
+            guard let data = data, let httpResponse = response as? HTTPURLResponse else {
                 completion(.failure(NetworkError.serverError))
+                return
+            }
+
+            if !(200...299).contains(httpResponse.statusCode) {
+                if let backendError = try? JSONDecoder().decode([String: String].self, from: data),
+                   let detail = backendError["detail"] ?? backendError["message"] {
+                    completion(.failure(NetworkError.backendMessage(detail)))
+                } else {
+                    completion(.failure(NetworkError.serverError))
+                }
                 return
             }
 

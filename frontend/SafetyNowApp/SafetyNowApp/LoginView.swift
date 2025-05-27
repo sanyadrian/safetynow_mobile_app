@@ -96,7 +96,16 @@ struct LoginView: View {
                     UserDefaults.standard.set(response.user.phone, forKey: "phone")
                     isLoggedIn = true
                 case .failure(let error):
-                    loginMessage = "\(error.localizedDescription)"
+                    if let networkError = error as? NetworkError {
+                        switch networkError {
+                        case .backendMessage(let message):
+                            loginMessage = message
+                        default:
+                            loginMessage = error.localizedDescription
+                        }
+                    } else {
+                        loginMessage = error.localizedDescription
+                    }
                 }
             }
         }

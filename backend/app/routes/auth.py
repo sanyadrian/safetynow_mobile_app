@@ -29,15 +29,23 @@ def get_db():
 
 @router.post("/register", response_model=schemas.UserOut)
 def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
-    # Check if user already exists
-    db_user = db.query(models.User).filter(models.User.username == user.username).first()
+    # Check if email already exists
+    db_email = db.query(models.User).filter(models.User.email == user.email).first()
+    if db_email:
+        raise HTTPException(status_code=400, detail="Email already registered")
+
+    # Check if username already exists (case-insensitive)
+    db_user = db.query(models.User).filter(models.User.username.ilike(user.username)).first()
     if db_user:
         raise HTTPException(status_code=400, detail="Username already registered")
+
+    # Always store username as lowercase
+    username = user.username.lower()
 
     # Create user
     hashed_password = pwd_context.hash(user.password)
     new_user = models.User(
-        username=user.username,
+        username=username,
         email=user.email,
         phone=user.phone,
         hashed_password=hashed_password

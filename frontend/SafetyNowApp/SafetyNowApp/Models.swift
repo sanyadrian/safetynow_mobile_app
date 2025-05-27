@@ -49,4 +49,5 @@ enum NetworkError: Error {
     case decodingError
     case encodingError
     case serverError
+    case backendMessage(String)
 }
