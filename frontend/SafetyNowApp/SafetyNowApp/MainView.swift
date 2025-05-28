@@ -10,6 +10,7 @@ enum SubScreen {
 struct MainView: View {
     @State private var selectedTab: Tab = .home
     @State private var subScreen: SubScreen? = nil
+    @AppStorage("selectedLanguage") var selectedLanguage: String = "en"
 
     var body: some View {
         NavigationStack {
@@ -60,5 +61,6 @@ struct MainView: View {
                 }
             }
         }
+        .id(selectedLanguage)
     }
 }

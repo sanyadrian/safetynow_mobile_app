@@ -45,4 +45,29 @@
 "ticket.alert_title" = "Ticket Submission";
 "ticket.fill_all_fields" = "Please fill in all fields";
 "ticket.success" = "Ticket submitted successfully! We'll contact you at %@";
-"ticket.failure" = "Failed to submit ticket"; 
+"ticket.failure" = "Failed to submit ticket";
+
+/* FindTalkView */
+"findtalk.explore" = "Explore";
+"findtalk.hazards" = "Hazards";
+"findtalk.hazards_desc" = "Search for a safety talk by workplace hazard.";
+"findtalk.industry" = "Industry";
+"findtalk.industry_desc" = "Search for a safety talk by Industry.";
+"findtalk.send_talk" = "Send a Talk";
+"findtalk.send_talk_desc" = "Send a safety talk to employees.";
+"findtalk.translate" = "Translate";
+"findtalk.translate_desc" = "Get a translated safety talk.";
+"findtalk.tools" = "Tools";
+"findtalk.tools_desc" = "Access games, checklists, and other safety tools.";
+"findtalk.calendar" = "Calendar";
+"findtalk.calendar_desc" = "We've already built your annual safety training plan, just click and go.";
+
+/* ShareTalkInfoView */
+"shareinfo.title" = "How to Share a Safety Talk";
+"shareinfo.intro" = "You can easily share any Safety Talk with your team or contacts as a professional PDF:";
+"shareinfo.step1" = "Open any Safety Talk from the app (for example, from History or Most Popular).";
+"shareinfo.step2" = "Tap the share icon";
+"shareinfo.step3" = "Choose how you want to share: Messages, Email, AirDrop, WhatsApp, and more.";
+"shareinfo.step4" = "A PDF with the talk's details and your company branding will be sent.";
+"shareinfo.tip" = "Tip: You can also save the PDF to your Files or print it for in-person meetings.";
+"shareinfo.nav_title" = "Share a Talk"; 

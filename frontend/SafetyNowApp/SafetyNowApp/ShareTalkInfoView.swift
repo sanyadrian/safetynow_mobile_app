@@ -9,22 +9,22 @@ struct ShareTalkInfoView: View {
                         .resizable()
                         .frame(width: 32, height: 32)
                         .foregroundColor(.blue)
-                    Text("How to Share a Safety Talk")
+                    Text(LocalizationManager.shared.localizedString(for: "shareinfo.title"))
                         .font(.title2)
                         .bold()
                 }
                 .padding(.top, 32)
-                Text("You can easily share any Safety Talk with your team or contacts as a professional PDF:")
+                Text(LocalizationManager.shared.localizedString(for: "shareinfo.intro"))
                     .font(.body)
                 VStack(alignment: .leading, spacing: 12) {
                     HStack(alignment: .top) {
                         Text("1.")
                             .bold()
-                        Text("Open any Safety Talk from the app (for example, from History or Most Popular).")
+                        Text(LocalizationManager.shared.localizedString(for: "shareinfo.step1"))
                     }
                     HStack(alignment: .center, spacing: 4) {
                         Text("2.").bold()
-                        Text("Tap the share icon")
+                        Text(LocalizationManager.shared.localizedString(for: "shareinfo.step2"))
                         Image(systemName: "square.and.arrow.up")
                             .foregroundColor(.blue)
                         Text(".")
@@ -32,24 +32,24 @@ struct ShareTalkInfoView: View {
                     HStack(alignment: .top) {
                         Text("3.")
                             .bold()
-                        Text("Choose how you want to share: Messages, Email, AirDrop, WhatsApp, and more.")
+                        Text(LocalizationManager.shared.localizedString(for: "shareinfo.step3"))
                     }
                     HStack(alignment: .top) {
                         Text("4.")
                             .bold()
-                        Text("A PDF with the talk's details and your company branding will be sent.")
+                        Text(LocalizationManager.shared.localizedString(for: "shareinfo.step4"))
                     }
                 }
                 .font(.body)
                 .padding(.vertical)
-                Text("Tip: You can also save the PDF to your Files or print it for in-person meetings.")
+                Text(LocalizationManager.shared.localizedString(for: "shareinfo.tip"))
                     .font(.footnote)
                     .foregroundColor(.gray)
                 Spacer()
             }
             .padding()
         }
-        .navigationTitle("Share a Talk")
+        .navigationTitle(LocalizationManager.shared.localizedString(for: "shareinfo.nav_title"))
         .navigationBarTitleDisplayMode(.inline)
         .background(Color(.systemGroupedBackground).ignoresSafeArea())
     }

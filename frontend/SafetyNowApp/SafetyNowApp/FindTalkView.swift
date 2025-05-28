@@ -1,13 +1,13 @@
 import SwiftUI
 
 struct FindTalkView: View {
-    let categories = [
-        ("Hazards", "Search for a safety talk by workplace hazard.", "pencil"),
-        ("Industry", "Search for a safety talk by Industry.", "pencil"),
-        ("Send a Talk", "Send a safety talk to employees.", "calendar"),
-        ("Translate", "Get a translated safety talk.", "globe"),
-        ("Tools", "Access games, checklists, and other safety tools.", "lightbulb"),
-        ("Calendar", "We've already built your annual safety training plan, just click and go.", "doc.on.doc")
+    let categories: [(key: String, icon: String)] = [
+        ("hazards", "pencil"),
+        ("industry", "pencil"),
+        ("send_talk", "calendar"),
+        ("translate", "globe"),
+        ("tools", "lightbulb"),
+        ("calendar", "doc.on.doc")
     ]
 
     @Environment(\.dismiss) var dismiss
@@ -21,37 +21,38 @@ struct FindTalkView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
-            Text("Explore")
+            Text(LocalizationManager.shared.localizedString(for: "findtalk.explore"))
                 .font(.title)
                 .bold()
                 .frame(maxWidth: .infinity, alignment: .center)
                 .padding(.top)
 
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 20) {
-                ForEach(categories.indices, id: \.self) { index in
-                    let category = categories[index]
-                    if category.0 == "Hazards" {
+                ForEach(categories, id: \ .key) { category in
+                    let title = LocalizationManager.shared.localizedString(for: "findtalk.\(category.key)")
+                    let desc = LocalizationManager.shared.localizedString(for: "findtalk.\(category.key)_desc")
+                    if category.key == "hazards" {
                         Button(action: onHazardTap) {
-                            tileView(category: category)
+                            tileView(title: title, desc: desc, icon: category.icon)
                         }
-                    } else if category.0 == "Industry" {
+                    } else if category.key == "industry" {
                         Button(action: onIndustryTap) {
-                            tileView(category: category)
+                            tileView(title: title, desc: desc, icon: category.icon)
                         }
-                    } else if category.0 == "Calendar" {
+                    } else if category.key == "calendar" {
                         Button(action: { showCalendar = true }) {
-                            tileView(category: category)
+                            tileView(title: title, desc: desc, icon: category.icon)
                         }
-                    } else if category.0 == "Translate" {
+                    } else if category.key == "translate" {
                         Button(action: { showTranslate = true }) {
-                            tileView(category: category)
+                            tileView(title: title, desc: desc, icon: category.icon)
                         }
-                    } else if category.0 == "Send a Talk" {
+                    } else if category.key == "send_talk" {
                         Button(action: { showShareTalkInfo = true }) {
-                            tileView(category: category)
+                            tileView(title: title, desc: desc, icon: category.icon)
                         }
                     } else {
-                        tileView(category: category)
+                        tileView(title: title, desc: desc, icon: category.icon)
                     }
                 }
             }
@@ -78,17 +79,17 @@ struct FindTalkView: View {
         .background(Color.white.ignoresSafeArea())
     }
 
-    private func tileView(category: (String, String, String)) -> some View {
+    private func tileView(title: String, desc: String, icon: String) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Image(systemName: category.2)
+                Image(systemName: icon)
                     .foregroundColor(.black)
                 Spacer()
             }
-            Text(category.0)
+            Text(title)
                 .font(.headline)
                 .foregroundColor(.blue)
-            Text(category.1)
+            Text(desc)
                 .font(.caption)
                 .foregroundColor(.gray)
         }

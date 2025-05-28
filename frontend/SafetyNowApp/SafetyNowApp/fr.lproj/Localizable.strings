@@ -45,4 +45,29 @@
 "ticket.alert_title" = "Soumission du ticket";
 "ticket.fill_all_fields" = "Veuillez remplir tous les champs";
 "ticket.success" = "Ticket soumis avec succès ! Nous vous contacterons à %@";
-"ticket.failure" = "Échec de la soumission du ticket"; 
+"ticket.failure" = "Échec de la soumission du ticket";
+
+/* FindTalkView */
+"findtalk.explore" = "Explorer";
+"findtalk.hazards" = "Dangers";
+"findtalk.hazards_desc" = "Rechercher une discussion de sécurité par danger au travail.";
+"findtalk.industry" = "Industrie";
+"findtalk.industry_desc" = "Rechercher une discussion de sécurité par industrie.";
+"findtalk.send_talk" = "Envoyer une Discussion";
+"findtalk.send_talk_desc" = "Envoyer une discussion de sécurité aux employés.";
+"findtalk.translate" = "Traduire";
+"findtalk.translate_desc" = "Obtenir une discussion de sécurité traduite.";
+"findtalk.tools" = "Outils";
+"findtalk.tools_desc" = "Accéder à des jeux, des listes de contrôle et d'autres outils de sécurité.";
+"findtalk.calendar" = "Calendrier";
+"findtalk.calendar_desc" = "Nous avons déjà créé votre plan annuel de formation à la sécurité, il suffit de cliquer et c'est parti.";
+
+/* ShareTalkInfoView */
+"shareinfo.title" = "Comment partager une discussion de sécurité";
+"shareinfo.intro" = "Vous pouvez facilement partager toute discussion de sécurité avec votre équipe ou vos contacts sous forme de PDF professionnel :";
+"shareinfo.step1" = "Ouvrez n'importe quelle discussion de sécurité depuis l'application (par exemple, depuis l'Historique ou les Plus Populaires).";
+"shareinfo.step2" = "Appuyez sur l'icône de partage";
+"shareinfo.step3" = "Choisissez comment vous souhaitez partager : Messages, Email, AirDrop, WhatsApp, et plus.";
+"shareinfo.step4" = "Un PDF avec les détails de la discussion et le branding de votre entreprise sera envoyé.";
+"shareinfo.tip" = "Astuce : Vous pouvez également enregistrer le PDF dans vos fichiers ou l'imprimer pour des réunions en personne.";
+"shareinfo.nav_title" = "Partager une discussion"; 

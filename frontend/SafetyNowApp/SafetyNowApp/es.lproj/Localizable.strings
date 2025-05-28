@@ -45,4 +45,29 @@
 "ticket.alert_title" = "Envío de Ticket";
 "ticket.fill_all_fields" = "Por favor complete todos los campos";
 "ticket.success" = "¡Ticket enviado con éxito! Nos comunicaremos con usted en %@";
-"ticket.failure" = "No se pudo enviar el ticket"; 
+"ticket.failure" = "No se pudo enviar el ticket";
+
+/* FindTalkView */
+"findtalk.explore" = "Explorar";
+"findtalk.hazards" = "Peligros";
+"findtalk.hazards_desc" = "Buscar una charla de seguridad por peligro laboral.";
+"findtalk.industry" = "Industria";
+"findtalk.industry_desc" = "Buscar una charla de seguridad por industria.";
+"findtalk.send_talk" = "Enviar una Charla";
+"findtalk.send_talk_desc" = "Enviar una charla de seguridad a los empleados.";
+"findtalk.translate" = "Traducir";
+"findtalk.translate_desc" = "Obtener una charla de seguridad traducida.";
+"findtalk.tools" = "Herramientas";
+"findtalk.tools_desc" = "Acceder a juegos, listas de verificación y otras herramientas de seguridad.";
+"findtalk.calendar" = "Calendario";
+"findtalk.calendar_desc" = "Ya hemos creado su plan anual de capacitación en seguridad, solo haga clic y listo.";
+
+/* ShareTalkInfoView */
+"shareinfo.title" = "Cómo compartir una charla de seguridad";
+"shareinfo.intro" = "Puede compartir fácilmente cualquier charla de seguridad con su equipo o contactos como un PDF profesional:";
+"shareinfo.step1" = "Abra cualquier charla de seguridad desde la app (por ejemplo, desde Historial o Más Populares).";
+"shareinfo.step2" = "Toque el icono de compartir";
+"shareinfo.step3" = "Elija cómo desea compartir: Mensajes, Correo, AirDrop, WhatsApp y más.";
+"shareinfo.step4" = "Se enviará un PDF con los detalles de la charla y la marca de su empresa.";
+"shareinfo.tip" = "Consejo: También puede guardar el PDF en sus Archivos o imprimirlo para reuniones presenciales.";
+"shareinfo.nav_title" = "Compartir una charla"; 
