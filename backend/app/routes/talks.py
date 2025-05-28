@@ -114,6 +114,7 @@ def get_talks(
 @router.get("/popular")
 def get_popular_talks(
     limit: int = 5,
+    language: str = Query("en", description="Language code to filter popular talks"),
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
@@ -127,14 +128,14 @@ def get_popular_talks(
         models.Talk.related_title
     ).subquery()
 
-    # Join to get a representative talk for each related_title (e.g., the English one or the first)
+    # Join to get a representative talk for each related_title in the requested language
     popular_talks = db.query(
         models.Talk,
         subq.c.like_count
     ).join(
         subq, models.Talk.related_title == subq.c.related_title
     ).filter(
-        models.Talk.language == "en"  # Prefer English as representative
+        models.Talk.language == language
     ).order_by(
         subq.c.like_count.desc()
     ).limit(limit).all()

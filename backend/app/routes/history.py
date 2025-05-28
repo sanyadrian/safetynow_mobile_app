@@ -34,7 +34,8 @@ def add_to_history(
 ):
     db.query(models.TalkHistory).filter(
         models.TalkHistory.user_id == user_id,
-        models.TalkHistory.talk_title == entry.talk_title
+        models.TalkHistory.talk_title == entry.talk_title,
+        models.TalkHistory.language == entry.language
     ).delete()
     db.commit()
 
@@ -42,7 +43,8 @@ def add_to_history(
     new_entry = models.TalkHistory(
         user_id=user_id,
         talk_title=entry.talk_title,
-        accessed_at=datetime.utcnow()
+        accessed_at=datetime.utcnow(),
+        language=entry.language
     )
     db.add(new_entry)
     db.commit()
@@ -60,7 +62,14 @@ def get_history(
         .order_by(models.TalkHistory.accessed_at.desc())
         .all()
     )
-    return history
+    return [
+        schemas.TalkHistoryOut(
+            id=item.id,
+            talk_title=item.talk_title,
+            accessed_at=item.accessed_at.isoformat(),
+            language=item.language
+        ) for item in history
+    ]
 
 @router.get("/{history_id}")
 def get_history_item(history_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):

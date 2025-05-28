@@ -25,6 +25,7 @@ class TalkHistory(Base):
     user_id = Column(Integer)
     talk_title = Column(String)
     accessed_at = Column(DateTime, default=datetime.utcnow)
+    language = Column(String, nullable=False, default="en")
 
 
 class Ticket(Base):

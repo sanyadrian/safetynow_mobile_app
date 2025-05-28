@@ -149,7 +149,8 @@ class NetworkService {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
 
-        let body = ["talk_title": talkTitle]
+        let language = UserDefaults.standard.string(forKey: "selectedLanguage") ?? "en"
+        let body = ["talk_title": talkTitle, "language": language]
         do {
             request.httpBody = try JSONSerialization.data(withJSONObject: body)
         } catch {

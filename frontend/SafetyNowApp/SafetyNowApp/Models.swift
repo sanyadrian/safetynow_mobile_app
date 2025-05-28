@@ -26,6 +26,7 @@ struct HistoryItem: Codable, Identifiable {
     let id: Int
     let talk_title: String
     let accessed_at: String
+    let language: String
 }
 
 struct TalkCategory: Identifiable {

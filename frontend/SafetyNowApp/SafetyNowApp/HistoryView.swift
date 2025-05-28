@@ -29,7 +29,12 @@ struct HistoryView: View {
                             .font(.headline)
                             .padding(.top)
 
-                        ForEach(history) { item in
+                        var filteredHistory: [HistoryItem] {
+                            let currentLanguage = UserDefaults.standard.string(forKey: "selectedLanguage") ?? "en"
+                            return history.filter { $0.language == currentLanguage }
+                        }
+
+                        ForEach(filteredHistory) { item in
                             HStack {
                                 Image(systemName: "doc.text.fill")
                                     .foregroundColor(.blue)
@@ -153,7 +158,8 @@ struct HistoryView: View {
     }
     
     private func fetchPopularTalks() {
-        guard let url = URL(string: "http://localhost:8000/talks/popular") else { return }
+        let currentLanguage = UserDefaults.standard.string(forKey: "selectedLanguage") ?? "en"
+        guard let url = URL(string: "http://localhost:8000/talks/popular?language=\(currentLanguage)") else { return }
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")

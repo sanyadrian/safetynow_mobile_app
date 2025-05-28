@@ -72,7 +72,7 @@ struct DashboardView: View {
                         Text(LocalizationManager.shared.localizedString(for: "dashboard.history"))
                             .font(.title3)
                             .bold()
-                        ForEach(history) { item in
+                        ForEach(filteredHistory) { item in
                             HStack {
                                 Image(systemName: "doc.text")
                                     .foregroundColor(.blue)
@@ -258,5 +258,10 @@ struct DashboardView: View {
                 }
             }
         }
+    }
+
+    var filteredHistory: [HistoryItem] {
+        let currentLanguage = UserDefaults.standard.string(forKey: "selectedLanguage") ?? "en"
+        return history.filter { $0.language == currentLanguage }
     }
 }

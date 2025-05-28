@@ -21,10 +21,13 @@ class UserOut(BaseModel):
 
 class TalkHistoryCreate(BaseModel):
     talk_title: str
+    language: str
 
 class TalkHistoryOut(BaseModel):
+    id: int
     talk_title: str
     accessed_at: str
+    language: str
 
     class Config:
         from_attributes = True
