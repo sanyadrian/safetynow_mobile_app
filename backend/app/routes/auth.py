@@ -35,17 +35,14 @@ def get_db():
 
 @router.post("/register", response_model=schemas.UserOut)
 def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
-    # Check if email already exists
     db_email = db.query(models.User).filter(models.User.email == user.email).first()
     if db_email:
         raise HTTPException(status_code=400, detail="Email already registered")
 
-    # Check if username already exists (case-insensitive)
     db_user = db.query(models.User).filter(models.User.username.ilike(user.username)).first()
     if db_user:
         raise HTTPException(status_code=400, detail="Username already registered")
 
-    # Always store username as lowercase
     username = user.username.lower()
 
     # Create user
@@ -94,11 +91,10 @@ async def forgot_password(request: schemas.PasswordResetRequest, db: Session = D
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    # Generate reset code
     code = generate_reset_code()
-    expires_at = datetime.utcnow() + timedelta(minutes=15)  # Code expires in 15 minutes
+    expires_at = datetime.utcnow() + timedelta(minutes=15)
 
-    # Store reset code
+
     reset_request = models.PasswordReset(
         email=request.email,
         code=code,
@@ -107,7 +103,7 @@ async def forgot_password(request: schemas.PasswordResetRequest, db: Session = D
     db.add(reset_request)
     db.commit()
 
-    # Send email with reset code using Microsoft Graph API
+ 
     access_token = get_access_token()
     if not access_token:
         db.delete(reset_request)
@@ -172,7 +168,6 @@ async def forgot_password(request: schemas.PasswordResetRequest, db: Session = D
 
 @router.post("/verify-reset-code")
 def verify_reset_code(request: schemas.PasswordResetVerify, db: Session = Depends(get_db)):
-    # Find the most recent reset request for this email
     reset_request = db.query(models.PasswordReset)\
         .filter(models.PasswordReset.email == request.email)\
         .filter(models.PasswordReset.is_used == False)\
@@ -190,7 +185,6 @@ def verify_reset_code(request: schemas.PasswordResetVerify, db: Session = Depend
 
 @router.post("/reset-password")
 def reset_password(request: schemas.PasswordReset, db: Session = Depends(get_db)):
-    # Find the most recent reset request for this email
     reset_request = db.query(models.PasswordReset)\
         .filter(models.PasswordReset.email == request.email)\
         .filter(models.PasswordReset.is_used == False)\
@@ -204,7 +198,6 @@ def reset_password(request: schemas.PasswordReset, db: Session = Depends(get_db)
     if reset_request.code != request.code:
         raise HTTPException(status_code=400, detail="Invalid reset code")
 
-    # Update user's password
     user = db.query(models.User).filter(models.User.email == request.email).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
