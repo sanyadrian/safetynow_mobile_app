@@ -80,7 +80,7 @@ struct RegisterView: View {
 
                 // Register Button
                 Button(action: register) {
-                    Text("Register")
+                    Text(LocalizationManager.shared.localizedString(for: "button.register"))
                         .frame(maxWidth: .infinity)
                         .padding()
                         .background(Color.blue)

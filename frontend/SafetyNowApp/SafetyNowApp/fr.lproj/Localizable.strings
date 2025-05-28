@@ -1,0 +1,34 @@
+/* Menu */
+"menu.settings" = "Paramètres";
+"menu.language" = "Langue";
+"menu.help_center" = "Centre d'Aide";
+
+/* Buttons */
+"button.logout" = "Déconnexion";
+"button.register" = "Register";
+"button.login" = "Login";
+"button.translate" = "Traduire";
+"button.back" = "Retour";
+
+/* Dashboard */
+"dashboard.title" = "Tableau de Bord";
+"dashboard.welcome_back" = "Bienvenue";
+"dashboard.find_talk" = "Trouver une Discussion";
+"dashboard.talk_to_safetynow" = "Parler à SafetyNow";
+"dashboard.promo_title" = "SafetyNow ILT";
+"dashboard.promo_subtitle" = "Accédez à des fonctionnalités essentielles";
+"dashboard.promo_action" = "Débloquez Vidéos, Outils et eLearning";
+"dashboard.history" = "Historique";
+"dashboard.menu" = "Menu";
+
+/* History */
+"history.title" = "Historique";
+"history.last_talks" = "Dernières Discussions";
+"history.most_popular" = "Les Plus Populaires";
+"history.options" = "Options";
+"history.delete" = "Supprimer de l'historique";
+"history.share" = "Partager";
+"history.open" = "Ouvrir";
+"history.cancel" = "Annuler";
+"history.popular_talks" = "Discussions Populaires";
+"history.no_items" = "Aucun élément trouvé dans l'historique."; 

@@ -49,7 +49,7 @@ struct TranslateTalkView: View {
                     }
                     .pickerStyle(SegmentedPickerStyle())
                     Button(action: { showTranslation = true }) {
-                        Text("Translate")
+                        Text(LocalizationManager.shared.localizedString(for: "button.translate"))
                             .font(.headline)
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
@@ -58,7 +58,7 @@ struct TranslateTalkView: View {
                             .cornerRadius(12)
                     }
                     .padding(.horizontal)
-                    Button("Back") { selectedTalk = nil }
+                    Button(LocalizationManager.shared.localizedString(for: "button.back")) { selectedTalk = nil }
                         .foregroundColor(.red)
                 }
                 .padding()
@@ -72,7 +72,7 @@ struct TranslateTalkView: View {
                     Text(mockTranslate(talk.description ?? "", to: selectedLanguage))
                         .font(.body)
                         .foregroundColor(.gray)
-                    Button("Back") {
+                    Button(LocalizationManager.shared.localizedString(for: "button.back")) {
                         showTranslation = false
                     }
                     .foregroundColor(.red)

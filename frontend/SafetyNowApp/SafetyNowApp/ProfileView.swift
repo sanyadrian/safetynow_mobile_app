@@ -80,17 +80,17 @@ struct ProfileView: View {
 
             VStack(spacing: 24) {
                 Button(action: { showSettings = true }) {
-                    profileRow(title: "Settings")
+                    profileRow(title: LocalizationManager.shared.localizedString(for: "menu.settings"))
                 }
                 Button(action: { showLanguage = true }) {
-                    profileRow(title: "Language")
+                    profileRow(title: LocalizationManager.shared.localizedString(for: "menu.language"))
                 }
                 Button(action: { showHelpCenter = true }) {
-                    profileRow(title: "Help Center")
+                    profileRow(title: LocalizationManager.shared.localizedString(for: "menu.help_center"))
                 }
                 Button(action: logout) {
                     HStack {
-                        Text("Logout")
+                        Text(LocalizationManager.shared.localizedString(for: "button.logout"))
                             .font(.system(size: 20, weight: .bold))
                             .foregroundColor(.red)
                         Spacer()

@@ -20,12 +20,12 @@ struct HistoryView: View {
             VStack(spacing: 0) {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 16) {
-                        Text("History")
+                        Text(LocalizationManager.shared.localizedString(for: "history.title"))
                             .font(.title)
                             .bold()
                             .padding(.top)
 
-                        Text("Last Talks")
+                        Text(LocalizationManager.shared.localizedString(for: "history.last_talks"))
                             .font(.headline)
                             .padding(.top)
 
@@ -49,7 +49,7 @@ struct HistoryView: View {
                             .cornerRadius(16)
                         }
 
-                        Text("Most Popular")
+                        Text(LocalizationManager.shared.localizedString(for: "history.most_popular"))
                             .font(.headline)
                             .padding(.top)
 
@@ -100,36 +100,36 @@ struct HistoryView: View {
                 )
             ) { EmptyView() }
         }
-        .confirmationDialog("Options", isPresented: $showActionSheet, titleVisibility: .visible) {
-            Button("Delete from history", role: .destructive) {
+        .confirmationDialog(LocalizationManager.shared.localizedString(for: "history.options"), isPresented: $showActionSheet, titleVisibility: .visible) {
+            Button(LocalizationManager.shared.localizedString(for: "history.delete"), role: .destructive) {
                 if let item = selectedHistoryItem {
                     deleteFromHistory(item)
                 }
             }
-            Button("Share") {
+            Button(LocalizationManager.shared.localizedString(for: "history.share")) {
                 if let item = selectedHistoryItem {
                     shareTalk(item)
                 }
             }
-            Button("Open") {
+            Button(LocalizationManager.shared.localizedString(for: "history.open")) {
                 if let item = selectedHistoryItem {
                     openTalk(item)
                 }
             }
-            Button("Cancel", role: .cancel) {}
+            Button(LocalizationManager.shared.localizedString(for: "history.cancel"), role: .cancel) {}
         }
-        .confirmationDialog("Options", isPresented: $showPopularActionSheet, titleVisibility: .visible) {
-            Button("Share") {
+        .confirmationDialog(LocalizationManager.shared.localizedString(for: "history.options"), isPresented: $showPopularActionSheet, titleVisibility: .visible) {
+            Button(LocalizationManager.shared.localizedString(for: "history.share")) {
                 if let talk = selectedPopularTalk {
                     sharePopularTalk(talk)
                 }
             }
-            Button("Open") {
+            Button(LocalizationManager.shared.localizedString(for: "history.open")) {
                 if let talk = selectedPopularTalk {
                     openPopularTalk(talk)
                 }
             }
-            Button("Cancel", role: .cancel) {}
+            Button(LocalizationManager.shared.localizedString(for: "history.cancel"), role: .cancel) {}
         }
         .sheet(isPresented: $showShareSheet) {
             ShareSheet(activityItems: shareContent)

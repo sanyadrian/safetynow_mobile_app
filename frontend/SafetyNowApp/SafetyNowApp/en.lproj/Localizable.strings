@@ -1,0 +1,34 @@
+/* Menu */
+"menu.settings" = "Settings";
+"menu.language" = "Language";
+"menu.help_center" = "Help Center";
+
+/* Buttons */
+"button.logout" = "Logout";
+"button.register" = "Register";
+"button.login" = "Login";
+"button.translate" = "Translate";
+"button.back" = "Back";
+
+/* Dashboard */
+"dashboard.title" = "Dashboard";
+"dashboard.welcome_back" = "Welcome Back";
+"dashboard.find_talk" = "Find a Talk";
+"dashboard.talk_to_safetynow" = "Talk to SafetyNow";
+"dashboard.promo_title" = "SafetyNow ILT";
+"dashboard.promo_subtitle" = "Gain access to essential features";
+"dashboard.promo_action" = "Unlock Videos, Tools & eLearning";
+"dashboard.history" = "History";
+"dashboard.menu" = "Menu";
+
+/* History */
+"history.title" = "History";
+"history.last_talks" = "Last Talks";
+"history.most_popular" = "Most Popular";
+"history.options" = "Options";
+"history.delete" = "Delete from history";
+"history.share" = "Share";
+"history.open" = "Open";
+"history.cancel" = "Cancel";
+"history.popular_talks" = "Popular Talks";
+"history.no_items" = "No history items found."; 

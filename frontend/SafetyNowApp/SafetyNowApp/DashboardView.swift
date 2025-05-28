@@ -29,7 +29,7 @@ struct DashboardView: View {
                         }
                         Spacer()
                         VStack(alignment: .center) {
-                            Text("Welcome Back")
+                            Text(LocalizationManager.shared.localizedString(for: "dashboard.welcome_back"))
                                 .font(.subheadline)
                                 .foregroundColor(.gray)
                             Text("\(storedUsername)")
@@ -42,10 +42,10 @@ struct DashboardView: View {
                     .padding(.horizontal)
 
                     HStack(spacing: 16) {
-                        actionTile(title: "Find a Talk", systemIcon: "text.bubble") {
+                        actionTile(title: LocalizationManager.shared.localizedString(for: "dashboard.find_talk"), systemIcon: "text.bubble") {
                             selectedTab = .search
                         }
-                        actionTile(title: "Talk to SafetyNow", systemIcon: "mic") {
+                        actionTile(title: LocalizationManager.shared.localizedString(for: "dashboard.talk_to_safetynow"), systemIcon: "mic") {
                             showTicketSubmission = true
                         }
                     }
@@ -53,12 +53,12 @@ struct DashboardView: View {
 
                     // PROMO BOX
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("SafetyNow ILT")
+                        Text(LocalizationManager.shared.localizedString(for: "dashboard.promo_title"))
                             .foregroundColor(.blue)
                             .bold()
-                        Text("Gain access to essential features")
+                        Text(LocalizationManager.shared.localizedString(for: "dashboard.promo_subtitle"))
                             .foregroundColor(.gray)
-                        Text("Unlock Videos, Tools & eLearning")
+                        Text(LocalizationManager.shared.localizedString(for: "dashboard.promo_action"))
                             .font(.footnote)
                             .foregroundColor(.blue)
                             .underline()
@@ -69,7 +69,7 @@ struct DashboardView: View {
                     .padding(.horizontal)
 
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("History")
+                        Text(LocalizationManager.shared.localizedString(for: "dashboard.history"))
                             .font(.title3)
                             .bold()
                         ForEach(history) { item in
@@ -105,18 +105,18 @@ struct DashboardView: View {
             .sheet(isPresented: $showMenu) {
                 VStack(spacing: 32) {
                     Spacer().frame(height: 32)
-                    Text("Menu")
+                    Text(LocalizationManager.shared.localizedString(for: "dashboard.menu"))
                         .font(.title2)
                         .bold()
                     VStack(spacing: 24) {
                         Button(action: { showSettings = true; showMenu = false }) {
-                            menuRow(title: "Settings")
+                            menuRow(title: LocalizationManager.shared.localizedString(for: "menu.settings"))
                         }
                         Button(action: { showLanguage = true; showMenu = false }) {
-                            menuRow(title: "Language")
+                            menuRow(title: LocalizationManager.shared.localizedString(for: "menu.language"))
                         }
                         Button(action: { showHelpCenter = true; showMenu = false }) {
-                            menuRow(title: "Help Center")
+                            menuRow(title: LocalizationManager.shared.localizedString(for: "menu.help_center"))
                         }
                     }
                     .padding(.horizontal)
