@@ -70,4 +70,8 @@
 "shareinfo.step3" = "Elija cómo desea compartir: Mensajes, Correo, AirDrop, WhatsApp y más.";
 "shareinfo.step4" = "Se enviará un PDF con los detalles de la charla y la marca de su empresa.";
 "shareinfo.tip" = "Consejo: También puede guardar el PDF en sus Archivos o imprimirlo para reuniones presenciales.";
-"shareinfo.nav_title" = "Compartir una charla"; 
+"shareinfo.nav_title" = "Compartir una charla";
+
+/* Calendar View */
+"Calendar" = "Calendario";
+"Search for a safety talk by workplace hazard." = "Buscar una charla de seguridad por peligro en el lugar de trabajo."; 

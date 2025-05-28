@@ -70,4 +70,8 @@
 "shareinfo.step3" = "Choose how you want to share: Messages, Email, AirDrop, WhatsApp, and more.";
 "shareinfo.step4" = "A PDF with the talk's details and your company branding will be sent.";
 "shareinfo.tip" = "Tip: You can also save the PDF to your Files or print it for in-person meetings.";
-"shareinfo.nav_title" = "Share a Talk"; 
+"shareinfo.nav_title" = "Share a Talk";
+
+/* Calendar View */
+"Calendar" = "Calendar";
+"Search for a safety talk by workplace hazard." = "Search for a safety talk by workplace hazard."; 

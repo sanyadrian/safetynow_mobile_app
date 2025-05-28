@@ -5,7 +5,7 @@ enum TalkFilterType {
     case industry
 }
 
-struct TalkModel: Identifiable, Decodable {
+struct TalkModel: Identifiable, Decodable, Hashable {
     let id: Int
     let title: String
     let category: String

@@ -70,4 +70,8 @@
 "shareinfo.step3" = "Choisissez comment vous souhaitez partager : Messages, Email, AirDrop, WhatsApp, et plus.";
 "shareinfo.step4" = "Un PDF avec les détails de la discussion et le branding de votre entreprise sera envoyé.";
 "shareinfo.tip" = "Astuce : Vous pouvez également enregistrer le PDF dans vos fichiers ou l'imprimer pour des réunions en personne.";
-"shareinfo.nav_title" = "Partager une discussion"; 
+"shareinfo.nav_title" = "Partager une discussion";
+
+/* Calendar View */
+"Calendar" = "Calendrier";
+"Search for a safety talk by workplace hazard." = "Rechercher une discussion sur la sécurité par danger au travail."; 
