@@ -31,4 +31,18 @@
 "history.open" = "Open";
 "history.cancel" = "Cancel";
 "history.popular_talks" = "Popular Talks";
-"history.no_items" = "No history items found."; 
+"history.no_items" = "No history items found.";
+
+/* Ticket */
+"ticket.title" = "Talk to SafetyNow";
+"ticket.subtitle" = "Submit your safety concerns or questions";
+"ticket.name_placeholder" = "Your Name";
+"ticket.email_placeholder" = "Email";
+"ticket.phone_placeholder" = "Phone";
+"ticket.topic_placeholder" = "Topic";
+"ticket.message_placeholder" = "Your message";
+"ticket.submit_button" = "Submit Ticket";
+"ticket.alert_title" = "Ticket Submission";
+"ticket.fill_all_fields" = "Please fill in all fields";
+"ticket.success" = "Ticket submitted successfully! We'll contact you at %@";
+"ticket.failure" = "Failed to submit ticket"; 

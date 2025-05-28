@@ -19,10 +19,10 @@ struct TicketSubmissionView: View {
                 VStack(spacing: 20) {
                     // Header
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Talk to SafetyNow")
+                        Text(LocalizationManager.shared.localizedString(for: "ticket.title"))
                             .font(.title)
                             .bold()
-                        Text("Submit your safety concerns or questions")
+                        Text(LocalizationManager.shared.localizedString(for: "ticket.subtitle"))
                             .font(.subheadline)
                             .foregroundColor(.gray)
                     }
@@ -30,24 +30,24 @@ struct TicketSubmissionView: View {
                     .padding(.top)
                     
                     VStack(spacing: 16) {
-                        TextField("Your Name", text: $name)
+                        TextField(LocalizationManager.shared.localizedString(for: "ticket.name_placeholder"), text: $name)
                             .textFieldStyle(RoundedBorderTextFieldStyle())
                         
-                        TextField("Email", text: $email)
+                        TextField(LocalizationManager.shared.localizedString(for: "ticket.email_placeholder"), text: $email)
                             .textFieldStyle(RoundedBorderTextFieldStyle())
                             .keyboardType(.emailAddress)
                             .onAppear {
                                 email = storedEmail
                             }
                         
-                        TextField("Phone", text: $phone)
+                        TextField(LocalizationManager.shared.localizedString(for: "ticket.phone_placeholder"), text: $phone)
                             .textFieldStyle(RoundedBorderTextFieldStyle())
                             .keyboardType(.phonePad)
                             .onAppear {
                                 phone = storedPhone
                             }
                         
-                        TextField("Topic", text: $topic)
+                        TextField(LocalizationManager.shared.localizedString(for: "ticket.topic_placeholder"), text: $topic)
                             .textFieldStyle(RoundedBorderTextFieldStyle())
                         
                         TextEditor(text: $message)
@@ -59,7 +59,7 @@ struct TicketSubmissionView: View {
                             .overlay(
                                 Group {
                                     if message.isEmpty {
-                                        Text("Your message")
+                                        Text(LocalizationManager.shared.localizedString(for: "ticket.message_placeholder"))
                                             .foregroundColor(.gray)
                                             .padding(.leading, 4)
                                             .padding(.top, 8)
@@ -74,7 +74,7 @@ struct TicketSubmissionView: View {
                             ProgressView()
                                 .progressViewStyle(CircularProgressViewStyle(tint: .white))
                         } else {
-                            Text("Submit Ticket")
+                            Text(LocalizationManager.shared.localizedString(for: "ticket.submit_button"))
                                 .frame(maxWidth: .infinity)
                         }
                     }
@@ -96,7 +96,7 @@ struct TicketSubmissionView: View {
                     }
                 }
             }
-            .alert("Ticket Submission", isPresented: $showAlert) {
+            .alert(LocalizationManager.shared.localizedString(for: "ticket.alert_title"), isPresented: $showAlert) {
                 Button("OK") {
                     if alertMessage.contains("success") {
                         dismiss()
@@ -110,7 +110,7 @@ struct TicketSubmissionView: View {
     
     private func submitTicket() {
         guard !name.isEmpty, !email.isEmpty, !phone.isEmpty, !topic.isEmpty, !message.isEmpty else {
-            alertMessage = "Please fill in all fields"
+            alertMessage = LocalizationManager.shared.localizedString(for: "ticket.fill_all_fields")
             showAlert = true
             return
         }
@@ -124,9 +124,9 @@ struct TicketSubmissionView: View {
                 isSubmitting = false
                 switch result {
                 case .success:
-                    alertMessage = "Ticket submitted successfully! We'll contact you at \(email)"
+                    alertMessage = String(format: LocalizationManager.shared.localizedString(for: "ticket.success"), email)
                 case .failure(let error):
-                    alertMessage = "Failed to submit ticket: \(error.localizedDescription)"
+                    alertMessage = LocalizationManager.shared.localizedString(for: "ticket.failure") + ": " + error.localizedDescription
                 }
                 showAlert = true
             }

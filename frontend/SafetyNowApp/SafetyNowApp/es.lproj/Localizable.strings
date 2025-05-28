@@ -31,4 +31,18 @@
 "history.open" = "Abrir";
 "history.cancel" = "Cancelar";
 "history.popular_talks" = "Charlas Populares";
-"history.no_items" = "No se encontraron elementos en el historial."; 
+"history.no_items" = "No se encontraron elementos en el historial.";
+
+/* Ticket */
+"ticket.title" = "Hablar con SafetyNow";
+"ticket.subtitle" = "Envíe sus inquietudes o preguntas de seguridad";
+"ticket.name_placeholder" = "Su Nombre";
+"ticket.email_placeholder" = "Correo Electrónico";
+"ticket.phone_placeholder" = "Teléfono";
+"ticket.topic_placeholder" = "Tema";
+"ticket.message_placeholder" = "Su mensaje";
+"ticket.submit_button" = "Enviar Ticket";
+"ticket.alert_title" = "Envío de Ticket";
+"ticket.fill_all_fields" = "Por favor complete todos los campos";
+"ticket.success" = "¡Ticket enviado con éxito! Nos comunicaremos con usted en %@";
+"ticket.failure" = "No se pudo enviar el ticket"; 
