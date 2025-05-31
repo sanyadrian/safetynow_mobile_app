@@ -86,7 +86,7 @@ struct TalkDetailView: View {
                             }
                             Spacer()
                             Button(action: {}) {
-                                Text("ACCESS MORE")
+                                Text(LocalizationManager.shared.localizedString(for: "button.access_more"))
                                     .font(.footnote)
                                     .foregroundColor(.white)
                                     .padding(.horizontal, 24)

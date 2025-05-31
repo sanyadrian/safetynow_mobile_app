@@ -64,7 +64,7 @@ struct FindTalkView: View {
             HStack {
                 Spacer()
                 Button(action: { showUpgrade = true }) {
-                    Text("ACCESS MORE")
+                    Text(LocalizationManager.shared.localizedString(for: "button.access_more"))
                         .font(.footnote)
                         .foregroundColor(.white)
                         .padding(.horizontal, 24)

@@ -9,6 +9,7 @@
 "button.login" = "Login";
 "button.translate" = "Traducir";
 "button.back" = "Atrás";
+"button.access_more" = "Acceder Más";
 
 /* Dashboard */
 "dashboard.title" = "Panel de Control";
