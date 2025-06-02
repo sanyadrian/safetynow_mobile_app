@@ -2,6 +2,7 @@ import SwiftUI
 
 struct HazardTilesView: View {
     @AppStorage("access_token") var accessToken: String = ""
+    @AppStorage("selectedLanguage") var selectedLanguage: String = "en"
     @State private var hazards: [String] = []
     @State private var isLoading = true
     @State private var selectedHazard: String? = nil
@@ -18,7 +19,7 @@ struct HazardTilesView: View {
                             Button(action: {
                                 onTalksTap(hazard)
                             }) {
-                                Text(hazard)
+                                Text(Translations.translateHazard(hazard, language: selectedLanguage))
                                     .frame(maxWidth: .infinity, minHeight: 80)
                                     .background(Color.blue.opacity(0.2))
                                     .cornerRadius(12)
@@ -31,7 +32,7 @@ struct HazardTilesView: View {
                 }
             }
         }
-        .navigationTitle("Hazards")
+        .navigationTitle(LocalizationManager.shared.localizedString(for: "findtalk.hazards"))
         .onAppear(perform: fetchHazards)
     }
     

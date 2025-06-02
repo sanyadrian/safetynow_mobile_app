@@ -4,6 +4,7 @@ struct TalkDetailView: View {
     let talk: TalkModel
     var onBack: (() -> Void)? = nil
     @AppStorage("access_token") var accessToken: String = ""
+    @AppStorage("selectedLanguage") var selectedLanguage: String = "en"
     @State private var likeCount: Int = 0
     @State private var isLiked: Bool = false
     @State private var isLoading: Bool = false
@@ -49,6 +50,36 @@ struct TalkDetailView: View {
             // Talk description/content
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
+                    if let hazard = talk.hazard {
+                        let translatedHazard = Translations.translateHazard(hazard, language: selectedLanguage)
+                        HStack {
+                            Image(systemName: "exclamationmark.triangle")
+                                .foregroundColor(.orange)
+                            Text(translatedHazard)
+                                .font(.subheadline)
+                                .foregroundColor(.orange)
+                        }
+                        .padding(.horizontal)
+                        .onAppear {
+                            print("Detail View - Hazard: \(hazard) -> \(translatedHazard) (Language: \(selectedLanguage))")
+                        }
+                    }
+                    
+                    if let industry = talk.industry {
+                        let translatedIndustry = Translations.translateIndustry(industry, language: selectedLanguage)
+                        HStack {
+                            Image(systemName: "building.2")
+                                .foregroundColor(.blue)
+                            Text(translatedIndustry)
+                                .font(.subheadline)
+                                .foregroundColor(.blue)
+                        }
+                        .padding(.horizontal)
+                        .onAppear {
+                            print("Detail View - Industry: \(industry) -> \(translatedIndustry) (Language: \(selectedLanguage))")
+                        }
+                    }
+                    
                     Text(talk.description ?? "")
                         .font(.body)
                         .foregroundColor(.black)
@@ -56,55 +87,65 @@ struct TalkDetailView: View {
                         .background(Color.white)
                         .cornerRadius(16)
                         .shadow(color: Color(.systemGray4).opacity(0.1), radius: 2, x: 0, y: 1)
+                    
                     HStack(spacing: 16) {
-                            Button(action: {
-                                toggleLike()
-                            }) {
-                                HStack(spacing: 4) {
-                                    Image(systemName: isLiked ? "hand.thumbsup.fill" : "hand.thumbsup")
-                                        .foregroundColor(isLiked ? .blue : .gray)
-                                    if likeCount > 0 {
-                                        Text("\(likeCount)")
-                                            .font(.footnote)
-                                            .foregroundColor(.gray)
-                                    }
+                        Button(action: {
+                            toggleLike()
+                        }) {
+                            HStack(spacing: 4) {
+                                Image(systemName: isLiked ? "hand.thumbsup.fill" : "hand.thumbsup")
+                                    .foregroundColor(isLiked ? .blue : .gray)
+                                if likeCount > 0 {
+                                    Text("\(likeCount)")
+                                        .font(.footnote)
+                                        .foregroundColor(.gray)
                                 }
-                            }
-                            .disabled(isLoading)
-                            Button(action: {
-                                if let pdfURL = createPDF(for: talk.title, description: talk.description) {
-                                    shareContent = [pdfURL]
-                                    showShareSheet = true
-                                }
-                            }) {
-                                Image(systemName: "square.and.arrow.up")
-                                    .foregroundColor(.blue)
-                            }
-                            Button(action: {}) {
-                                Image(systemName: "ellipsis")
-                                    .foregroundColor(.blue)
-                            }
-                            Spacer()
-                            Button(action: {}) {
-                                Text(LocalizationManager.shared.localizedString(for: "button.access_more"))
-                                    .font(.footnote)
-                                    .foregroundColor(.white)
-                                    .padding(.horizontal, 24)
-                                    .padding(.vertical, 12)
-                                    .background(Color.blue)
-                                    .cornerRadius(20)
                             }
                         }
-                        .padding(.horizontal)
-                        .padding(.top, 16)
+                        .disabled(isLoading)
+                        
+                        Button(action: {
+                            if let pdfURL = createPDF(for: talk.title, description: talk.description) {
+                                shareContent = [pdfURL]
+                                showShareSheet = true
+                            }
+                        }) {
+                            Image(systemName: "square.and.arrow.up")
+                                .foregroundColor(.blue)
+                        }
+                        
+                        Button(action: {}) {
+                            Image(systemName: "ellipsis")
+                                .foregroundColor(.blue)
+                        }
+                        
+                        Spacer()
+                        
+                        Button(action: {}) {
+                            Text(LocalizationManager.shared.localizedString(for: "button.access_more"))
+                                .font(.footnote)
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 24)
+                                .padding(.vertical, 12)
+                                .background(Color.blue)
+                                .cornerRadius(20)
+                        }
                     }
-                    .padding([.horizontal, .top])
+                    .padding(.horizontal)
+                    .padding(.top, 16)
                 }
+                .padding([.horizontal, .top])
+            }
 
-                Spacer()
+            Spacer()
         }
         .background(Color.white.ignoresSafeArea())
         .onAppear {
+            print("Detail View - Selected Language: \(selectedLanguage)")
+            print("Detail View - Talk: \(talk.title)")
+            print("Detail View - Hazard: \(talk.hazard ?? "none")")
+            print("Detail View - Industry: \(talk.industry ?? "none")")
+            
             NetworkService.shared.addToHistory(token: accessToken, talkTitle: talk.title) { result in
                 switch result {
                 case .success:
@@ -174,8 +215,8 @@ struct LikeInfo: Decodable {
             title: "Test Talk",
             category: "General",
             description: "A test description.",
-            hazard: "Hazard",
-            industry: "Industry",
+            hazard: "Fire",
+            industry: "Construction",
             language: "en",
             related_title: "test-talk",
             likeCount: 0,

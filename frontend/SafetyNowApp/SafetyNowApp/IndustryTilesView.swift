@@ -2,6 +2,7 @@ import SwiftUI
 
 struct IndustryTilesView: View {
     @AppStorage("access_token") var accessToken: String = ""
+    @AppStorage("selectedLanguage") var selectedLanguage: String = "en"
     @State private var industries: [String] = []
     @State private var isLoading = true
     @State private var selectedIndustry: String? = nil
@@ -18,9 +19,9 @@ struct IndustryTilesView: View {
                             Button(action: {
                                 onTalksTap(industry)
                             }) {
-                                Text(industry)
+                                Text(Translations.translateIndustry(industry, language: selectedLanguage))
                                     .frame(maxWidth: .infinity, minHeight: 80)
-                                    .background(Color.green.opacity(0.2))
+                                    .background(Color.blue.opacity(0.2))
                                     .cornerRadius(12)
                                     .foregroundColor(.primary)
                                     .font(.headline)
@@ -31,7 +32,7 @@ struct IndustryTilesView: View {
                 }
             }
         }
-        .navigationTitle("Industries")
+        .navigationTitle(LocalizationManager.shared.localizedString(for: "findtalk.industries"))
         .onAppear(perform: fetchIndustries)
     }
     

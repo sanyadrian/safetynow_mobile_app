@@ -54,19 +54,39 @@ struct TalksListView: View {
                                     Image(systemName: "text.bubble")
                                         .foregroundColor(Color.blue)
                                         .frame(width: 32, height: 32)
-                                    Text(talk.title)
-                                        .font(.body)
-                                        .foregroundColor(.primary)
-                                        .multilineTextAlignment(.leading)
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text(talk.title)
+                                            .font(.body)
+                                            .foregroundColor(.primary)
+                                            .multilineTextAlignment(.leading)
+                                        if let hazard = talk.hazard {
+                                            let translatedHazard = Translations.translateHazard(hazard, language: selectedLanguage)
+                                            Text(translatedHazard)
+                                                .font(.caption)
+                                                .foregroundColor(.gray)
+                                                .onAppear {
+                                                    print("Hazard: \(hazard) -> \(translatedHazard) (Language: \(selectedLanguage))")
+                                                }
+                                        }
+                                        if let industry = talk.industry {
+                                            let translatedIndustry = Translations.translateIndustry(industry, language: selectedLanguage)
+                                            Text(translatedIndustry)
+                                                .font(.caption)
+                                                .foregroundColor(.gray)
+                                                .onAppear {
+                                                    print("Industry: \(industry) -> \(translatedIndustry) (Language: \(selectedLanguage))")
+                                                }
+                                        }
+                                    }
                                     Spacer()
                                     Image(systemName: "chevron.right")
                                         .foregroundColor(.gray)
                                 }
-                                    .padding()
-                                    .background(Color(.systemGray6))
-                                    .cornerRadius(16)
-                                    .shadow(color: Color(.systemGray4).opacity(0.2), radius: 4, x: 0, y: 2)
-                                }
+                                .padding()
+                                .background(Color(.systemGray6))
+                                .cornerRadius(16)
+                                .shadow(color: Color(.systemGray4).opacity(0.2), radius: 4, x: 0, y: 2)
+                            }
                         }
                     }
                     .padding(.top, 24)
@@ -93,9 +113,19 @@ struct TalksListView: View {
             }
         }
         .background(Color.white.ignoresSafeArea())
-        .navigationTitle(filterValue)
+        .navigationTitle(filterType == .hazard ? 
+            Translations.translateHazard(filterValue, language: selectedLanguage) :
+            Translations.translateIndustry(filterValue, language: selectedLanguage))
         .navigationBarTitleDisplayMode(.inline)
-        .onAppear(perform: fetchTalks)
+        .onAppear {
+            print("Selected Language: \(selectedLanguage)")
+            print("Filter Value: \(filterValue)")
+            let translatedValue = filterType == .hazard ? 
+                Translations.translateHazard(filterValue, language: selectedLanguage) :
+                Translations.translateIndustry(filterValue, language: selectedLanguage)
+            print("Translated Filter Value: \(translatedValue)")
+            fetchTalks()
+        }
     }
     
     func fetchTalks() {
@@ -107,6 +137,7 @@ struct TalksListView: View {
         case .industry:
             endpoint = "http://localhost:8000/talks/by_industry/\(filterValue)?language=\(selectedLanguage)"
         }
+        print("Fetching talks from: \(endpoint)")
         guard let url = URL(string: endpoint.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "") else { return }
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
@@ -118,6 +149,10 @@ struct TalksListView: View {
             guard let data = data, error == nil else { return }
             if let talks = try? JSONDecoder().decode([TalkModel].self, from: data) {
                 DispatchQueue.main.async {
+                    print("Received \(talks.count) talks")
+                    for talk in talks {
+                        print("Talk: \(talk.title), Hazard: \(talk.hazard ?? "none"), Industry: \(talk.industry ?? "none")")
+                    }
                     self.talks = talks
                 }
             }
@@ -126,5 +161,5 @@ struct TalksListView: View {
 }
 
 #Preview {
-    TalksListView(filterType: .hazard, filterValue: "Hazard A", onTalkTap: { _ in })
+    TalksListView(filterType: .hazard, filterValue: "Fire", onTalkTap: { _ in })
 } 
