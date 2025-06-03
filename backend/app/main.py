@@ -3,7 +3,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from app.routes import auth, talks, history, tickets, profile, leads
+from app.routes import auth, talks, history, tickets, profile, leads, tools
 from dotenv import load_dotenv
 import os
 
@@ -28,6 +28,7 @@ app.include_router(history.router)
 app.include_router(tickets.router)
 app.include_router(profile.router)
 app.include_router(leads.router, prefix="/api", tags=["leads"])
+app.include_router(tools.router)
 
 
 @app.get("/")

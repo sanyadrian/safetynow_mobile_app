@@ -57,6 +57,23 @@ class TalkOut(TalkBase):
     class Config:
         orm_mode = True
 
+class ToolBase(BaseModel):
+    title: str
+    category: str
+    description: Optional[str] = None
+    hazard: Optional[str] = None
+    industry: Optional[str] = None
+    language: str
+    related_title: str
+
+class ToolCreate(ToolBase):
+    pass
+
+class ToolOut(ToolBase):
+    id: int
+    class Config:
+        from_attributes = True
+
 class PasswordResetRequest(BaseModel):
     email: EmailStr
 

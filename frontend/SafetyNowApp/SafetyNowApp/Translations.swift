@@ -84,7 +84,7 @@ struct Translations {
             "Utilities": "Servicios Públicos",
             "Retail": "Comercio Minorista",
             "Hospitality": "Hostelería",
-            "Environmental": "Ambiental"
+            "Environmental": "Medio Ambiente"
         ]
     ]
     

@@ -76,6 +76,42 @@ class TalkLike(Base):
     )
 
 
+class Tool(Base):
+    __tablename__ = "tools"
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, nullable=False)
+    category = Column(String, nullable=False)
+    description = Column(String, nullable=True)
+    hazard = Column(String, nullable=True)
+    industry = Column(String, nullable=True)
+    language = Column(String, nullable=False, default="en")
+    related_title = Column(String, nullable=False)
+    
+    # Relationship with likes
+    likes = relationship("ToolLike", back_populates="tool")
+    
+    @property
+    def like_count(self):
+        return len(self.likes)
+
+
+class ToolLike(Base):
+    __tablename__ = "tool_likes"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    tool_id = Column(Integer, ForeignKey("tools.id"), nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    tool = relationship("Tool", back_populates="likes")
+    user = relationship("User")
+    
+    __table_args__ = (
+        UniqueConstraint('user_id', 'tool_id', name='unique_user_tool_like'),
+    )
+
+
 class PasswordReset(Base):
     __tablename__ = "password_resets"
 

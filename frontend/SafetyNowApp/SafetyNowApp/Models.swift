@@ -22,6 +22,34 @@ struct Talk: Codable, Identifiable {
     let description: String?
 }
 
+struct Tool: Codable, Identifiable, Hashable {
+    let id: Int
+    let title: String
+    let category: String
+    let description: String?
+    let hazard: String?
+    let industry: String?
+    let language: String
+    let related_title: String
+    var likeCount: Int?
+    var userLiked: Bool?
+    
+    enum CodingKeys: String, CodingKey {
+        case id, title, category, description, hazard, industry, language, related_title
+        case likeCount = "like_count"
+        case userLiked = "user_liked"
+    }
+    
+    // Implement Hashable
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+    
+    static func == (lhs: Tool, rhs: Tool) -> Bool {
+        lhs.id == rhs.id
+    }
+}
+
 struct HistoryItem: Codable, Identifiable {
     let id: Int
     let talk_title: String

@@ -18,6 +18,7 @@ struct FindTalkView: View {
     @State private var showCalendar = false
     @State private var showTranslate = false
     @State private var showShareTalkInfo = false
+    @State private var showTools = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -28,7 +29,7 @@ struct FindTalkView: View {
                 .padding(.top)
 
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 20) {
-                ForEach(categories, id: \ .key) { category in
+                ForEach(categories, id: \.key) { category in
                     let title = LocalizationManager.shared.localizedString(for: "findtalk.\(category.key)")
                     let desc = LocalizationManager.shared.localizedString(for: "findtalk.\(category.key)_desc")
                     if category.key == "hazards" {
@@ -51,6 +52,10 @@ struct FindTalkView: View {
                         Button(action: { showShareTalkInfo = true }) {
                             tileView(title: title, desc: desc, icon: category.icon)
                         }
+                    } else if category.key == "tools" {
+                        Button(action: { showTools = true }) {
+                            tileView(title: title, desc: desc, icon: category.icon)
+                        }
                     } else {
                         tileView(title: title, desc: desc, icon: category.icon)
                     }
@@ -61,6 +66,7 @@ struct FindTalkView: View {
             NavigationLink(destination: CalendarView(), isActive: $showCalendar) { EmptyView() }
             NavigationLink(destination: LanguageSelectionView(), isActive: $showTranslate) { EmptyView() }
             NavigationLink(destination: ShareTalkInfoView(), isActive: $showShareTalkInfo) { EmptyView() }
+            NavigationLink(destination: ToolsView(), isActive: $showTools) { EmptyView() }
             HStack {
                 Spacer()
                 Button(action: { showUpgrade = true }) {
