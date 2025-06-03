@@ -1,5 +1,6 @@
 import SwiftUI
 import PhotosUI
+import PDFKit
 
 struct ProfileView: View {
     @AppStorage("access_token") var accessToken: String = ""
@@ -16,6 +17,7 @@ struct ProfileView: View {
     @State private var showSettings = false
     @State private var showLanguage = false
     @State private var showHelpCenter = false
+    @State private var showPrivacyPolicy = false
 
     var body: some View {
         VStack(spacing: 24) {
@@ -88,6 +90,9 @@ struct ProfileView: View {
                 Button(action: { showHelpCenter = true }) {
                     profileRow(title: LocalizationManager.shared.localizedString(for: "menu.help_center"))
                 }
+                Button(action: { showPrivacyPolicy = true }) {
+                    profileRow(title: "Privacy Policy")
+                }
                 Button(action: logout) {
                     HStack {
                         Text(LocalizationManager.shared.localizedString(for: "button.logout"))
@@ -110,6 +115,9 @@ struct ProfileView: View {
             NavigationLink(destination: LanguageSelectionView(), isActive: $showLanguage) { EmptyView() }
             .sheet(isPresented: $showHelpCenter) {
                 TicketSubmissionView()
+            }
+            .sheet(isPresented: $showPrivacyPolicy) {
+                PDFKitView(url: Bundle.main.url(forResource: "PrivacyPolicy", withExtension: "pdf"))
             }
 
             if isLoading {
@@ -164,4 +172,17 @@ struct ProfileView: View {
         email = ""
         isLoggedIn = false
     }
+}
+
+struct PDFKitView: UIViewRepresentable {
+    let url: URL?
+    func makeUIView(context: Context) -> PDFView {
+        let pdfView = PDFView()
+        pdfView.autoScales = true
+        if let url = url {
+            pdfView.document = PDFDocument(url: url)
+        }
+        return pdfView
+    }
+    func updateUIView(_ uiView: PDFView, context: Context) {}
 }
