@@ -55,7 +55,7 @@ struct ToolsView: View {
     
     private func fetchTools() {
         isLoading = true
-        let urlString = "http://localhost:8000/tools?language=\(selectedLanguage)"
+        let urlString = "\(NetworkService.shared.baseURL)/tools?language=\(selectedLanguage)"
         guard let url = URL(string: urlString) else {
             return
         }

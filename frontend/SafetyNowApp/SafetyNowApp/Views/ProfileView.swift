@@ -33,7 +33,7 @@ struct ProfileView: View {
                         .clipShape(Circle())
                         .overlay(Circle().stroke(Color.gray.opacity(0.3), lineWidth: 2))
                 } else if !profileImage.isEmpty,
-                          let profileImageUrl = URL(string: "http://192.168.4.25:8000\(profileImage)") {
+                          let profileImageUrl = URL(string: "https://safetynow-app.com\(profileImage)") {
                     AsyncImage(url: profileImageUrl) { image in
                         image
                             .resizable()

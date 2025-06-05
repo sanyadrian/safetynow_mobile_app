@@ -159,7 +159,7 @@ struct HistoryView: View {
     
     private func fetchPopularTalks() {
         let currentLanguage = UserDefaults.standard.string(forKey: "selectedLanguage") ?? "en"
-        guard let url = URL(string: "http://localhost:8000/talks/popular?language=\(currentLanguage)") else { return }
+        guard let url = URL(string: "\(NetworkService.shared.baseURL)/talks/popular?language=\(currentLanguage)") else { return }
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")

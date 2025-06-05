@@ -133,9 +133,9 @@ struct TalksListView: View {
         let endpoint: String
         switch filterType {
         case .hazard:
-            endpoint = "http://localhost:8000/talks/by_hazard/\(filterValue)?language=\(selectedLanguage)"
+            endpoint = "\(NetworkService.shared.baseURL)/talks/by_hazard/\(filterValue)?language=\(selectedLanguage)"
         case .industry:
-            endpoint = "http://localhost:8000/talks/by_industry/\(filterValue)?language=\(selectedLanguage)"
+            endpoint = "\(NetworkService.shared.baseURL)/talks/by_industry/\(filterValue)?language=\(selectedLanguage)"
         }
         print("Fetching talks from: \(endpoint)")
         guard let url = URL(string: endpoint.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "") else { return }

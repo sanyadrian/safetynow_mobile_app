@@ -37,7 +37,7 @@ struct IndustryTilesView: View {
     }
     
     func fetchIndustries() {
-        guard let url = URL(string: "http://localhost:8000/talks/industries") else { return }
+        guard let url = URL(string: "\(NetworkService.shared.baseURL)/talks/industries") else { return }
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")

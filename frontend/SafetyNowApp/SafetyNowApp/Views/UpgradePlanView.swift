@@ -192,7 +192,7 @@ struct UpgradePlanView: View {
         }
         
         // Create URL request
-        guard let url = URL(string: "http://localhost:8000/api/create-lead") else {
+        guard let url = URL(string: "\(NetworkService.shared.baseURL)/api/create-lead") else {
             alertMessage = "Invalid URL"
             showAlert = true
             isLoading = false

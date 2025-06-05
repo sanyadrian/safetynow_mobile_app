@@ -87,7 +87,7 @@ struct TranslateTalkView: View {
 
     func fetchTalks() {
         isLoading = true
-        let endpoint = "http://localhost:8000/talks/"
+        let endpoint = "\(NetworkService.shared.baseURL)/talks/"
         guard let url = URL(string: endpoint) else { return }
         var request = URLRequest(url: url)
         request.httpMethod = "GET"

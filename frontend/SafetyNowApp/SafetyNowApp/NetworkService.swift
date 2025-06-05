@@ -2,7 +2,7 @@ import Foundation
 
 class NetworkService {
     static let shared = NetworkService()
-    let baseURL = "http://192.168.4.25:8000"
+    let baseURL = "https://safetynow-app.com"
 
     private init() {}
 

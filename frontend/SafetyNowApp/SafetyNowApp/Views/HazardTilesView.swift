@@ -37,7 +37,7 @@ struct HazardTilesView: View {
     }
     
     func fetchHazards() {
-        guard let url = URL(string: "http://localhost:8000/talks/hazards") else { return }
+        guard let url = URL(string: "\(NetworkService.shared.baseURL)/talks/hazards") else { return }
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")

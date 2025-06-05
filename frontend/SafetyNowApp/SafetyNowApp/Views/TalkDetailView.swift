@@ -163,7 +163,7 @@ struct TalkDetailView: View {
     }
     
     private func fetchLikeStatus() {
-        guard let url = URL(string: "http://localhost:8000/talks/\(talk.id)/likes") else { return }
+        guard let url = URL(string: "\(NetworkService.shared.baseURL)/talks/\(talk.id)/likes") else { return }
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
@@ -181,7 +181,7 @@ struct TalkDetailView: View {
     
     private func toggleLike() {
         isLoading = true
-        guard let url = URL(string: "http://localhost:8000/talks/\(talk.id)/like") else { return }
+        guard let url = URL(string: "\(NetworkService.shared.baseURL)/talks/\(talk.id)/like") else { return }
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
