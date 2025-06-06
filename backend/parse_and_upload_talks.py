@@ -9,7 +9,7 @@ def upload_talks():
     try:
         # Get the absolute path to the Excel file
         current_dir = os.path.dirname(os.path.abspath(__file__))
-        file_path = os.path.join(current_dir, 'Safety Talk App Selections 1.xlsx')
+        file_path = os.path.join(current_dir, 'SafetyTalks.xlsx')
         
         if not os.path.exists(file_path):
             print(f"Error: Excel file not found at {file_path}")
@@ -42,16 +42,7 @@ def upload_talks():
             hazard = category
             industry = str(row.get('Industry', '')).strip() if 'Industry' in row else None
             language_raw = str(row.get('Language', '')).strip() if 'Language' in row else None
-            # Normalize language to code
-            language_map = {
-                'english': 'en',
-                'en': 'en',
-                'spanish': 'es',
-                'es': 'es',
-                'french': 'fr',
-                'fr': 'fr'
-            }
-            language = language_map.get(language_raw.lower(), language_raw.lower()) if language_raw else None
+            language = language_raw.lower() if language_raw else None
             related_title = str(row.get('Related Title', '')).strip() if 'Related Title' in row else None
 
             # Skip if title, language, or related_title is empty
