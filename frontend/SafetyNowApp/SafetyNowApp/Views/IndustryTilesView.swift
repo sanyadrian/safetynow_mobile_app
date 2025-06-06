@@ -32,7 +32,7 @@ struct IndustryTilesView: View {
                 }
             }
         }
-        .navigationTitle(LocalizationManager.shared.localizedString(for: "findtalk.industries"))
+        .navigationTitle(LocalizationManager.shared.localizedString(for: "findtalk.industry"))
         .onAppear(perform: fetchIndustries)
     }
     
