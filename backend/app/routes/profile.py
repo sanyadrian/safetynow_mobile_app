@@ -36,7 +36,9 @@ def upload_profile_image(
         db.refresh(current_user)
         return {"profile_image": s3_url}
     except (BotoCoreError, NoCredentialsError) as e:
+        print(f"S3 error: {e}")
         raise HTTPException(status_code=500, detail=f"S3 error: {str(e)}")
     except Exception as e:
+        print(f"Upload error: {e}") 
         raise HTTPException(status_code=500, detail=str(e))
 
