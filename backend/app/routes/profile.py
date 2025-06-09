@@ -4,8 +4,9 @@ from app.database import get_db
 from app import models
 from app.dependencies import get_current_user 
 import os
-import shutil
-from pathlib import Path
+import uuid
+import boto3
+from botocore.exceptions import BotoCoreError, NoCredentialsError
 
 router = APIRouter(
     prefix="/profile",
@@ -19,21 +20,23 @@ def upload_profile_image(
     current_user: models.User = Depends(get_current_user)
 ):
     try:
-        upload_dir = Path("app/static/profile_images")
-        upload_dir.mkdir(parents=True, exist_ok=True)
-
-        filename = f"profile_{current_user.id}.jpg"
-        filepath = upload_dir / filename
-
-        with open(filepath, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
-
-        relative_path = f"/static/profile_images/{filename}"
-        current_user.profile_image = relative_path
+        s3 = boto3.client("s3")
+        bucket_name = os.getenv("S3_BUCKET_NAME")
+        if not bucket_name:
+            raise HTTPException(status_code=500, detail="S3_BUCKET_NAME not set in environment")
+        # Generate a unique filename
+        file_ext = os.path.splitext(file.filename)[-1] or ".jpg"
+        unique_filename = f"profile-images/{uuid.uuid4()}_{current_user.id}{file_ext}"
+        # Upload to S3
+        s3.upload_fileobj(file.file, bucket_name, unique_filename, ExtraArgs={"ACL": "public-read"})
+        s3_url = f"https://{bucket_name}.s3.amazonaws.com/{unique_filename}"
+        # Save URL to user profile
+        current_user.profile_image = s3_url
         db.commit()
         db.refresh(current_user)
-
-        return {"profile_image": relative_path}
+        return {"profile_image": s3_url}
+    except (BotoCoreError, NoCredentialsError) as e:
+        raise HTTPException(status_code=500, detail=f"S3 error: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
