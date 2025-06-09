@@ -28,7 +28,7 @@ def upload_profile_image(
         file_ext = os.path.splitext(file.filename)[-1] or ".jpg"
         unique_filename = f"profile-images/{uuid.uuid4()}_{current_user.id}{file_ext}"
         # Upload to S3
-        s3.upload_fileobj(file.file, bucket_name, unique_filename)
+        s3.upload_fileobj(file.file, bucket_name, unique_filename, ExtraArgs={"ContentType": file.content_type})
         s3_url = f"https://{bucket_name}.s3.amazonaws.com/{unique_filename}"
         # Save URL to user profile
         current_user.profile_image = s3_url
