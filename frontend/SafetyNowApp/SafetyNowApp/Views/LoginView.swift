@@ -12,82 +12,152 @@ struct LoginView: View {
     @State private var showRegister = false
     @State private var showForgotPassword = false
     @State private var selectedTab: Tab = .home
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 30) {
-                Spacer()
+            Group {
+                if UIDevice.current.userInterfaceIdiom == .pad {
+                    // iPad layout
+                    GeometryReader { geometry in
+                        VStack {
+                            Spacer()
+                            VStack(spacing: 30) {
+                                VStack(alignment: .leading, spacing: 12) {
+                                    Text("Welcome To")
+                                        .font(.largeTitle).bold()
+                                    (Text("Safety Now").foregroundColor(.blue))
+                                        .font(.largeTitle).bold()
+                                    Text("Unlock Compliant\nFree Safety Talks")
+                                        .font(.title3)
+                                        .fontWeight(.medium)
+                                        .foregroundColor(.gray)
+                                }.frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal)
 
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("Welcome To")
-                        .font(.largeTitle).bold()
+                                TextField("Username", text: $username)
+                                    .padding()
+                                    .background(Color(.systemGray6))
+                                    .cornerRadius(10)
 
-                    (Text("Safety Now").foregroundColor(.blue))
-                        .font(.largeTitle).bold()
+                                SecureField("Password", text: $password)
+                                    .padding()
+                                    .background(Color(.systemGray6))
+                                    .cornerRadius(10)
 
-                    Text("Unlock Compliant\nFree Safety Talks")
-                        .font(.title3)
-                        .fontWeight(.medium)
-                        .foregroundColor(.gray)
-                }.frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal)
+                                HStack {
+                                    Spacer()
+                                    Button("Forgot Password?") {
+                                        showForgotPassword = true
+                                    }
+                                    .font(.footnote)
+                                    .foregroundColor(.blue)
+                                }
 
-                TextField("Username", text: $username)
-                    .padding()
-                    .background(Color(.systemGray6))
-                    .cornerRadius(10)
+                                Button(action: login) {
+                                    Text("Login")
+                                        .frame(maxWidth: .infinity)
+                                        .padding()
+                                        .background(Color.blue)
+                                        .foregroundColor(.white)
+                                        .cornerRadius(10)
+                                }
 
-                SecureField("Password", text: $password)
-                    .padding()
-                    .background(Color(.systemGray6))
-                    .cornerRadius(10)
+                                if !loginMessage.isEmpty {
+                                    Text(loginMessage)
+                                        .foregroundColor(.red)
+                                }
 
-                HStack {
-                    Spacer()
-                    Button("Forgot Password?") {
-                        showForgotPassword = true
+                                HStack {
+                                    Text("Don't have an account?")
+                                    Button("Register") {
+                                        showRegister = true
+                                    }
+                                    .foregroundColor(.blue)
+                                    .bold()
+                                }
+                                .font(.footnote)
+                            }
+                            .padding(40)
+                            .frame(maxWidth: 420)
+                            .background(
+                                RoundedRectangle(cornerRadius: 24)
+                                    .fill(Color(.systemBackground).opacity(0.95))
+                                    .shadow(radius: 12)
+                            )
+                            .frame(maxWidth: .infinity)
+                            Spacer()
+                        }
+                        .frame(width: geometry.size.width, height: geometry.size.height)
                     }
-                    .font(.footnote)
-                    .foregroundColor(.blue)
-                }
-
-                Button(action: login) {
-                    Text("Login")
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
-                }
-
-                if !loginMessage.isEmpty {
-                    Text(loginMessage)
-                        .foregroundColor(.red)
-                }
-
-                Spacer()
-
-                HStack {
-                    Text("Don't have an account?")
-                    Button("Register") {
-                        showRegister = true
+                } else {
+                    // iPhone layout (original)
+                    VStack(spacing: 30) {
+                        Spacer()
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Welcome To")
+                                .font(.largeTitle).bold()
+                            (Text("Safety Now").foregroundColor(.blue))
+                                .font(.largeTitle).bold()
+                            Text("Unlock Compliant\nFree Safety Talks")
+                                .font(.title3)
+                                .fontWeight(.medium)
+                                .foregroundColor(.gray)
+                        }.frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal)
+                        TextField("Username", text: $username)
+                            .padding()
+                            .background(Color(.systemGray6))
+                            .cornerRadius(10)
+                        SecureField("Password", text: $password)
+                            .padding()
+                            .background(Color(.systemGray6))
+                            .cornerRadius(10)
+                        HStack {
+                            Spacer()
+                            Button("Forgot Password?") {
+                                showForgotPassword = true
+                            }
+                            .font(.footnote)
+                            .foregroundColor(.blue)
+                        }
+                        Button(action: login) {
+                            Text("Login")
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.blue)
+                                .foregroundColor(.white)
+                                .cornerRadius(10)
+                        }
+                        if !loginMessage.isEmpty {
+                            Text(loginMessage)
+                                .foregroundColor(.red)
+                        }
+                        Spacer()
+                        HStack {
+                            Text("Don't have an account?")
+                            Button("Register") {
+                                showRegister = true
+                            }
+                            .foregroundColor(.blue)
+                            .bold()
+                        }
+                        .font(.footnote)
+                        NavigationLink(destination: RegisterView(currentIndex: $currentIndex), isActive: $showRegister) {
+                            EmptyView()
+                        }
+                        NavigationLink(destination: ForgotPasswordView(), isActive: $showForgotPassword) {
+                            EmptyView()
+                        }
                     }
-                    .foregroundColor(.blue)
-                    .bold()
+                    .padding()
                 }
-                .font(.footnote)
-
-                // Navigation link for register only
-                NavigationLink(destination: RegisterView(currentIndex: $currentIndex), isActive: $showRegister) {
-                    EmptyView()
-                }
-
-                // Navigation link for forgot password
-                NavigationLink(destination: ForgotPasswordView(), isActive: $showForgotPassword) {
-                    EmptyView()
-                }
-
             }
-            .padding()
+            // Navigation links for iPad (outside the Group)
+            NavigationLink(destination: RegisterView(currentIndex: $currentIndex), isActive: $showRegister) {
+                EmptyView()
+            }
+            NavigationLink(destination: ForgotPasswordView(), isActive: $showForgotPassword) {
+                EmptyView()
+            }
         }
     }
 
