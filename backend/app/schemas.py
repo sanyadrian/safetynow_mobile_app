@@ -13,7 +13,7 @@ class UserOut(BaseModel):
     id: int
     username: str
     email: str
-    phone: str
+    phone: Optional[str] = None
     profile_image: Optional[str] = None
 
     class Config:
