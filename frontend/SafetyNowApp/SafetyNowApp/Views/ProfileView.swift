@@ -24,114 +24,235 @@ struct ProfileView: View {
     @State private var deleteAccountError = ""
 
     var body: some View {
-        VStack(spacing: 24) {
-            Spacer().frame(height: 32)
-            // Profile Image
-            ZStack {
-                if let imageData = selectedImageData,
-                   let uiImage = UIImage(data: imageData) {
-                    Image(uiImage: uiImage)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 100, height: 100)
-                        .clipShape(Circle())
-                        .overlay(Circle().stroke(Color.gray.opacity(0.3), lineWidth: 2))
-                } else if !profileImage.isEmpty,
-                          let profileImageUrl = URL(string: profileImage) {
-                    AsyncImage(url: profileImageUrl) { image in
-                        image
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 100, height: 100)
-                            .clipShape(Circle())
-                            .overlay(Circle().stroke(Color.gray.opacity(0.3), lineWidth: 2))
-                    } placeholder: {
-                        ProgressView()
-                            .frame(width: 100, height: 100)
+        NavigationStack {
+            Group {
+                if UIDevice.current.userInterfaceIdiom == .pad {
+                    ScrollView {
+                        VStack(alignment: .center, spacing: 48) {
+                            // Title
+                            Text("Profile")
+                                .font(.system(size: 48, weight: .bold))
+                                .multilineTextAlignment(.center)
+                                .frame(maxWidth: .infinity, alignment: .center)
+                            ZStack {
+                                if let imageData = selectedImageData,
+                                   let uiImage = UIImage(data: imageData) {
+                                    Image(uiImage: uiImage)
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: 120, height: 120)
+                                        .clipShape(Circle())
+                                        .overlay(Circle().stroke(Color.gray.opacity(0.3), lineWidth: 2))
+                                } else if !profileImage.isEmpty,
+                                          let profileImageUrl = URL(string: profileImage) {
+                                    AsyncImage(url: profileImageUrl) { image in
+                                        image
+                                            .resizable()
+                                            .scaledToFill()
+                                            .frame(width: 120, height: 120)
+                                            .clipShape(Circle())
+                                            .overlay(Circle().stroke(Color.gray.opacity(0.3), lineWidth: 2))
+                                    } placeholder: {
+                                        ProgressView()
+                                            .frame(width: 120, height: 120)
+                                    }
+                                } else {
+                                    Image(systemName: "person.crop.circle.fill")
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: 120, height: 120)
+                                        .foregroundColor(.gray)
+                                }
+                                PhotosPicker(selection: $selectedItem, matching: .images, photoLibrary: .shared()) {
+                                    Circle().fill(Color.clear).frame(width: 120, height: 120)
+                                }
+                                .onChange(of: selectedItem) { newItem in
+                                    Task {
+                                        if let data = try? await newItem?.loadTransferable(type: Data.self) {
+                                            selectedImageData = data
+                                            uploadImage(data)
+                                        }
+                                    }
+                                }
+                            }
+                            Text(username)
+                                .font(.title)
+                                .bold()
+                                .padding(.top, 8)
+                            Text(email)
+                                .font(.title3)
+                                .foregroundColor(.gray)
+                            HStack {
+                                Text("Notification")
+                                    .font(.title3)
+                                Spacer()
+                                Toggle("", isOn: $isNotificationsOn)
+                                    .labelsHidden()
+                            }
+                            .padding(.horizontal, 80)
+                            VStack(spacing: 32) {
+                                Button(action: { showSettings = true }) {
+                                    profileRow(title: LocalizationManager.shared.localizedString(for: "menu.settings"))
+                                }
+                                Button(action: { showLanguage = true }) {
+                                    profileRow(title: LocalizationManager.shared.localizedString(for: "menu.language"))
+                                }
+                                Button(action: { showHelpCenter = true }) {
+                                    profileRow(title: LocalizationManager.shared.localizedString(for: "menu.help_center"))
+                                }
+                                Button(action: { showPrivacyPolicy = true }) {
+                                    profileRow(title: "Privacy Policy")
+                                }
+                                Button(action: { showDeleteAccountConfirmation = true }) {
+                                    HStack {
+                                        Text("Delete Account")
+                                            .font(.title3)
+                                            .foregroundColor(.red)
+                                        Spacer()
+                                        ZStack {
+                                            Circle()
+                                                .fill(Color(.systemGray6))
+                                                .frame(width: 40, height: 40)
+                                            Image(systemName: "trash")
+                                                .foregroundColor(.red)
+                                        }
+                                    }
+                                }
+                                Button(action: logout) {
+                                    HStack {
+                                        Text(LocalizationManager.shared.localizedString(for: "button.logout"))
+                                            .font(.title3)
+                                            .foregroundColor(.red)
+                                        Spacer()
+                                        ZStack {
+                                            Circle()
+                                                .fill(Color(.systemGray6))
+                                                .frame(width: 40, height: 40)
+                                            Image(systemName: "arrow.right")
+                                                .foregroundColor(.red)
+                                        }
+                                    }
+                                }
+                            }
+                            .padding(.horizontal, 80)
+                        }
+                        .padding(.vertical, 60)
                     }
                 } else {
-                    Image(systemName: "person.crop.circle.fill")
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 100, height: 100)
-                        .foregroundColor(.gray)
-                }
-                PhotosPicker(selection: $selectedItem, matching: .images, photoLibrary: .shared()) {
-                    Circle().fill(Color.clear).frame(width: 100, height: 100)
-                }
-                .onChange(of: selectedItem) { newItem in
-                    Task {
-                        if let data = try? await newItem?.loadTransferable(type: Data.self) {
-                            selectedImageData = data
-                            uploadImage(data)
-                        }
-                    }
-                }
-            }
-            Text(username)
-                .font(.title3).bold()
-                .padding(.top, 8)
-            Text(email)
-                .font(.subheadline)
-                .foregroundColor(.gray)
-
-            HStack {
-                Text("Notification")
-                    .font(.subheadline)
-                Spacer()
-                Toggle("", isOn: $isNotificationsOn)
-                    .labelsHidden()
-            }
-            .padding(.horizontal)
-
-            VStack(spacing: 24) {
-                Button(action: { showSettings = true }) {
-                    profileRow(title: LocalizationManager.shared.localizedString(for: "menu.settings"))
-                }
-                Button(action: { showLanguage = true }) {
-                    profileRow(title: LocalizationManager.shared.localizedString(for: "menu.language"))
-                }
-                Button(action: { showHelpCenter = true }) {
-                    profileRow(title: LocalizationManager.shared.localizedString(for: "menu.help_center"))
-                }
-                Button(action: { showPrivacyPolicy = true }) {
-                    profileRow(title: "Privacy Policy")
-                }
-                Button(action: { showDeleteAccountConfirmation = true }) {
-                    HStack {
-                        Text("Delete Account")
-                            .font(.system(size: 20, weight: .bold))
-                            .foregroundColor(.red)
-                        Spacer()
+                    VStack(spacing: 24) {
+                        Spacer().frame(height: 32)
+                        // Profile Image
                         ZStack {
-                            Circle()
-                                .fill(Color(.systemGray6))
-                                .frame(width: 32, height: 32)
-                            Image(systemName: "trash")
-                                .foregroundColor(.red)
+                            if let imageData = selectedImageData,
+                               let uiImage = UIImage(data: imageData) {
+                                Image(uiImage: uiImage)
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 100, height: 100)
+                                    .clipShape(Circle())
+                                    .overlay(Circle().stroke(Color.gray.opacity(0.3), lineWidth: 2))
+                            } else if !profileImage.isEmpty,
+                                      let profileImageUrl = URL(string: profileImage) {
+                                AsyncImage(url: profileImageUrl) { image in
+                                    image
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: 100, height: 100)
+                                        .clipShape(Circle())
+                                        .overlay(Circle().stroke(Color.gray.opacity(0.3), lineWidth: 2))
+                                } placeholder: {
+                                    ProgressView()
+                                        .frame(width: 100, height: 100)
+                                }
+                            } else {
+                                Image(systemName: "person.crop.circle.fill")
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 100, height: 100)
+                                    .foregroundColor(.gray)
+                            }
+                            PhotosPicker(selection: $selectedItem, matching: .images, photoLibrary: .shared()) {
+                                Circle().fill(Color.clear).frame(width: 100, height: 100)
+                            }
+                            .onChange(of: selectedItem) { newItem in
+                                Task {
+                                    if let data = try? await newItem?.loadTransferable(type: Data.self) {
+                                        selectedImageData = data
+                                        uploadImage(data)
+                                    }
+                                }
+                            }
                         }
-                    }
-                }
-                Button(action: logout) {
-                    HStack {
-                        Text(LocalizationManager.shared.localizedString(for: "button.logout"))
-                            .font(.system(size: 20, weight: .bold))
-                            .foregroundColor(.red)
-                        Spacer()
-                        ZStack {
-                            Circle()
-                                .fill(Color(.systemGray6))
-                                .frame(width: 32, height: 32)
-                            Image(systemName: "arrow.right")
-                                .foregroundColor(.red)
+                        Text(username)
+                            .font(.title3).bold()
+                            .padding(.top, 8)
+                        Text(email)
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
+
+                        HStack {
+                            Text("Notification")
+                                .font(.subheadline)
+                            Spacer()
+                            Toggle("", isOn: $isNotificationsOn)
+                                .labelsHidden()
                         }
+                        .padding(.horizontal)
+
+                        VStack(spacing: 24) {
+                            Button(action: { showSettings = true }) {
+                                profileRow(title: LocalizationManager.shared.localizedString(for: "menu.settings"))
+                            }
+                            Button(action: { showLanguage = true }) {
+                                profileRow(title: LocalizationManager.shared.localizedString(for: "menu.language"))
+                            }
+                            Button(action: { showHelpCenter = true }) {
+                                profileRow(title: LocalizationManager.shared.localizedString(for: "menu.help_center"))
+                            }
+                            Button(action: { showPrivacyPolicy = true }) {
+                                profileRow(title: "Privacy Policy")
+                            }
+                            Button(action: { showDeleteAccountConfirmation = true }) {
+                                HStack {
+                                    Text("Delete Account")
+                                        .font(.system(size: 20, weight: .bold))
+                                        .foregroundColor(.red)
+                                    Spacer()
+                                    ZStack {
+                                        Circle()
+                                            .fill(Color(.systemGray6))
+                                            .frame(width: 32, height: 32)
+                                        Image(systemName: "trash")
+                                            .foregroundColor(.red)
+                                    }
+                                }
+                            }
+                            Button(action: logout) {
+                                HStack {
+                                    Text(LocalizationManager.shared.localizedString(for: "button.logout"))
+                                        .font(.system(size: 20, weight: .bold))
+                                        .foregroundColor(.red)
+                                    Spacer()
+                                    ZStack {
+                                        Circle()
+                                            .fill(Color(.systemGray6))
+                                            .frame(width: 32, height: 32)
+                                        Image(systemName: "arrow.right")
+                                            .foregroundColor(.red)
+                                    }
+                                }
+                            }
+                        }
+                        .padding(.horizontal)
                     }
                 }
             }
-            .padding(.horizontal)
-
-            NavigationLink(destination: SettingsView(), isActive: $showSettings) { EmptyView() }
-            NavigationLink(destination: LanguageSelectionView(), isActive: $showLanguage) { EmptyView() }
+            .sheet(isPresented: $showSettings) {
+                SettingsView()
+            }
+            .sheet(isPresented: $showLanguage) {
+                LanguageSelectionView()
+            }
             .sheet(isPresented: $showHelpCenter) {
                 TicketSubmissionView()
             }

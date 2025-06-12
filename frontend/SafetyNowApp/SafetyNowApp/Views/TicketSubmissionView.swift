@@ -15,77 +15,155 @@ struct TicketSubmissionView: View {
     
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 20) {
-                    // Header
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text(LocalizationManager.shared.localizedString(for: "ticket.title"))
-                            .font(.title)
-                            .bold()
-                        Text(LocalizationManager.shared.localizedString(for: "ticket.subtitle"))
-                            .font(.subheadline)
-                            .foregroundColor(.gray)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.top)
-                    
-                    VStack(spacing: 16) {
-                        TextField(LocalizationManager.shared.localizedString(for: "ticket.name_placeholder"), text: $name)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                        
-                        TextField(LocalizationManager.shared.localizedString(for: "ticket.email_placeholder"), text: $email)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                            .keyboardType(.emailAddress)
-                            .onAppear {
-                                email = storedEmail
+            Group {
+                if UIDevice.current.userInterfaceIdiom == .pad {
+                    ScrollView {
+                        VStack(alignment: .center, spacing: 48) {
+                            // Title and Subtitle
+                            VStack(alignment: .center, spacing: 18) {
+                                Text("Submit a Ticket")
+                                    .font(.system(size: 48, weight: .bold))
+                                    .multilineTextAlignment(.center)
+                                    .frame(maxWidth: .infinity, alignment: .center)
+                                Text(LocalizationManager.shared.localizedString(for: "ticket.subtitle"))
+                                    .font(.title2)
+                                    .foregroundColor(.gray)
+                                    .multilineTextAlignment(.center)
                             }
-                        
-                        TextField(LocalizationManager.shared.localizedString(for: "ticket.phone_placeholder"), text: $phone)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                            .keyboardType(.phonePad)
-                            .onAppear {
-                                phone = storedPhone
-                            }
-                        
-                        TextField(LocalizationManager.shared.localizedString(for: "ticket.topic_placeholder"), text: $topic)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                        
-                        TextEditor(text: $message)
-                            .frame(height: 150)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .stroke(Color.gray.opacity(0.2), lineWidth: 1)
-                            )
-                            .overlay(
-                                Group {
-                                    if message.isEmpty {
-                                        Text(LocalizationManager.shared.localizedString(for: "ticket.message_placeholder"))
-                                            .foregroundColor(.gray)
-                                            .padding(.leading, 4)
-                                            .padding(.top, 8)
+                            .padding(.horizontal, 80)
+                            
+                            VStack(spacing: 16) {
+                                TextField(LocalizationManager.shared.localizedString(for: "ticket.name_placeholder"), text: $name)
+                                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                                
+                                TextField(LocalizationManager.shared.localizedString(for: "ticket.email_placeholder"), text: $email)
+                                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                                    .keyboardType(.emailAddress)
+                                    .onAppear {
+                                        email = storedEmail
                                     }
-                                },
-                                alignment: .topLeading
-                            )
-                    }
-                    
-                    Button(action: submitTicket) {
-                        if isSubmitting {
-                            ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                        } else {
-                            Text(LocalizationManager.shared.localizedString(for: "ticket.submit_button"))
-                                .frame(maxWidth: .infinity)
+                                
+                                TextField(LocalizationManager.shared.localizedString(for: "ticket.phone_placeholder"), text: $phone)
+                                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                                    .keyboardType(.phonePad)
+                                    .onAppear {
+                                        phone = storedPhone
+                                    }
+                                
+                                TextField(LocalizationManager.shared.localizedString(for: "ticket.topic_placeholder"), text: $topic)
+                                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                                
+                                TextEditor(text: $message)
+                                    .frame(height: 150)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                                    )
+                                    .overlay(
+                                        Group {
+                                            if message.isEmpty {
+                                                Text(LocalizationManager.shared.localizedString(for: "ticket.message_placeholder"))
+                                                    .foregroundColor(.gray)
+                                                    .padding(.leading, 4)
+                                                    .padding(.top, 8)
+                                            }
+                                        },
+                                        alignment: .topLeading
+                                    )
+                            }
+                            
+                            Button(action: submitTicket) {
+                                if isSubmitting {
+                                    ProgressView()
+                                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                } else {
+                                    Text(LocalizationManager.shared.localizedString(for: "ticket.submit_button"))
+                                        .frame(maxWidth: .infinity)
+                                }
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.blue)
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
+                            .disabled(isSubmitting)
                         }
+                        .padding()
                     }
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(10)
-                    .disabled(isSubmitting)
+                } else {
+                    ScrollView {
+                        VStack(spacing: 20) {
+                            // Header
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text(LocalizationManager.shared.localizedString(for: "ticket.title"))
+                                    .font(.title)
+                                    .bold()
+                                Text(LocalizationManager.shared.localizedString(for: "ticket.subtitle"))
+                                    .font(.subheadline)
+                                    .foregroundColor(.gray)
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.top)
+                            
+                            VStack(spacing: 16) {
+                                TextField(LocalizationManager.shared.localizedString(for: "ticket.name_placeholder"), text: $name)
+                                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                                
+                                TextField(LocalizationManager.shared.localizedString(for: "ticket.email_placeholder"), text: $email)
+                                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                                    .keyboardType(.emailAddress)
+                                    .onAppear {
+                                        email = storedEmail
+                                    }
+                                
+                                TextField(LocalizationManager.shared.localizedString(for: "ticket.phone_placeholder"), text: $phone)
+                                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                                    .keyboardType(.phonePad)
+                                    .onAppear {
+                                        phone = storedPhone
+                                    }
+                                
+                                TextField(LocalizationManager.shared.localizedString(for: "ticket.topic_placeholder"), text: $topic)
+                                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                                
+                                TextEditor(text: $message)
+                                    .frame(height: 150)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                                    )
+                                    .overlay(
+                                        Group {
+                                            if message.isEmpty {
+                                                Text(LocalizationManager.shared.localizedString(for: "ticket.message_placeholder"))
+                                                    .foregroundColor(.gray)
+                                                    .padding(.leading, 4)
+                                                    .padding(.top, 8)
+                                            }
+                                        },
+                                        alignment: .topLeading
+                                    )
+                            }
+                            
+                            Button(action: submitTicket) {
+                                if isSubmitting {
+                                    ProgressView()
+                                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                } else {
+                                    Text(LocalizationManager.shared.localizedString(for: "ticket.submit_button"))
+                                        .frame(maxWidth: .infinity)
+                                }
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.blue)
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
+                            .disabled(isSubmitting)
+                        }
+                        .padding()
+                    }
                 }
-                .padding()
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

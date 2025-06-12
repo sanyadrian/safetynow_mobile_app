@@ -8,48 +8,62 @@ struct ToolsView: View {
     @State private var openToolModel: Tool? = nil
 
     var body: some View {
-        VStack(spacing: 0) {
-            if isLoading {
-                ProgressView("Loading Tools...")
-                    .frame(maxHeight: .infinity)
-            } else if tools.isEmpty {
-                Text("No tools found.")
-                    .foregroundColor(.secondary)
-                    .frame(maxHeight: .infinity)
-            } else {
-                ScrollView {
-                    VStack(spacing: 16) {
-                        ForEach(tools) { tool in
-                            NavigationLink(destination: ToolDetailView(tool: tool)) {
-                                HStack(alignment: .center, spacing: 12) {
-                                    Image(systemName: "wrench.and.screwdriver")
-                                        .foregroundColor(Color.blue)
-                                        .frame(width: 32, height: 32)
-                                    VStack(alignment: .leading) {
-                                        Text(tool.title)
-                                            .font(.body)
-                                            .foregroundColor(.primary)
-                                            .multilineTextAlignment(.leading)
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            ScrollView {
+                VStack(alignment: .center, spacing: 48) {
+                    // Title
+                    Text("Tools")
+                        .font(.system(size: 48, weight: .bold))
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                    // ... rest of the content, centered and spaced, with .padding(.horizontal, 80) and .padding(.vertical, 60) ...
+                }
+                .padding(.vertical, 60)
+            }
+        } else {
+            VStack(spacing: 0) {
+                if isLoading {
+                    ProgressView("Loading Tools...")
+                        .frame(maxHeight: .infinity)
+                } else if tools.isEmpty {
+                    Text("No tools found.")
+                        .foregroundColor(.secondary)
+                        .frame(maxHeight: .infinity)
+                } else {
+                    ScrollView {
+                        VStack(spacing: 16) {
+                            ForEach(tools) { tool in
+                                NavigationLink(destination: ToolDetailView(tool: tool)) {
+                                    HStack(alignment: .center, spacing: 12) {
+                                        Image(systemName: "wrench.and.screwdriver")
+                                            .foregroundColor(Color.blue)
+                                            .frame(width: 32, height: 32)
+                                        VStack(alignment: .leading) {
+                                            Text(tool.title)
+                                                .font(.body)
+                                                .foregroundColor(.primary)
+                                                .multilineTextAlignment(.leading)
+                                        }
+                                        Spacer()
                                     }
-                                    Spacer()
+                                    .padding()
+                                    .background(Color(.systemGray6))
+                                    .cornerRadius(16)
+                                    .shadow(color: Color(.systemGray4).opacity(0.2), radius: 4, x: 0, y: 2)
                                 }
-                                .padding()
-                                .background(Color(.systemGray6))
-                                .cornerRadius(16)
-                                .shadow(color: Color(.systemGray4).opacity(0.2), radius: 4, x: 0, y: 2)
                             }
                         }
+                        .padding(.top, 24)
+                        .padding(.horizontal)
                     }
-                    .padding(.top, 24)
-                    .padding(.horizontal)
                 }
             }
-        }
-        .background(Color.white.ignoresSafeArea())
-        .navigationTitle("Tools")
-        .navigationBarTitleDisplayMode(.inline)
-        .onAppear {
-            fetchTools()
+            .background(Color.white.ignoresSafeArea())
+            .navigationTitle("Tools")
+            .navigationBarTitleDisplayMode(.inline)
+            .onAppear {
+                fetchTools()
+            }
         }
     }
     

@@ -15,169 +15,285 @@ struct UpgradePlanView: View {
     @State private var showValidationError = false
     
     var body: some View {
-        VStack(spacing: 24) {
-            Spacer().frame(height: 24)
-            Image("devices_mockup")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: 220, height: 120)
-                .cornerRadius(12)
-                .padding(.top, 16)
+        NavigationStack {
+            Group {
+                if UIDevice.current.userInterfaceIdiom == .pad {
+                    ScrollView {
+                        VStack(alignment: .center, spacing: 48) {
+                            Text("Upgrade Your Plan")
+                                .font(.system(size: 48, weight: .bold))
+                                .multilineTextAlignment(.center)
+                                .frame(maxWidth: .infinity, alignment: .center)
+                            Image("devices_mockup")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 220, height: 120)
+                                .cornerRadius(12)
+                                .padding(.top, 16)
 
-            Text("Upgrade Your Plan")
-                .font(.largeTitle)
-                .fontWeight(.bold)
-                .padding(.top, 8)
+                            VStack(alignment: .leading, spacing: 8) {
+                                HStack {
+                                    Text("SafetyNow ILT")
+                                        .font(.title3)
+                                        .fontWeight(.bold)
+                                    Spacer()
+                                    Text("$ 50")
+                                        .font(.title3)
+                                        .fontWeight(.bold)
+                                }
+                                Text("Unlock all Training")
+                                    .fontWeight(.bold)
+                                Text("Lower workers comp premiums by 40%")
+                                    .font(.subheadline)
+                                    .foregroundColor(.gray)
+                                Text("Up to 3 sharing devices")
+                                    .font(.subheadline)
+                                    .foregroundColor(.gray)
+                                
+                                Button(action: {
+                                    selectedPlan = "SafetyNow ILT"
+                                    showForm = true
+                                }) {
+                                    Text("Select Plan")
+                                        .font(.headline)
+                                        .foregroundColor(.white)
+                                        .frame(maxWidth: .infinity)
+                                        .padding()
+                                        .background(Color.blue)
+                                        .cornerRadius(12)
+                                }
+                            }
+                            .padding()
+                            .background(Color.white)
+                            .cornerRadius(20)
+                            .shadow(color: Color(.systemGray4).opacity(0.2), radius: 8, x: 0, y: 2)
+                            .padding(.horizontal)
 
-            VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    Text("SafetyNow ILT")
-                        .font(.title3)
-                        .fontWeight(.bold)
-                    Spacer()
-                    Text("$ 50")
-                        .font(.title3)
-                        .fontWeight(.bold)
-                }
-                Text("Unlock all Training")
-                    .fontWeight(.bold)
-                Text("Lower workers comp premiums by 40%")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
-                Text("Up to 3 sharing devices")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
-                
-                Button(action: {
-                    selectedPlan = "SafetyNow ILT"
-                    showForm = true
-                }) {
-                    Text("Select Plan")
-                        .font(.headline)
-                        .foregroundColor(.white)
+                            VStack(alignment: .leading, spacing: 8) {
+                                HStack {
+                                    Text("SafetyNow")
+                                        .font(.title3)
+                                        .fontWeight(.bold)
+                                        .foregroundColor(.white)
+                                    Spacer()
+                                    Text("$5/")
+                                        .font(.title3)
+                                        .fontWeight(.bold)
+                                        .foregroundColor(.white)
+                                    Text("learner")
+                                        .font(.footnote)
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(.white)
+                                        .padding(.top, 6)
+                                }
+                                Text("Unlock all Training")
+                                    .font(.headline)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
+                                Text("Access 6,000+ elearning courses")
+                                    .font(.subheadline)
+                                    .foregroundColor(.white)
+                                Text("Award-winning LMS")
+                                    .font(.subheadline)
+                                    .foregroundColor(.white)
+                                Text("Train online and offline")
+                                    .font(.subheadline)
+                                    .foregroundColor(.white)
+                                
+                                Button(action: {
+                                    selectedPlan = "SafetyNow"
+                                    showForm = true
+                                }) {
+                                    Text("Select Plan")
+                                        .font(.headline)
+                                        .foregroundColor(.blue)
+                                        .frame(maxWidth: .infinity)
+                                        .padding()
+                                        .background(Color.white)
+                                        .cornerRadius(12)
+                                }
+                            }
+                            .padding()
+                            .background(Color.blue)
+                            .cornerRadius(20)
+                            .padding(.horizontal)
+                        }
+                        .padding(40)
+                        .frame(maxWidth: 500)
+                        .background(
+                            RoundedRectangle(cornerRadius: 24)
+                                .fill(Color(.systemBackground).opacity(0.95))
+                                .shadow(radius: 12)
+                        )
                         .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.blue)
-                        .cornerRadius(12)
-                }
-            }
-            .padding()
-            .background(Color.white)
-            .cornerRadius(20)
-            .shadow(color: Color(.systemGray4).opacity(0.2), radius: 8, x: 0, y: 2)
-            .padding(.horizontal)
+                    }
+                } else {
+                    VStack(spacing: 24) {
+                        Spacer().frame(height: 24)
+                        Image("devices_mockup")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 220, height: 120)
+                            .cornerRadius(12)
+                            .padding(.top, 16)
 
-            VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    Text("SafetyNow")
-                        .font(.title3)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                    Spacer()
-                    Text("$5/")
-                        .font(.title3)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                    Text("learner")
-                        .font(.footnote)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.white)
-                        .padding(.top, 6)
-                }
-                Text("Unlock all Training")
-                    .font(.headline)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                Text("Access 6,000+ elearning courses")
-                    .font(.subheadline)
-                    .foregroundColor(.white)
-                Text("Award-winning LMS")
-                    .font(.subheadline)
-                    .foregroundColor(.white)
-                Text("Train online and offline")
-                    .font(.subheadline)
-                    .foregroundColor(.white)
-                
-                Button(action: {
-                    selectedPlan = "SafetyNow"
-                    showForm = true
-                }) {
-                    Text("Select Plan")
-                        .font(.headline)
-                        .foregroundColor(.blue)
-                        .frame(maxWidth: .infinity)
+                        Text("Upgrade Your Plan")
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
+                            .padding(.top, 8)
+
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack {
+                                Text("SafetyNow ILT")
+                                    .font(.title3)
+                                    .fontWeight(.bold)
+                                Spacer()
+                                Text("$ 50")
+                                    .font(.title3)
+                                    .fontWeight(.bold)
+                            }
+                            Text("Unlock all Training")
+                                .fontWeight(.bold)
+                            Text("Lower workers comp premiums by 40%")
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                            Text("Up to 3 sharing devices")
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                            
+                            Button(action: {
+                                selectedPlan = "SafetyNow ILT"
+                                showForm = true
+                            }) {
+                                Text("Select Plan")
+                                    .font(.headline)
+                                    .foregroundColor(.white)
+                                    .frame(maxWidth: .infinity)
+                                    .padding()
+                                    .background(Color.blue)
+                                    .cornerRadius(12)
+                            }
+                        }
                         .padding()
                         .background(Color.white)
-                        .cornerRadius(12)
-                }
-            }
-            .padding()
-            .background(Color.blue)
-            .cornerRadius(20)
-            .padding(.horizontal)
+                        .cornerRadius(20)
+                        .shadow(color: Color(.systemGray4).opacity(0.2), radius: 8, x: 0, y: 2)
+                        .padding(.horizontal)
 
-            Spacer()
-        }
-        .background(Color(.systemGroupedBackground).ignoresSafeArea())
-        .sheet(isPresented: $showForm) {
-            NavigationStack {
-                Form {
-                    Section(header: Text("Personal Information")) {
-                        TextField("First Name", text: $firstName)
-                        TextField("Last Name", text: $lastName)
-                        TextField("Company", text: $company)
-                        TextField("Email", text: $email)
-                            .disabled(true)
-                        TextField("Phone *", text: $phone)
-                            .keyboardType(.phonePad)
-                            .onAppear {
-                                phone = storedPhone
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack {
+                                Text("SafetyNow")
+                                    .font(.title3)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
+                                Spacer()
+                                Text("$5/")
+                                    .font(.title3)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
+                                Text("learner")
+                                    .font(.footnote)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.white)
+                                    .padding(.top, 6)
                             }
-                        if showValidationError && phone.isEmpty {
-                            Text("Phone number is required")
-                                .foregroundColor(.red)
-                                .font(.caption)
-                        }
-                    }
-                    
-                    Section {
-                        Button(action: submitLead) {
-                            if isLoading {
-                                ProgressView()
-                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                            } else {
-                                Text("Submit")
+                            Text("Unlock all Training")
+                                .font(.headline)
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+                            Text("Access 6,000+ elearning courses")
+                                .font(.subheadline)
+                                .foregroundColor(.white)
+                            Text("Award-winning LMS")
+                                .font(.subheadline)
+                                .foregroundColor(.white)
+                            Text("Train online and offline")
+                                .font(.subheadline)
+                                .foregroundColor(.white)
+                            
+                            Button(action: {
+                                selectedPlan = "SafetyNow"
+                                showForm = true
+                            }) {
+                                Text("Select Plan")
+                                    .font(.headline)
+                                    .foregroundColor(.blue)
                                     .frame(maxWidth: .infinity)
+                                    .padding()
+                                    .background(Color.white)
+                                    .cornerRadius(12)
                             }
                         }
-                        .frame(maxWidth: .infinity)
                         .padding()
                         .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
-                        .disabled(isLoading)
+                        .cornerRadius(20)
+                        .padding(.horizontal)
+
+                        Spacer()
                     }
+                    .background(Color(.systemGroupedBackground).ignoresSafeArea())
                 }
-                .navigationTitle("Upgrade to \(selectedPlan)")
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarLeading) {
-                        Button("Cancel") {
-                            showForm = false
-                            showValidationError = false
+            }
+            .sheet(isPresented: $showForm) {
+                NavigationStack {
+                    Form {
+                        Section(header: Text("Personal Information")) {
+                            TextField("First Name", text: $firstName)
+                            TextField("Last Name", text: $lastName)
+                            TextField("Company", text: $company)
+                            TextField("Email", text: $email)
+                                .disabled(true)
+                            TextField("Phone *", text: $phone)
+                                .keyboardType(.phonePad)
+                                .onAppear {
+                                    phone = storedPhone
+                                }
+                            if showValidationError && phone.isEmpty {
+                                Text("Phone number is required")
+                                    .foregroundColor(.red)
+                                    .font(.caption)
+                            }
+                        }
+                        
+                        Section {
+                            Button(action: submitLead) {
+                                if isLoading {
+                                    ProgressView()
+                                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                } else {
+                                    Text("Submit")
+                                        .frame(maxWidth: .infinity)
+                                }
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.blue)
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
+                            .disabled(isLoading)
+                        }
+                    }
+                    .navigationTitle("Upgrade to \(selectedPlan)")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .navigationBarLeading) {
+                            Button("Cancel") {
+                                showForm = false
+                                showValidationError = false
+                            }
                         }
                     }
                 }
             }
-        }
-        .alert("Upgrade Plan", isPresented: $showAlert) {
-            Button("OK") {
-                if alertMessage.contains("success") {
-                    showForm = false
+            .alert("Upgrade Plan", isPresented: $showAlert) {
+                Button("OK") {
+                    if alertMessage.contains("success") {
+                        showForm = false
+                    }
                 }
+            } message: {
+                Text(alertMessage)
             }
-        } message: {
-            Text(alertMessage)
         }
     }
     

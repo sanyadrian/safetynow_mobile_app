@@ -14,117 +14,229 @@ struct ForgotPasswordView: View {
     
     var body: some View {
         NavigationStack {
-            VStack(spacing: 25) {
-                // Title
-                VStack(alignment: .leading, spacing: 10) {
-                    Text("Reset Your")
-                        .font(.largeTitle)
-                        .bold()
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    Text("Password")
-                        .font(.largeTitle)
-                        .bold()
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                }
-                
-                if !isCodeSent {
-                    // Step 1: Enter Email
-                    VStack(spacing: 15) {
-                        TextField("Email", text: $email)
-                            .textContentType(.emailAddress)
-                            .keyboardType(.emailAddress)
-                            .autocapitalization(.none)
-                            .padding()
-                            .background(Color(.systemGray6))
-                            .cornerRadius(10)
-                        
-                        Button(action: requestResetCode) {
-                            Text("Send Reset Code")
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(Color.blue)
-                                .foregroundColor(.white)
-                                .cornerRadius(10)
+            Group {
+                if UIDevice.current.userInterfaceIdiom == .pad {
+                    ScrollView {
+                        VStack(alignment: .center, spacing: 48) {
+                            // Title and Subtitle
+                            VStack(alignment: .center, spacing: 18) {
+                                Text("Reset Your Password")
+                                    .font(.system(size: 48, weight: .bold))
+                                    .multilineTextAlignment(.center)
+                                    .frame(maxWidth: .infinity, alignment: .center)
+                            }
+                            .padding(.horizontal, 80)
+                            if !isCodeSent {
+                                VStack(spacing: 32) {
+                                    TextField("Email", text: $email)
+                                        .textContentType(.emailAddress)
+                                        .keyboardType(.emailAddress)
+                                        .autocapitalization(.none)
+                                        .padding()
+                                        .background(Color(.systemGray6))
+                                        .cornerRadius(14)
+                                        .font(.title2)
+                                    Button(action: requestResetCode) {
+                                        Text("Send Reset Code")
+                                            .frame(maxWidth: .infinity)
+                                            .padding()
+                                            .background(Color.blue)
+                                            .foregroundColor(.white)
+                                            .cornerRadius(14)
+                                            .font(.title2)
+                                    }
+                                }
+                                .padding(.horizontal, 80)
+                            } else if !isCodeVerified {
+                                VStack(spacing: 32) {
+                                    Text("Enter the 6-digit code sent to your email")
+                                        .foregroundColor(.gray)
+                                        .font(.title3)
+                                        .multilineTextAlignment(.center)
+                                    TextField("Reset Code", text: $resetCode)
+                                        .keyboardType(.numberPad)
+                                        .padding()
+                                        .background(Color(.systemGray6))
+                                        .cornerRadius(14)
+                                        .font(.title2)
+                                    Button(action: verifyCode) {
+                                        Text("Verify Code")
+                                            .frame(maxWidth: .infinity)
+                                            .padding()
+                                            .background(Color.blue)
+                                            .foregroundColor(.white)
+                                            .cornerRadius(14)
+                                            .font(.title2)
+                                    }
+                                }
+                                .padding(.horizontal, 80)
+                            } else {
+                                VStack(spacing: 32) {
+                                    HStack {
+                                        if showPassword {
+                                            TextField("New Password", text: $newPassword)
+                                        } else {
+                                            SecureField("New Password", text: $newPassword)
+                                        }
+                                        Button(action: { showPassword.toggle() }) {
+                                            Image(systemName: showPassword ? "eye.slash" : "eye")
+                                                .foregroundColor(.gray)
+                                        }
+                                    }
+                                    .padding()
+                                    .background(Color(.systemGray6))
+                                    .cornerRadius(14)
+                                    .font(.title2)
+                                    HStack {
+                                        if showConfirmPassword {
+                                            TextField("Confirm Password", text: $confirmPassword)
+                                        } else {
+                                            SecureField("Confirm Password", text: $confirmPassword)
+                                        }
+                                        Button(action: { showConfirmPassword.toggle() }) {
+                                            Image(systemName: showConfirmPassword ? "eye.slash" : "eye")
+                                                .foregroundColor(.gray)
+                                        }
+                                    }
+                                    .padding()
+                                    .background(Color(.systemGray6))
+                                    .cornerRadius(14)
+                                    .font(.title2)
+                                    Button(action: resetPassword) {
+                                        Text("Reset Password")
+                                            .frame(maxWidth: .infinity)
+                                            .padding()
+                                            .background(Color.blue)
+                                            .foregroundColor(.white)
+                                            .cornerRadius(14)
+                                            .font(.title2)
+                                    }
+                                }
+                                .padding(.horizontal, 80)
+                            }
+                            if !message.isEmpty {
+                                Text(message)
+                                    .foregroundColor(message.contains("successful") ? .green : .red)
+                                    .font(.title3)
+                                    .padding(.horizontal, 80)
+                            }
                         }
-                    }
-                } else if !isCodeVerified {
-                    // Step 2: Enter Reset Code
-                    VStack(spacing: 15) {
-                        Text("Enter the 6-digit code sent to your email")
-                            .foregroundColor(.gray)
-                        
-                        TextField("Reset Code", text: $resetCode)
-                            .keyboardType(.numberPad)
-                            .padding()
-                            .background(Color(.systemGray6))
-                            .cornerRadius(10)
-                        
-                        Button(action: verifyCode) {
-                            Text("Verify Code")
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(Color.blue)
-                                .foregroundColor(.white)
-                                .cornerRadius(10)
-                        }
+                        .padding(.vertical, 60)
                     }
                 } else {
-                    // Step 3: Enter New Password
-                    VStack(spacing: 15) {
-                        HStack {
-                            if showPassword {
-                                TextField("New Password", text: $newPassword)
-                            } else {
-                                SecureField("New Password", text: $newPassword)
-                            }
-                            Button(action: { showPassword.toggle() }) {
-                                Image(systemName: showPassword ? "eye.slash" : "eye")
-                                    .foregroundColor(.gray)
-                            }
+                    VStack(spacing: 25) {
+                        // Title
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text("Reset Your")
+                                .font(.largeTitle)
+                                .bold()
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            Text("Password")
+                                .font(.largeTitle)
+                                .bold()
+                                .frame(maxWidth: .infinity, alignment: .leading)
                         }
-                        .padding()
-                        .background(Color(.systemGray6))
-                        .cornerRadius(10)
                         
-                        HStack {
-                            if showConfirmPassword {
-                                TextField("Confirm Password", text: $confirmPassword)
-                            } else {
-                                SecureField("Confirm Password", text: $confirmPassword)
+                        if !isCodeSent {
+                            // Step 1: Enter Email
+                            VStack(spacing: 15) {
+                                TextField("Email", text: $email)
+                                    .textContentType(.emailAddress)
+                                    .keyboardType(.emailAddress)
+                                    .autocapitalization(.none)
+                                    .padding()
+                                    .background(Color(.systemGray6))
+                                    .cornerRadius(10)
+                                
+                                Button(action: requestResetCode) {
+                                    Text("Send Reset Code")
+                                        .frame(maxWidth: .infinity)
+                                        .padding()
+                                        .background(Color.blue)
+                                        .foregroundColor(.white)
+                                        .cornerRadius(10)
+                                }
                             }
-                            Button(action: { showConfirmPassword.toggle() }) {
-                                Image(systemName: showConfirmPassword ? "eye.slash" : "eye")
+                        } else if !isCodeVerified {
+                            // Step 2: Enter Reset Code
+                            VStack(spacing: 15) {
+                                Text("Enter the 6-digit code sent to your email")
                                     .foregroundColor(.gray)
+                                
+                                TextField("Reset Code", text: $resetCode)
+                                    .keyboardType(.numberPad)
+                                    .padding()
+                                    .background(Color(.systemGray6))
+                                    .cornerRadius(10)
+                                
+                                Button(action: verifyCode) {
+                                    Text("Verify Code")
+                                        .frame(maxWidth: .infinity)
+                                        .padding()
+                                        .background(Color.blue)
+                                        .foregroundColor(.white)
+                                        .cornerRadius(10)
+                                }
                             }
-                        }
-                        .padding()
-                        .background(Color(.systemGray6))
-                        .cornerRadius(10)
-                        
-                        Button(action: resetPassword) {
-                            Text("Reset Password")
-                                .frame(maxWidth: .infinity)
+                        } else {
+                            // Step 3: Enter New Password
+                            VStack(spacing: 15) {
+                                HStack {
+                                    if showPassword {
+                                        TextField("New Password", text: $newPassword)
+                                    } else {
+                                        SecureField("New Password", text: $newPassword)
+                                    }
+                                    Button(action: { showPassword.toggle() }) {
+                                        Image(systemName: showPassword ? "eye.slash" : "eye")
+                                            .foregroundColor(.gray)
+                                    }
+                                }
                                 .padding()
-                                .background(Color.blue)
-                                .foregroundColor(.white)
+                                .background(Color(.systemGray6))
                                 .cornerRadius(10)
+                                
+                                HStack {
+                                    if showConfirmPassword {
+                                        TextField("Confirm Password", text: $confirmPassword)
+                                    } else {
+                                        SecureField("Confirm Password", text: $confirmPassword)
+                                    }
+                                    Button(action: { showConfirmPassword.toggle() }) {
+                                        Image(systemName: showConfirmPassword ? "eye.slash" : "eye")
+                                            .foregroundColor(.gray)
+                                    }
+                                }
+                                .padding()
+                                .background(Color(.systemGray6))
+                                .cornerRadius(10)
+                                
+                                Button(action: resetPassword) {
+                                    Text("Reset Password")
+                                        .frame(maxWidth: .infinity)
+                                        .padding()
+                                        .background(Color.blue)
+                                        .foregroundColor(.white)
+                                        .cornerRadius(10)
+                                }
+                            }
                         }
+                        
+                        if !message.isEmpty {
+                            Text(message)
+                                .foregroundColor(message.contains("successful") ? .green : .red)
+                        }
+                        
+                        Spacer()
                     }
-                }
-                
-                if !message.isEmpty {
-                    Text(message)
-                        .foregroundColor(message.contains("successful") ? .green : .red)
-                }
-                
-                Spacer()
-            }
-            .padding()
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
-                        dismiss()
+                    .padding()
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .navigationBarLeading) {
+                            Button("Cancel") {
+                                dismiss()
+                            }
+                        }
                     }
                 }
             }

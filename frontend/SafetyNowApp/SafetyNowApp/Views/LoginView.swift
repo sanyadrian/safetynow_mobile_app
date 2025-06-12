@@ -18,76 +18,70 @@ struct LoginView: View {
         NavigationStack {
             Group {
                 if UIDevice.current.userInterfaceIdiom == .pad {
-                    // iPad layout
-                    GeometryReader { geometry in
-                        VStack {
-                            Spacer()
-                            VStack(spacing: 30) {
-                                VStack(alignment: .leading, spacing: 12) {
-                                    Text("Welcome To")
-                                        .font(.largeTitle).bold()
-                                    (Text("Safety Now").foregroundColor(.blue))
-                                        .font(.largeTitle).bold()
-                                    Text("Unlock Compliant\nFree Safety Talks")
-                                        .font(.title3)
-                                        .fontWeight(.medium)
-                                        .foregroundColor(.gray)
-                                }.frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal)
-
-                                TextField("Username", text: $username)
-                                    .padding()
-                                    .background(Color(.systemGray6))
-                                    .cornerRadius(10)
-
-                                SecureField("Password", text: $password)
-                                    .padding()
-                                    .background(Color(.systemGray6))
-                                    .cornerRadius(10)
-
-                                HStack {
-                                    Spacer()
-                                    Button("Forgot Password?") {
-                                        showForgotPassword = true
-                                    }
-                                    .font(.footnote)
-                                    .foregroundColor(.blue)
-                                }
-
-                                Button(action: login) {
-                                    Text("Login")
-                                        .frame(maxWidth: .infinity)
-                                        .padding()
-                                        .background(Color.blue)
-                                        .foregroundColor(.white)
-                                        .cornerRadius(10)
-                                }
-
-                                if !loginMessage.isEmpty {
-                                    Text(loginMessage)
-                                        .foregroundColor(.red)
-                                }
-
-                                HStack {
-                                    Text("Don't have an account?")
-                                    Button("Register") {
-                                        showRegister = true
-                                    }
-                                    .foregroundColor(.blue)
-                                    .bold()
-                                }
-                                .font(.footnote)
+                    ScrollView {
+                        VStack(alignment: .center, spacing: 48) {
+                            // Title and Subtitle
+                            VStack(alignment: .center, spacing: 18) {
+                                Text("Welcome to Safety Now")
+                                    .font(.system(size: 48, weight: .bold))
+                                    .multilineTextAlignment(.center)
+                                    .frame(maxWidth: .infinity, alignment: .center)
+                                Text("Unlock Compliant\nFree Safety Talks")
+                                    .font(.title2)
+                                    .foregroundColor(.gray)
+                                    .multilineTextAlignment(.center)
                             }
-                            .padding(40)
-                            .frame(maxWidth: 420)
-                            .background(
-                                RoundedRectangle(cornerRadius: 24)
-                                    .fill(Color(.systemBackground).opacity(0.95))
-                                    .shadow(radius: 12)
-                            )
-                            .frame(maxWidth: .infinity)
-                            Spacer()
+                            .padding(.horizontal, 80)
+                            TextField("Username", text: $username)
+                                .padding()
+                                .background(Color(.systemGray6))
+                                .cornerRadius(14)
+                                .font(.title2)
+                            SecureField("Password", text: $password)
+                                .padding()
+                                .background(Color(.systemGray6))
+                                .cornerRadius(14)
+                                .font(.title2)
+                            HStack {
+                                Spacer()
+                                Button("Forgot Password?") {
+                                    showForgotPassword = true
+                                }
+                                .font(.title3)
+                                .foregroundColor(.blue)
+                            }
+                            .padding(.horizontal, 80)
+                            Button(action: login) {
+                                Text("Login")
+                                    .frame(maxWidth: .infinity)
+                                    .padding()
+                                    .background(Color.blue)
+                                    .foregroundColor(.white)
+                                    .cornerRadius(14)
+                                    .font(.title2)
+                            }
+                            .padding(.horizontal, 80)
+                            if !loginMessage.isEmpty {
+                                Text(loginMessage)
+                                    .foregroundColor(.red)
+                                    .font(.title3)
+                                    .padding(.horizontal, 80)
+                            }
+                            HStack {
+                                Text("Don't have an account?")
+                                    .font(.title3)
+                                Button("Register") {
+                                    showRegister = true
+                                }
+                                .foregroundColor(.blue)
+                                .bold()
+                                .font(.title3)
+                            }
+                            .padding(.horizontal, 80)
+                            NavigationLink(destination: RegisterView(currentIndex: $currentIndex), isActive: $showRegister) { EmptyView() }
+                            NavigationLink(destination: ForgotPasswordView(), isActive: $showForgotPassword) { EmptyView() }
                         }
-                        .frame(width: geometry.size.width, height: geometry.size.height)
+                        .padding(.vertical, 60)
                     }
                 } else {
                     // iPhone layout (original)

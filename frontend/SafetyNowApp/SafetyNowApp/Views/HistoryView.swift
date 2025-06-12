@@ -14,6 +14,10 @@ struct HistoryView: View {
     @State private var openPopularTalkModel: TalkModel? = nil
     @State private var showShareSheet = false
     @State private var shareContent: [Any] = []
+    @State private var showPopover = false
+    @State private var popoverItem: HistoryItem? = nil
+    @State private var showPopularPopover = false
+    @State private var popoverPopularTalk: TalkModel? = nil
 
     var body: some View {
         NavigationStack {
@@ -42,11 +46,43 @@ struct HistoryView: View {
                                     .font(.subheadline)
                                 Spacer()
                                 Button(action: {
-                                    selectedHistoryItem = item
-                                    showActionSheet = true
+                                    if UIDevice.current.userInterfaceIdiom == .pad {
+                                        popoverItem = item
+                                        showPopover = true
+                                    } else {
+                                        selectedHistoryItem = item
+                                        showActionSheet = true
+                                    }
                                 }) {
                                     Image(systemName: "ellipsis")
                                         .foregroundColor(.gray)
+                                }
+                                .popover(isPresented: $showPopover, attachmentAnchor: .rect(.bounds), arrowEdge: .bottom) {
+                                    VStack(spacing: 16) {
+                                        Button("Delete from history", role: .destructive) {
+                                            if let item = popoverItem {
+                                                deleteFromHistory(item)
+                                            }
+                                            showPopover = false
+                                        }
+                                        Button("Share") {
+                                            if let item = popoverItem {
+                                                shareTalk(item)
+                                            }
+                                            showPopover = false
+                                        }
+                                        Button("Open") {
+                                            if let item = popoverItem {
+                                                openTalk(item)
+                                            }
+                                            showPopover = false
+                                        }
+                                        Button("Cancel", role: .cancel) {
+                                            showPopover = false
+                                        }
+                                    }
+                                    .padding()
+                                    .frame(width: 250)
                                 }
                             }
                             .padding()
@@ -73,11 +109,37 @@ struct HistoryView: View {
                                 }
                                 Spacer()
                                 Button(action: {
-                                    selectedPopularTalk = talk
-                                    showPopularActionSheet = true
+                                    if UIDevice.current.userInterfaceIdiom == .pad {
+                                        popoverPopularTalk = talk
+                                        showPopularPopover = true
+                                    } else {
+                                        selectedPopularTalk = talk
+                                        showPopularActionSheet = true
+                                    }
                                 }) {
                                     Image(systemName: "ellipsis")
                                         .foregroundColor(.gray)
+                                }
+                                .popover(isPresented: $showPopularPopover, attachmentAnchor: .rect(.bounds), arrowEdge: .bottom) {
+                                    VStack(spacing: 16) {
+                                        Button("Share") {
+                                            if let talk = popoverPopularTalk {
+                                                sharePopularTalk(talk)
+                                            }
+                                            showPopularPopover = false
+                                        }
+                                        Button("Open") {
+                                            if let talk = popoverPopularTalk {
+                                                openPopularTalk(talk)
+                                            }
+                                            showPopularPopover = false
+                                        }
+                                        Button("Cancel", role: .cancel) {
+                                            showPopularPopover = false
+                                        }
+                                    }
+                                    .padding()
+                                    .frame(width: 250)
                                 }
                             }
                             .padding()

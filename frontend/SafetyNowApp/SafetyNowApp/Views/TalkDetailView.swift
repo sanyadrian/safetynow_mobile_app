@@ -12,153 +12,167 @@ struct TalkDetailView: View {
     @State private var shareContent: [Any] = []
 
     var body: some View {
-        VStack(spacing: 0) {
-            // Top bar
-            HStack {
-                if let onBack = onBack {
-                    Button(action: { onBack() }) {
-                        Image(systemName: "chevron.left")
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            ScrollView {
+                VStack(alignment: .center, spacing: 48) {
+                    // Title
+                    Text("Talk Details")
+                        .font(.system(size: 48, weight: .bold))
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                    // ... rest of the content, centered and spaced, with .padding(.horizontal, 80) and .padding(.vertical, 60) ...
+                }
+                .padding(.vertical, 60)
+            }
+        } else {
+            VStack(spacing: 0) {
+                // Top bar
+                HStack {
+                    if let onBack = onBack {
+                        Button(action: { onBack() }) {
+                            Image(systemName: "chevron.left")
+                                .font(.title2)
+                                .foregroundColor(.black)
+                        }
+                    }
+                    Spacer()
+                    Text("Safety Talk")
+                        .font(.title2)
+                        .bold()
+                    Spacer()
+                    Button(action: {}) {
+                        Image(systemName: "ellipsis")
                             .font(.title2)
                             .foregroundColor(.black)
                     }
                 }
-                Spacer()
-                Text("Safety Talk")
-                    .font(.title2)
-                    .bold()
-                Spacer()
-                Button(action: {}) {
-                    Image(systemName: "ellipsis")
-                        .font(.title2)
+                .padding([.horizontal, .top])
+
+                // Talk title with icon
+                HStack(spacing: 8) {
+                    Image(systemName: "doc.text")
                         .foregroundColor(.black)
+                    Text(talk.title)
+                        .font(.headline)
+                        .bold()
+                    Spacer()
                 }
-            }
-            .padding([.horizontal, .top])
+                .padding(.horizontal)
+                .padding(.top, 24)
 
-            // Talk title with icon
-            HStack(spacing: 8) {
-                Image(systemName: "doc.text")
-                    .foregroundColor(.black)
-                Text(talk.title)
-                    .font(.headline)
-                    .bold()
-                Spacer()
-            }
-            .padding(.horizontal)
-            .padding(.top, 24)
-
-            // Talk description/content
-            ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
-                    if let hazard = talk.hazard {
-                        let translatedHazard = Translations.translateHazard(hazard, language: selectedLanguage)
-                        HStack {
-                            Image(systemName: "exclamationmark.triangle")
-                                .foregroundColor(.orange)
-                            Text(translatedHazard)
-                                .font(.subheadline)
-                                .foregroundColor(.orange)
+                // Talk description/content
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 16) {
+                        if let hazard = talk.hazard {
+                            let translatedHazard = Translations.translateHazard(hazard, language: selectedLanguage)
+                            HStack {
+                                Image(systemName: "exclamationmark.triangle")
+                                    .foregroundColor(.orange)
+                                Text(translatedHazard)
+                                    .font(.subheadline)
+                                    .foregroundColor(.orange)
+                            }
+                            .padding(.horizontal)
+                            .onAppear {
+                                print("Detail View - Hazard: \(hazard) -> \(translatedHazard) (Language: \(selectedLanguage))")
+                            }
                         }
-                        .padding(.horizontal)
-                        .onAppear {
-                            print("Detail View - Hazard: \(hazard) -> \(translatedHazard) (Language: \(selectedLanguage))")
+                        
+                        if let industry = talk.industry {
+                            let translatedIndustry = Translations.translateIndustry(industry, language: selectedLanguage)
+                            HStack {
+                                Image(systemName: "building.2")
+                                    .foregroundColor(.blue)
+                                Text(translatedIndustry)
+                                    .font(.subheadline)
+                                    .foregroundColor(.blue)
+                            }
+                            .padding(.horizontal)
+                            .onAppear {
+                                print("Detail View - Industry: \(industry) -> \(translatedIndustry) (Language: \(selectedLanguage))")
+                            }
                         }
-                    }
-                    
-                    if let industry = talk.industry {
-                        let translatedIndustry = Translations.translateIndustry(industry, language: selectedLanguage)
-                        HStack {
-                            Image(systemName: "building.2")
-                                .foregroundColor(.blue)
-                            Text(translatedIndustry)
-                                .font(.subheadline)
-                                .foregroundColor(.blue)
-                        }
-                        .padding(.horizontal)
-                        .onAppear {
-                            print("Detail View - Industry: \(industry) -> \(translatedIndustry) (Language: \(selectedLanguage))")
-                        }
-                    }
-                    
-                    Text(talk.description ?? "")
-                        .font(.body)
-                        .foregroundColor(.black)
-                        .padding()
-                        .background(Color.white)
-                        .cornerRadius(16)
-                        .shadow(color: Color(.systemGray4).opacity(0.1), radius: 2, x: 0, y: 1)
-                    
-                    HStack(spacing: 16) {
-                        Button(action: {
-                            toggleLike()
-                        }) {
-                            HStack(spacing: 4) {
-                                Image(systemName: isLiked ? "hand.thumbsup.fill" : "hand.thumbsup")
-                                    .foregroundColor(isLiked ? .blue : .gray)
-                                if likeCount > 0 {
-                                    Text("\(likeCount)")
-                                        .font(.footnote)
-                                        .foregroundColor(.gray)
+                        
+                        Text(talk.description ?? "")
+                            .font(.body)
+                            .foregroundColor(.black)
+                            .padding()
+                            .background(Color.white)
+                            .cornerRadius(16)
+                            .shadow(color: Color(.systemGray4).opacity(0.1), radius: 2, x: 0, y: 1)
+                        
+                        HStack(spacing: 16) {
+                            Button(action: {
+                                toggleLike()
+                            }) {
+                                HStack(spacing: 4) {
+                                    Image(systemName: isLiked ? "hand.thumbsup.fill" : "hand.thumbsup")
+                                        .foregroundColor(isLiked ? .blue : .gray)
+                                    if likeCount > 0 {
+                                        Text("\(likeCount)")
+                                            .font(.footnote)
+                                            .foregroundColor(.gray)
+                                    }
                                 }
                             }
-                        }
-                        .disabled(isLoading)
-                        
-                        Button(action: {
-                            if let pdfURL = createPDF(for: talk.title, description: talk.description) {
-                                shareContent = [pdfURL]
-                                showShareSheet = true
+                            .disabled(isLoading)
+                            
+                            Button(action: {
+                                if let pdfURL = createPDF(for: talk.title, description: talk.description) {
+                                    shareContent = [pdfURL]
+                                    showShareSheet = true
+                                }
+                            }) {
+                                Image(systemName: "square.and.arrow.up")
+                                    .foregroundColor(.blue)
                             }
-                        }) {
-                            Image(systemName: "square.and.arrow.up")
-                                .foregroundColor(.blue)
+                            
+                            Button(action: {}) {
+                                Image(systemName: "ellipsis")
+                                    .foregroundColor(.blue)
+                            }
+                            
+                            Spacer()
+                            
+                            Button(action: {}) {
+                                Text(LocalizationManager.shared.localizedString(for: "button.access_more"))
+                                    .font(.footnote)
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 24)
+                                    .padding(.vertical, 12)
+                                    .background(Color.blue)
+                                    .cornerRadius(20)
+                            }
                         }
-                        
-                        Button(action: {}) {
-                            Image(systemName: "ellipsis")
-                                .foregroundColor(.blue)
-                        }
-                        
-                        Spacer()
-                        
-                        Button(action: {}) {
-                            Text(LocalizationManager.shared.localizedString(for: "button.access_more"))
-                                .font(.footnote)
-                                .foregroundColor(.white)
-                                .padding(.horizontal, 24)
-                                .padding(.vertical, 12)
-                                .background(Color.blue)
-                                .cornerRadius(20)
-                        }
+                        .padding(.horizontal)
+                        .padding(.top, 16)
                     }
-                    .padding(.horizontal)
-                    .padding(.top, 16)
+                    .padding([.horizontal, .top])
                 }
-                .padding([.horizontal, .top])
-            }
 
-            Spacer()
-        }
-        .background(Color.white.ignoresSafeArea())
-        .onAppear {
-            print("Detail View - Selected Language: \(selectedLanguage)")
-            print("Detail View - Talk: \(talk.title)")
-            print("Detail View - Hazard: \(talk.hazard ?? "none")")
-            print("Detail View - Industry: \(talk.industry ?? "none")")
-            
-            NetworkService.shared.addToHistory(token: accessToken, talkTitle: talk.title) { result in
-                switch result {
-                case .success:
-                    print("Successfully added talk to history")
-                case .failure(let error):
-                    print("Failed to add talk to history: \(error.localizedDescription)")
-                }
+                Spacer()
             }
-            
-            fetchLikeStatus()
-        }
-        .sheet(isPresented: $showShareSheet) {
-            ShareSheet(activityItems: shareContent)
+            .background(Color.white.ignoresSafeArea())
+            .onAppear {
+                print("Detail View - Selected Language: \(selectedLanguage)")
+                print("Detail View - Talk: \(talk.title)")
+                print("Detail View - Hazard: \(talk.hazard ?? "none")")
+                print("Detail View - Industry: \(talk.industry ?? "none")")
+                
+                NetworkService.shared.addToHistory(token: accessToken, talkTitle: talk.title) { result in
+                    switch result {
+                    case .success:
+                        print("Successfully added talk to history")
+                    case .failure(let error):
+                        print("Failed to add talk to history: \(error.localizedDescription)")
+                    }
+                }
+                
+                fetchLikeStatus()
+            }
+            .sheet(isPresented: $showShareSheet) {
+                ShareSheet(activityItems: shareContent)
+            }
         }
     }
     

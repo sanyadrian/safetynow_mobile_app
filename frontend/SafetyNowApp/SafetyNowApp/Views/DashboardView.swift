@@ -18,86 +18,173 @@ struct DashboardView: View {
     @State private var openTalkModel: TalkModel? = nil
     @State private var showShareSheet = false
     @State private var shareContent: [Any] = []
+    @State private var showPopover = false
+    @State private var popoverItem: HistoryItem? = nil
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack {
-                    HStack {
-                        Button(action: { showMenu = true }) {
-                            Image(systemName: "line.horizontal.3")
+            Group {
+                if UIDevice.current.userInterfaceIdiom == .pad {
+                    ScrollView {
+                        VStack(alignment: .center, spacing: 48) {
+                            // Title
+                            Text("Dashboard")
+                                .font(.system(size: 48, weight: .bold))
+                                .multilineTextAlignment(.center)
+                                .frame(maxWidth: .infinity, alignment: .center)
+                            VStack(spacing: 40) {
+                                HStack {
+                                    Button(action: { showMenu = true }) {
+                                        Image(systemName: "line.horizontal.3")
+                                    }
+                                    Spacer()
+                                    VStack(alignment: .center) {
+                                        Text(LocalizationManager.shared.localizedString(for: "dashboard.welcome_back"))
+                                            .font(.title2)
+                                            .foregroundColor(.gray)
+                                        Text("\(storedUsername)")
+                                            .font(.title)
+                                            .bold()
+                                    }
+                                    Spacer()
+                                    Image(systemName: "bell")
+                                }
+                                .padding(.horizontal, 80)
+                                HStack(spacing: 32) {
+                                    actionTile(title: LocalizationManager.shared.localizedString(for: "dashboard.find_talk"), systemIcon: "text.bubble") {
+                                        selectedTab = .search
+                                    }
+                                    actionTile(title: LocalizationManager.shared.localizedString(for: "dashboard.talk_to_safetynow"), systemIcon: "mic") {
+                                        showTicketSubmission = true
+                                    }
+                                }
+                                .padding(.horizontal, 80)
+                                // PROMO BOX
+                                VStack(alignment: .center, spacing: 8) {
+                                    Text(LocalizationManager.shared.localizedString(for: "dashboard.promo_title"))
+                                        .foregroundColor(.blue)
+                                        .bold()
+                                        .font(.title2)
+                                    Text(LocalizationManager.shared.localizedString(for: "dashboard.promo_subtitle"))
+                                        .foregroundColor(.gray)
+                                        .font(.title3)
+                                    Text(LocalizationManager.shared.localizedString(for: "dashboard.promo_action"))
+                                        .font(.title3)
+                                        .foregroundColor(.blue)
+                                        .underline()
+                                }
+                                .padding(.horizontal, 80)
+                                VStack(alignment: .leading, spacing: 16) {
+                                    Text(LocalizationManager.shared.localizedString(for: "dashboard.history"))
+                                        .font(.title2)
+                                        .bold()
+                                    ForEach(filteredHistory) { item in
+                                        HStack {
+                                            Image(systemName: "doc.text")
+                                                .foregroundColor(.blue)
+                                            VStack(alignment: .leading) {
+                                                Text(item.talk_title)
+                                                    .font(.title3)
+                                            }
+                                            Spacer()
+                                            Button(action: {
+                                                popoverItem = item
+                                                showPopover = true
+                                            }) {
+                                                Image(systemName: "ellipsis")
+                                            }
+                                        }
+                                        .padding()
+                                        .background(Color(.systemGray6))
+                                        .cornerRadius(12)
+                                    }
+                                }
+                                .padding(.horizontal, 80)
+                            }
+                            .padding(.vertical, 40)
                         }
-                        Spacer()
-                        VStack(alignment: .center) {
-                            Text(LocalizationManager.shared.localizedString(for: "dashboard.welcome_back"))
-                                .font(.subheadline)
-                                .foregroundColor(.gray)
-                            Text("\(storedUsername)")
-                                .font(.headline)
-                                .bold()
-                        }
-                        Spacer()
-                        Image(systemName: "bell")
+                        .padding(.vertical, 60)
                     }
-                    .padding(.horizontal)
-
-                    HStack(spacing: 16) {
-                        actionTile(title: LocalizationManager.shared.localizedString(for: "dashboard.find_talk"), systemIcon: "text.bubble") {
-                            selectedTab = .search
-                        }
-                        actionTile(title: LocalizationManager.shared.localizedString(for: "dashboard.talk_to_safetynow"), systemIcon: "mic") {
-                            showTicketSubmission = true
-                        }
-                    }
-                    .padding(.horizontal)
-
-                    // PROMO BOX
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(LocalizationManager.shared.localizedString(for: "dashboard.promo_title"))
-                            .foregroundColor(.blue)
-                            .bold()
-                        Text(LocalizationManager.shared.localizedString(for: "dashboard.promo_subtitle"))
-                            .foregroundColor(.gray)
-                        Text(LocalizationManager.shared.localizedString(for: "dashboard.promo_action"))
-                            .font(.footnote)
-                            .foregroundColor(.blue)
-                            .underline()
-                    }
-                    .padding()
-                    .background(Color(.systemGray6))
-                    .cornerRadius(16)
-                    .padding(.horizontal)
-
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text(LocalizationManager.shared.localizedString(for: "dashboard.history"))
-                            .font(.title3)
-                            .bold()
-                        ForEach(filteredHistory) { item in
+                } else {
+                    ScrollView {
+                        VStack {
                             HStack {
-                                Image(systemName: "doc.text")
-                                    .foregroundColor(.blue)
-                                VStack(alignment: .leading) {
-                                    Text(item.talk_title)
-                                        .font(.body)
+                                Button(action: { showMenu = true }) {
+                                    Image(systemName: "line.horizontal.3")
                                 }
                                 Spacer()
-                                Button(action: {
-                                    selectedHistoryItem = item
-                                    showActionSheet = true
-                                }) {
-                                    Image(systemName: "ellipsis")
+                                VStack(alignment: .center) {
+                                    Text(LocalizationManager.shared.localizedString(for: "dashboard.welcome_back"))
+                                        .font(.subheadline)
+                                        .foregroundColor(.gray)
+                                    Text("\(storedUsername)")
+                                        .font(.headline)
+                                        .bold()
                                 }
+                                Spacer()
+                                Image(systemName: "bell")
+                            }
+                            .padding(.horizontal)
+
+                            HStack(spacing: 16) {
+                                actionTile(title: LocalizationManager.shared.localizedString(for: "dashboard.find_talk"), systemIcon: "text.bubble") {
+                                    selectedTab = .search
+                                }
+                                actionTile(title: LocalizationManager.shared.localizedString(for: "dashboard.talk_to_safetynow"), systemIcon: "mic") {
+                                    showTicketSubmission = true
+                                }
+                            }
+                            .padding(.horizontal)
+
+                            // PROMO BOX
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(LocalizationManager.shared.localizedString(for: "dashboard.promo_title"))
+                                    .foregroundColor(.blue)
+                                    .bold()
+                                Text(LocalizationManager.shared.localizedString(for: "dashboard.promo_subtitle"))
+                                    .foregroundColor(.gray)
+                                Text(LocalizationManager.shared.localizedString(for: "dashboard.promo_action"))
+                                    .font(.footnote)
+                                    .foregroundColor(.blue)
+                                    .underline()
                             }
                             .padding()
                             .background(Color(.systemGray6))
-                            .cornerRadius(12)
-                        }
-                    }
-                    .padding(.horizontal)
+                            .cornerRadius(16)
+                            .padding(.horizontal)
 
-                    Spacer()
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text(LocalizationManager.shared.localizedString(for: "dashboard.history"))
+                                    .font(.title3)
+                                    .bold()
+                                ForEach(filteredHistory) { item in
+                                    HStack {
+                                        Image(systemName: "doc.text")
+                                            .foregroundColor(.blue)
+                                        VStack(alignment: .leading) {
+                                            Text(item.talk_title)
+                                                .font(.body)
+                                            }
+                                        Spacer()
+                                        Button(action: {
+                                            selectedHistoryItem = item
+                                            showActionSheet = true
+                                        }) {
+                                            Image(systemName: "ellipsis")
+                                        }
+                                    }
+                                    .padding()
+                                    .background(Color(.systemGray6))
+                                    .cornerRadius(12)
+                                }
+                            }
+                            .padding(.horizontal)
+
+                            Spacer()
+                        }
+                        .padding(.top)
+                    }
                 }
-                .padding(.top)
             }
             .sheet(isPresented: $showTicketSubmission) {
                 TicketSubmissionView()
@@ -174,6 +261,33 @@ struct DashboardView: View {
                         }
                     }
                 }
+            }
+            .popover(isPresented: $showPopover, attachmentAnchor: .rect(.bounds), arrowEdge: .bottom) {
+                VStack(spacing: 16) {
+                    Button("Delete from history", role: .destructive) {
+                        if let item = popoverItem {
+                            deleteFromHistory(item)
+                        }
+                        showPopover = false
+                    }
+                    Button("Share") {
+                        if let item = popoverItem {
+                            shareTalk(item)
+                        }
+                        showPopover = false
+                    }
+                    Button("Open") {
+                        if let item = popoverItem {
+                            openTalk(item)
+                        }
+                        showPopover = false
+                    }
+                    Button("Cancel", role: .cancel) {
+                        showPopover = false
+                    }
+                }
+                .padding()
+                .frame(width: 250)
             }
         }
     }

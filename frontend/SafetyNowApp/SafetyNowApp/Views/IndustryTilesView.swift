@@ -6,34 +6,75 @@ struct IndustryTilesView: View {
     @State private var industries: [String] = []
     @State private var isLoading = true
     @State private var selectedIndustry: String? = nil
+    @State private var showTalksList = false
     let onTalksTap: (String) -> Void
     
     var body: some View {
-        VStack {
-            if isLoading {
-                ProgressView("Loading Industries...")
-            } else {
-                ScrollView {
-                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 120))], spacing: 20) {
-                        ForEach(industries, id: \.self) { industry in
-                            Button(action: {
-                                onTalksTap(industry)
-                            }) {
-                                Text(Translations.translateIndustry(industry, language: selectedLanguage))
-                                    .frame(maxWidth: .infinity, minHeight: 80)
-                                    .background(Color.blue.opacity(0.2))
-                                    .cornerRadius(12)
-                                    .foregroundColor(.primary)
-                                    .font(.headline)
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            ScrollView {
+                VStack(alignment: .center, spacing: 48) {
+                    // Title
+                    Text("Industries")
+                        .font(.system(size: 48, weight: .bold))
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                    if isLoading {
+                        ProgressView("Loading Industries...")
+                    } else {
+                        LazyVGrid(columns: [GridItem(.adaptive(minimum: 180))], spacing: 32) {
+                            ForEach(industries, id: \.self) { industry in
+                                Button(action: {
+                                    selectedIndustry = industry
+                                    showTalksList = true
+                                }) {
+                                    Text(Translations.translateIndustry(industry, language: selectedLanguage))
+                                        .frame(maxWidth: .infinity, minHeight: 100)
+                                        .background(Color.blue.opacity(0.2))
+                                        .cornerRadius(16)
+                                        .foregroundColor(.primary)
+                                        .font(.title2)
+                                }
                             }
                         }
+                        .padding(.horizontal, 80)
                     }
-                    .padding()
+                    NavigationLink(
+                        destination: selectedIndustry.map { industry in
+                            TalksListView(filterType: .industry, filterValue: industry, onTalkTap: { talk in onTalksTap(talk.title) })
+                        },
+                        isActive: $showTalksList
+                    ) { EmptyView() }
+                }
+                .padding(.vertical, 60)
+            }
+            .onAppear(perform: fetchIndustries)
+        } else {
+            VStack {
+                if isLoading {
+                    ProgressView("Loading Industries...")
+                } else {
+                    ScrollView {
+                        LazyVGrid(columns: [GridItem(.adaptive(minimum: 120))], spacing: 20) {
+                            ForEach(industries, id: \.self) { industry in
+                                Button(action: {
+                                    onTalksTap(industry)
+                                }) {
+                                    Text(Translations.translateIndustry(industry, language: selectedLanguage))
+                                        .frame(maxWidth: .infinity, minHeight: 80)
+                                        .background(Color.blue.opacity(0.2))
+                                        .cornerRadius(12)
+                                        .foregroundColor(.primary)
+                                        .font(.headline)
+                                }
+                            }
+                        }
+                        .padding()
+                    }
                 }
             }
+            .navigationTitle(LocalizationManager.shared.localizedString(for: "findtalk.industry"))
+            .onAppear(perform: fetchIndustries)
         }
-        .navigationTitle(LocalizationManager.shared.localizedString(for: "findtalk.industry"))
-        .onAppear(perform: fetchIndustries)
     }
     
     func fetchIndustries() {
