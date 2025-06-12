@@ -507,6 +507,45 @@ class NetworkService {
             completion(.success(()))
         }.resume()
     }
+
+    func deleteAccount(password: String, token: String, completion: @escaping (Result<Void, Error>) -> Void) {
+        guard let url = URL(string: "\(baseURL)/auth/delete-account") else {
+            completion(.failure(NetworkError.invalidURL))
+            return
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "DELETE"
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let body = ["password": password]
+        request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+        
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                completion(.failure(NetworkError.invalidResponse))
+                return
+            }
+            
+            if (200...299).contains(httpResponse.statusCode) {
+                completion(.success(()))
+            } else {
+                if let data = data,
+                   let errorResponse = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                   let detail = errorResponse["detail"] as? String {
+                    completion(.failure(NetworkError.backendMessage(detail)))
+                } else {
+                    completion(.failure(NetworkError.invalidResponse))
+                }
+            }
+        }.resume()
+    }
 }
 
 extension Data {

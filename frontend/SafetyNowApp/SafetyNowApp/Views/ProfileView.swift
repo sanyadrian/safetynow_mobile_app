@@ -18,6 +18,10 @@ struct ProfileView: View {
     @State private var showLanguage = false
     @State private var showHelpCenter = false
     @State private var showPrivacyPolicy = false
+    @State private var showDeleteAccountConfirmation = false
+    @State private var showDeleteAccountPassword = false
+    @State private var deleteAccountPassword = ""
+    @State private var deleteAccountError = ""
 
     var body: some View {
         VStack(spacing: 24) {
@@ -93,6 +97,21 @@ struct ProfileView: View {
                 Button(action: { showPrivacyPolicy = true }) {
                     profileRow(title: "Privacy Policy")
                 }
+                Button(action: { showDeleteAccountConfirmation = true }) {
+                    HStack {
+                        Text("Delete Account")
+                            .font(.system(size: 20, weight: .bold))
+                            .foregroundColor(.red)
+                        Spacer()
+                        ZStack {
+                            Circle()
+                                .fill(Color(.systemGray6))
+                                .frame(width: 32, height: 32)
+                            Image(systemName: "trash")
+                                .foregroundColor(.red)
+                        }
+                    }
+                }
                 Button(action: logout) {
                     HStack {
                         Text(LocalizationManager.shared.localizedString(for: "button.logout"))
@@ -131,6 +150,64 @@ struct ProfileView: View {
             Spacer()
         }
         .padding(.top)
+        .alert("Delete Account", isPresented: $showDeleteAccountConfirmation) {
+            Button("Cancel", role: .cancel) { }
+            Button("Delete", role: .destructive) {
+                showDeleteAccountPassword = true
+            }
+        } message: {
+            Text("Are you sure you want to delete your account? This action cannot be undone.")
+        }
+        .sheet(isPresented: $showDeleteAccountPassword) {
+            NavigationStack {
+                VStack(spacing: 20) {
+                    Text("Enter your password to confirm account deletion")
+                        .font(.headline)
+                        .multilineTextAlignment(.center)
+                        .padding(.top)
+                    
+                    SecureField("Password", text: $deleteAccountPassword)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .padding(.horizontal)
+                    
+                    if !deleteAccountError.isEmpty {
+                        Text(deleteAccountError)
+                            .foregroundColor(.red)
+                            .font(.caption)
+                    }
+                    
+                    Button(action: deleteAccount) {
+                        if isLoading {
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                        } else {
+                            Text("Delete Account")
+                                .frame(maxWidth: .infinity)
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.red)
+                    .foregroundColor(.white)
+                    .cornerRadius(10)
+                    .padding(.horizontal)
+                    .disabled(isLoading)
+                    
+                    Spacer()
+                }
+                .navigationTitle("Confirm Deletion")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        Button("Cancel") {
+                            showDeleteAccountPassword = false
+                            deleteAccountPassword = ""
+                            deleteAccountError = ""
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private func profileRow(title: String) -> some View {
@@ -171,6 +248,43 @@ struct ProfileView: View {
         username = ""
         email = ""
         isLoggedIn = false
+    }
+
+    private func deleteAccount() {
+        guard !deleteAccountPassword.isEmpty else {
+            deleteAccountError = "Please enter your password"
+            return
+        }
+        
+        isLoading = true
+        deleteAccountError = ""
+        
+        NetworkService.shared.deleteAccount(password: deleteAccountPassword, token: accessToken) { result in
+            DispatchQueue.main.async {
+                isLoading = false
+                switch result {
+                case .success:
+                    // Clear all user data and log out
+                    accessToken = ""
+                    profileImage = ""
+                    username = ""
+                    email = ""
+                    isLoggedIn = false
+                    showDeleteAccountPassword = false
+                case .failure(let error):
+                    if let networkError = error as? NetworkError {
+                        switch networkError {
+                        case .backendMessage(let message):
+                            deleteAccountError = message
+                        default:
+                            deleteAccountError = error.localizedDescription
+                        }
+                    } else {
+                        deleteAccountError = error.localizedDescription
+                    }
+                }
+            }
+        }
     }
 }
 

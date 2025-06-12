@@ -100,7 +100,7 @@ struct LoginView: View {
                     storedUsername = response.user.username
                     profileImage = response.user.profile_image ?? ""
                     UserDefaults.standard.set(response.user.email, forKey: "email")
-                    UserDefaults.standard.set(response.user.phone, forKey: "phone")
+                    UserDefaults.standard.set(response.user.phone ?? "", forKey: "phone")
                     isLoggedIn = true
                 case .failure(let error):
                     if let networkError = error as? NetworkError {

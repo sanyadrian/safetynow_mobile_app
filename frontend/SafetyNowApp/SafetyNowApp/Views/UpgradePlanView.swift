@@ -2,15 +2,17 @@ import SwiftUI
 
 struct UpgradePlanView: View {
     @AppStorage("email") var email: String = ""
-    @AppStorage("phone") var phone: String = ""
+    @AppStorage("phone") var storedPhone: String = ""
     @State private var firstName: String = ""
     @State private var lastName: String = ""
     @State private var company: String = ""
+    @State private var phone: String = ""
     @State private var showForm = false
     @State private var selectedPlan: String = ""
     @State private var isLoading = false
     @State private var showAlert = false
     @State private var alertMessage = ""
+    @State private var showValidationError = false
     
     var body: some View {
         VStack(spacing: 24) {
@@ -126,8 +128,16 @@ struct UpgradePlanView: View {
                         TextField("Company", text: $company)
                         TextField("Email", text: $email)
                             .disabled(true)
-                        TextField("Phone", text: $phone)
-                            .disabled(true)
+                        TextField("Phone *", text: $phone)
+                            .keyboardType(.phonePad)
+                            .onAppear {
+                                phone = storedPhone
+                            }
+                        if showValidationError && phone.isEmpty {
+                            Text("Phone number is required")
+                                .foregroundColor(.red)
+                                .font(.caption)
+                        }
                     }
                     
                     Section {
@@ -154,6 +164,7 @@ struct UpgradePlanView: View {
                     ToolbarItem(placement: .navigationBarLeading) {
                         Button("Cancel") {
                             showForm = false
+                            showValidationError = false
                         }
                     }
                 }
@@ -171,6 +182,15 @@ struct UpgradePlanView: View {
     }
     
     private func submitLead() {
+        // Validate required fields
+        if firstName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
+           lastName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
+           company.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
+           phone.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            showValidationError = true
+            return
+        }
+        
         isLoading = true
         
         // Create lead data

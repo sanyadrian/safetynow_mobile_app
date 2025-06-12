@@ -7,12 +7,14 @@ from app import models, schemas
 from app.database import SessionLocal, engine
 from app.jwt_token import create_access_token
 from app.routes.tickets import get_access_token
+from pydantic import BaseModel
+import boto3
+import os
 
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
 import random
 import string
-import os
 import requests
 
 # Create tables
@@ -207,3 +209,48 @@ def reset_password(request: schemas.PasswordReset, db: Session = Depends(get_db)
     db.commit()
 
     return {"message": "Password reset successful"}
+
+class DeleteAccountRequest(BaseModel):
+    password: str
+
+@router.delete("/delete-account")
+def delete_account(
+    request: DeleteAccountRequest,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    # Verify password
+    if not pwd_context.verify(request.password, current_user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Invalid password"
+        )
+    
+    # Delete user's data
+    # Delete profile image from S3 if exists
+    if current_user.profile_image:
+        try:
+            s3 = boto3.client("s3")
+            bucket_name = os.getenv("S3_BUCKET_NAME")
+            if bucket_name:
+                # Extract the key from the URL
+                key = current_user.profile_image.split(f"https://{bucket_name}.s3.amazonaws.com/")[-1]
+                s3.delete_object(Bucket=bucket_name, Key=key)
+        except Exception as e:
+            print(f"Error deleting profile image: {e}")
+    
+    # Delete user's history
+    db.query(models.TalkHistory).filter(models.TalkHistory.user_id == current_user.id).delete()
+    
+    # Delete user's likes
+    db.query(models.TalkLike).filter(models.TalkLike.user_id == current_user.id).delete()
+    db.query(models.ToolLike).filter(models.ToolLike.user_id == current_user.id).delete()
+    
+    # Delete user's tickets
+    db.query(models.Ticket).filter(models.Ticket.user_id == current_user.id).delete()
+    
+    # Finally, delete the user
+    db.delete(current_user)
+    db.commit()
+    
+    return {"message": "Account deleted successfully"}

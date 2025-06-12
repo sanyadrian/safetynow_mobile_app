@@ -11,7 +11,7 @@ struct User: Codable {
     let id: Int
     let username: String
     let email: String
-    let phone: String
+    let phone: String?
     let profile_image: String?
 }
 
