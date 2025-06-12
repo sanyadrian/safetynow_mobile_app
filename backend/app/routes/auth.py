@@ -5,7 +5,7 @@ from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from app import models, schemas
 from app.database import SessionLocal, engine
-from app.jwt_token import create_access_token, verify_token
+from app.jwt_token import create_access_token, verify_access_token
 from app.routes.tickets import get_access_token
 from pydantic import BaseModel
 import boto3
@@ -44,7 +44,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
     )
     
     try:
-        payload = verify_token(token)
+        payload = verify_access_token(token)
         user_id: int = payload.get("user_id")
         if user_id is None:
             raise credentials_exception
