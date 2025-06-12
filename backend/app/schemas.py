@@ -6,7 +6,7 @@ from typing import Optional
 class UserCreate(BaseModel):
     username: constr(min_length=1)
     email: EmailStr
-    phone: constr(min_length=1)
+    phone: Optional[str] = None
     password: constr(min_length=8)
 
 class UserOut(BaseModel):

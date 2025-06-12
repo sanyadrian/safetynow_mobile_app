@@ -178,18 +178,21 @@ class NetworkService {
         }.resume()
     }
 
-    func register(username: String, email: String, phone: String, password: String, completion: @escaping (Result<Void, Error>) -> Void) {
+    func register(username: String, email: String, phone: String?, password: String, completion: @escaping (Result<Void, Error>) -> Void) {
         guard let url = URL(string: "\(baseURL)/auth/register") else {
             completion(.failure(NetworkError.invalidURL))
             return
         }
 
-        let body: [String: String] = [
+        var body: [String: String] = [
             "username": username,
             "email": email,
-            "phone": phone,
             "password": password
         ]
+        
+        if let phone = phone {
+            body["phone"] = phone
+        }
 
         guard let httpBody = try? JSONSerialization.data(withJSONObject: body) else {
             completion(.failure(NetworkError.encodingError))

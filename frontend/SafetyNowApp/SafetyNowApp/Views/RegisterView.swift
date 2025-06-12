@@ -69,14 +69,14 @@ struct RegisterView: View {
                             .background(Color(.systemGray5))
                             .cornerRadius(8)
                         }
-                        TextField("Phone Number", text: $phone)
+                        TextField("Phone Number (Optional)", text: $phone)
                             .keyboardType(.phonePad)
                     }
+                    .padding()
+                    .background(Color(.systemGray6))
+                    .cornerRadius(10)
                     SecureField("Password", text: $password)
                 }
-                .padding()
-                .background(Color(.systemGray6))
-                .cornerRadius(10)
 
                 // Register Button
                 Button(action: register) {
@@ -123,9 +123,8 @@ struct RegisterView: View {
         // Frontend validation
         if username.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
             email.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
-            phone.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
             password.isEmpty {
-            registerMessage = "All fields are required."
+            registerMessage = "Username, email, and password are required."
             return
         }
         if !isValidEmail(email) {
@@ -136,7 +135,8 @@ struct RegisterView: View {
             registerMessage = "Password must be at least 8 characters."
             return
         }
-        let fullPhone = selectedCountry.dial + phone
+        
+        let fullPhone = phone.isEmpty ? nil : selectedCountry.dial + phone
         NetworkService.shared.register(username: username, email: email, phone: fullPhone, password: password) { result in
             DispatchQueue.main.async {
                 switch result {
