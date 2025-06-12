@@ -1,11 +1,11 @@
 # app/routes/auth.py
 from fastapi import status
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from app import models, schemas
 from app.database import SessionLocal, engine
-from app.jwt_token import create_access_token
+from app.jwt_token import create_access_token, verify_token
 from app.routes.tickets import get_access_token
 from pydantic import BaseModel
 import boto3
@@ -26,6 +26,7 @@ router = APIRouter(
 )
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
 # Dependency
 def get_db():
@@ -34,6 +35,27 @@ def get_db():
         yield db
     finally:
         db.close()
+
+async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    
+    try:
+        payload = verify_token(token)
+        user_id: int = payload.get("user_id")
+        if user_id is None:
+            raise credentials_exception
+    except:
+        raise credentials_exception
+        
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if user is None:
+        raise credentials_exception
+        
+    return user
 
 @router.post("/register", response_model=schemas.UserOut)
 def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
