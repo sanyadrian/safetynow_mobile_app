@@ -1,15 +1,18 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app import models, schemas
-from app.database import SessionLocal
+from app.database import SessionLocal, engine
 from fastapi.security import OAuth2PasswordBearer
-from app.jwt_token import verify_access_token
+from app.jwt_token import verify_token
 import msal
 import requests
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
+
+# Create tables
+models.Base.metadata.create_all(bind=engine)
 
 router = APIRouter(
     prefix="/ticket",
@@ -26,36 +29,26 @@ def get_db():
         db.close()
 
 def get_current_user(token: str = Depends(oauth2_scheme)):
-    payload = verify_access_token(token)
+    payload = verify_token(token)
     if payload is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
     return payload["user_id"]
 
 def get_access_token():
     try:
-        print("Attempting to get access token...")
-        print(f"Using Client ID: {os.getenv('AZURE_CLIENT_ID')}")
-        print(f"Using Tenant ID: {os.getenv('AZURE_TENANT_ID')}")
-        
-        app = msal.ConfidentialClientApplication(
-            client_id=os.getenv("AZURE_CLIENT_ID"),
-            client_credential=os.getenv("AZURE_CLIENT_SECRET"),
-            authority=f"https://login.microsoftonline.com/{os.getenv('AZURE_TENANT_ID')}"
+        response = requests.post(
+            "https://login.microsoftonline.com/common/oauth2/v2.0/token",
+            data={
+                "client_id": os.getenv("AZURE_CLIENT_ID"),
+                "client_secret": os.getenv("AZURE_CLIENT_SECRET"),
+                "scope": "https://graph.microsoft.com/.default",
+                "grant_type": "client_credentials"
+            }
         )
-        
-        print("Acquiring token for client...")
-        result = app.acquire_token_for_client(scopes=["https://graph.microsoft.com/.default"])
-        print(f"Token acquisition result: {result}")
-        
-        if "access_token" not in result:
-            print(f"Error getting access token: {result.get('error_description', 'Unknown error')}")
-            print(f"Full error response: {result}")
-            return None
-            
-        return result["access_token"]
+        response.raise_for_status()
+        return response.json()["access_token"]
     except Exception as e:
-        print(f"Exception while getting access token: {str(e)}")
-        print(f"Exception type: {type(e)}")
+        print(f"Error getting access token: {e}")
         return None
 
 def send_ticket_email(ticket: schemas.TicketCreate):
