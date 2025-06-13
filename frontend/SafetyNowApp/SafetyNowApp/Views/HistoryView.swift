@@ -56,8 +56,19 @@ struct HistoryView: View {
                                 }) {
                                     Image(systemName: "ellipsis")
                                         .foregroundColor(.gray)
+                                        .frame(width: 44, height: 44)
                                 }
-                                .popover(isPresented: $showPopover, attachmentAnchor: .rect(.bounds), arrowEdge: .bottom) {
+                                .popover(
+                                    isPresented: Binding(
+                                        get: { showPopover && popoverItem?.id == item.id },
+                                        set: { newValue in
+                                            showPopover = newValue
+                                            if !newValue { popoverItem = nil }
+                                        }
+                                    ),
+                                    attachmentAnchor: .rect(.bounds),
+                                    arrowEdge: .bottom
+                                ) {
                                     VStack(spacing: 16) {
                                         Button("Delete from history", role: .destructive) {
                                             if let item = popoverItem {
@@ -84,6 +95,7 @@ struct HistoryView: View {
                                     .padding()
                                     .frame(width: 250)
                                 }
+                                .id(item.id)
                             }
                             .padding()
                             .background(Color(.systemGray6))
@@ -119,8 +131,19 @@ struct HistoryView: View {
                                 }) {
                                     Image(systemName: "ellipsis")
                                         .foregroundColor(.gray)
+                                        .frame(width: 44, height: 44)
                                 }
-                                .popover(isPresented: $showPopularPopover, attachmentAnchor: .rect(.bounds), arrowEdge: .bottom) {
+                                .popover(
+                                    isPresented: Binding(
+                                        get: { showPopularPopover && popoverPopularTalk?.id == talk.id },
+                                        set: { newValue in
+                                            showPopularPopover = newValue
+                                            if !newValue { popoverPopularTalk = nil }
+                                        }
+                                    ),
+                                    attachmentAnchor: .rect(.bounds),
+                                    arrowEdge: .bottom
+                                ) {
                                     VStack(spacing: 16) {
                                         Button("Share") {
                                             if let talk = popoverPopularTalk {
@@ -141,6 +164,7 @@ struct HistoryView: View {
                                     .padding()
                                     .frame(width: 250)
                                 }
+                                .id(talk.id)
                             }
                             .padding()
                             .background(Color(.systemGray6))

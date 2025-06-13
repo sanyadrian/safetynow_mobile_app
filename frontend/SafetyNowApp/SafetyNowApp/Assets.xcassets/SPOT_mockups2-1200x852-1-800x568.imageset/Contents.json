@@ -1,0 +1,21 @@
+{
+  "images" : [
+    {
+      "filename" : "SPOT_mockups2-1200x852-1-800x568.png",
+      "idiom" : "universal",
+      "scale" : "1x"
+    },
+    {
+      "idiom" : "universal",
+      "scale" : "2x"
+    },
+    {
+      "idiom" : "universal",
+      "scale" : "3x"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

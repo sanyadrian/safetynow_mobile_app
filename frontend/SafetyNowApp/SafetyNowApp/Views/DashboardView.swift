@@ -22,6 +22,7 @@ struct DashboardView: View {
     @State private var popoverItem: HistoryItem? = nil
     @State private var shouldNavigateToTalkDetail = false
     @State private var showTalkDetail: Bool = false
+    @State private var showUpgrade = false
 
     var body: some View {
         NavigationStack {
@@ -63,20 +64,24 @@ struct DashboardView: View {
                                     }
                                     .padding(.horizontal, 80)
                                     // PROMO BOX
-                                    VStack(alignment: .center, spacing: 8) {
-                                        Text(LocalizationManager.shared.localizedString(for: "dashboard.promo_title"))
-                                            .foregroundColor(.blue)
-                                            .bold()
-                                            .font(.title2)
-                                        Text(LocalizationManager.shared.localizedString(for: "dashboard.promo_subtitle"))
-                                            .foregroundColor(.gray)
-                                            .font(.title3)
-                                        Text(LocalizationManager.shared.localizedString(for: "dashboard.promo_action"))
-                                            .font(.title3)
-                                            .foregroundColor(.blue)
-                                            .underline()
+                                    Button(action: { showUpgrade = true }) {
+                                        VStack(alignment: .center, spacing: 8) {
+                                            Text(LocalizationManager.shared.localizedString(for: "dashboard.promo_title"))
+                                                .foregroundColor(.blue)
+                                                .bold()
+                                                .font(.title2)
+                                            Text(LocalizationManager.shared.localizedString(for: "dashboard.promo_subtitle"))
+                                                .foregroundColor(.gray)
+                                                .font(.title3)
+                                            Text(LocalizationManager.shared.localizedString(for: "dashboard.promo_action"))
+                                                .font(.title3)
+                                                .foregroundColor(.blue)
+                                                .underline()
+                                        }
+                                        .padding(.horizontal, 80)
                                     }
-                                    .padding(.horizontal, 80)
+                                    .background(Color(.systemGray6))
+                                    .cornerRadius(16)
                                     VStack(alignment: .leading, spacing: 16) {
                                         Text(LocalizationManager.shared.localizedString(for: "dashboard.history"))
                                             .font(.title2)
@@ -95,8 +100,19 @@ struct DashboardView: View {
                                                     showPopover = true
                                                 }) {
                                                     Image(systemName: "ellipsis")
+                                                        .frame(width: 44, height: 44)
                                                 }
-                                                .popover(isPresented: $showPopover, attachmentAnchor: .point(.trailing), arrowEdge: .trailing) {
+                                                .popover(
+                                                    isPresented: Binding(
+                                                        get: { showPopover && popoverItem?.id == item.id },
+                                                        set: { newValue in
+                                                            showPopover = newValue
+                                                            if !newValue { popoverItem = nil }
+                                                        }
+                                                    ),
+                                                    attachmentAnchor: .rect(.bounds),
+                                                    arrowEdge: .trailing
+                                                ) {
                                                     VStack(spacing: 16) {
                                                         Button("Delete from history", role: .destructive) {
                                                             if let item = popoverItem {
@@ -123,6 +139,7 @@ struct DashboardView: View {
                                                     .padding()
                                                     .frame(width: 250)
                                                 }
+                                                .id(item.id)
                                             }
                                             .padding()
                                             .background(Color(.systemGray6))
@@ -167,21 +184,23 @@ struct DashboardView: View {
                                 .padding(.horizontal)
 
                                 // PROMO BOX
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(LocalizationManager.shared.localizedString(for: "dashboard.promo_title"))
-                                        .foregroundColor(.blue)
-                                        .bold()
-                                    Text(LocalizationManager.shared.localizedString(for: "dashboard.promo_subtitle"))
-                                        .foregroundColor(.gray)
-                                    Text(LocalizationManager.shared.localizedString(for: "dashboard.promo_action"))
-                                        .font(.footnote)
-                                        .foregroundColor(.blue)
-                                        .underline()
+                                Button(action: { showUpgrade = true }) {
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text(LocalizationManager.shared.localizedString(for: "dashboard.promo_title"))
+                                            .foregroundColor(.blue)
+                                            .bold()
+                                        Text(LocalizationManager.shared.localizedString(for: "dashboard.promo_subtitle"))
+                                            .foregroundColor(.gray)
+                                        Text(LocalizationManager.shared.localizedString(for: "dashboard.promo_action"))
+                                            .font(.footnote)
+                                            .foregroundColor(.blue)
+                                            .underline()
+                                    }
+                                    .padding()
+                                    .background(Color(.systemGray6))
+                                    .cornerRadius(16)
+                                    .padding(.horizontal)
                                 }
-                                .padding()
-                                .background(Color(.systemGray6))
-                                .cornerRadius(16)
-                                .padding(.horizontal)
 
                                 VStack(alignment: .leading, spacing: 8) {
                                     Text(LocalizationManager.shared.localizedString(for: "dashboard.history"))
@@ -288,6 +307,7 @@ struct DashboardView: View {
                     )
                 ) { EmptyView() }
             }
+            NavigationLink(destination: UpgradePlanView(), isActive: $showUpgrade) { EmptyView() }
         }
         .onAppear {
             NetworkService.shared.getHistory(token: accessToken) { result in

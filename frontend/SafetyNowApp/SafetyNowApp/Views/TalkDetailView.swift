@@ -10,6 +10,7 @@ struct TalkDetailView: View {
     @State private var isLoading: Bool = false
     @State private var showShareSheet = false
     @State private var shareContent: [Any] = []
+    @State private var showUpgrade = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -121,7 +122,9 @@ struct TalkDetailView: View {
                         
                         Spacer()
                         
-                        Button(action: {}) {
+                        Button(action: {
+                            showUpgrade = true
+                        }) {
                             Text(LocalizationManager.shared.localizedString(for: "button.access_more"))
                                 .font(.footnote)
                                 .foregroundColor(.white)
@@ -159,6 +162,7 @@ struct TalkDetailView: View {
         .sheet(isPresented: $showShareSheet) {
             ShareSheet(activityItems: shareContent)
         }
+        NavigationLink(destination: UpgradePlanView(), isActive: $showUpgrade) { EmptyView() }
     }
     
     private func fetchLikeStatus() {
