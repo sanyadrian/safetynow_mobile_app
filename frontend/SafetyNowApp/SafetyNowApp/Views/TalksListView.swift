@@ -45,8 +45,6 @@ struct TalksListView: View {
                         .font(.system(size: 48, weight: .bold))
                         .multilineTextAlignment(.center)
                         .frame(maxWidth: .infinity, alignment: .center)
-                    Text("DEBUG: TalksListView is visible on iPad")
-                        .foregroundColor(.red)
                     if isLoading {
                         ProgressView("Loading Talks...")
                     } else if talks.isEmpty {
@@ -100,7 +98,6 @@ struct TalksListView: View {
                     }
                 }
                 .padding(.vertical, 60)
-                .background(Color.red.opacity(0.1))
             }
             .onAppear {
                 print("TalksListView appeared on iPad with filterType: \(filterType), filterValue: \(filterValue)")
