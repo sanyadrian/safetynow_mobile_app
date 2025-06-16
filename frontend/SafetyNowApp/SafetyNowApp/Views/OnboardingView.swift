@@ -11,8 +11,8 @@ struct OnboardingView: View {
     @State private var currentIndex = 0
 
     private let slides: [OnboardingSlide] = [
-        OnboardingSlide(imageName: "BETTER-OHS-100years", title: "Keep Workplace Safety Top of Mind \n", description: "Make sure your OHS message is compliant & engaging so that it's effective too."),
-        OnboardingSlide(imageName: "SPOT_mockups2-1200x852-1-800x568", title: "Reduce Accidents & Incidents in Your Workplace", description: "The right safety message at the right time makes all the difference.")
+        OnboardingSlide(imageName: "OHS-box-graphics-01-landscape", title: "Keep Workplace Safety Top of Mind \n", description: "Make sure your OHS message is compliant & engaging so that it's effective too."),
+        OnboardingSlide(imageName: "OHS-box-graphics-13-landscape", title: "Reduce Accidents & Incidents in Your Workplace", description: "The right safety message at the right time makes all the difference.")
     ]
 
     var body: some View {

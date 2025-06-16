@@ -24,7 +24,7 @@ struct UpgradePlanView: View {
                                 .font(.system(size: 48, weight: .bold))
                                 .multilineTextAlignment(.center)
                                 .frame(maxWidth: .infinity, alignment: .center)
-                            Image("devices_mockup")
+                            Image("UpgradeView")
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
                                 .frame(width: 220, height: 120)
@@ -130,7 +130,7 @@ struct UpgradePlanView: View {
                 } else {
                     VStack(spacing: 24) {
                         Spacer().frame(height: 24)
-                        Image("devices_mockup")
+                        Image("UpgradeView")
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .frame(width: 220, height: 120)
