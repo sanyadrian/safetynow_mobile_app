@@ -8,11 +8,26 @@ struct IndustryTilesView: View {
     @State private var selectedIndustry: String? = nil
     @State private var showTalksList = false
     let onTalksTap: (String) -> Void
+    let onBack: () -> Void
     
     var body: some View {
         if UIDevice.current.userInterfaceIdiom == .pad {
             ScrollView {
                 VStack(alignment: .center, spacing: 48) {
+                    // Header with back button
+                    HStack {
+                        Button(action: onBack) {
+                            HStack {
+                                Image(systemName: "chevron.left")
+                                Text("Back")
+                            }
+                            .foregroundColor(.blue)
+                            .font(.title2)
+                        }
+                        Spacer()
+                    }
+                    .padding(.horizontal, 80)
+                    
                     // Title
                     Text("Industries")
                         .font(.system(size: 48, weight: .bold))
@@ -40,7 +55,15 @@ struct IndustryTilesView: View {
                     }
                     NavigationLink(
                         destination: selectedIndustry.map { industry in
-                            TalksListView(filterType: .industry, filterValue: industry, onTalkTap: { talk in onTalksTap(talk.title) })
+                            TalksListView(
+                                filterType: .industry, 
+                                filterValue: industry, 
+                                onTalkTap: { talk in onTalksTap(talk.title) },
+                                onBack: {
+                                    selectedIndustry = nil
+                                    showTalksList = false
+                                }
+                            )
                         },
                         isActive: $showTalksList
                     ) { EmptyView() }
@@ -50,6 +73,21 @@ struct IndustryTilesView: View {
             .onAppear(perform: fetchIndustries)
         } else {
             VStack {
+                // Header with back button for iPhone
+                HStack {
+                    Button(action: onBack) {
+                        HStack {
+                            Image(systemName: "chevron.left")
+                            Text("Back")
+                        }
+                        .foregroundColor(.blue)
+                        .font(.headline)
+                    }
+                    Spacer()
+                }
+                .padding(.horizontal)
+                .padding(.top)
+                
                 if isLoading {
                     ProgressView("Loading Industries...")
                 } else {
@@ -97,5 +135,5 @@ struct IndustryTilesView: View {
 }
 
 #Preview {
-    IndustryTilesView(onTalksTap: { _ in })
+    IndustryTilesView(onTalksTap: { _ in }, onBack: {})
 } 

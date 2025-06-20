@@ -8,11 +8,26 @@ struct HazardTilesView: View {
     @State private var selectedHazard: String? = nil
     @State private var showTalksList = false
     let onTalksTap: (String) -> Void
+    let onBack: () -> Void
     
     var body: some View {
         if UIDevice.current.userInterfaceIdiom == .pad {
             ScrollView {
                 VStack(alignment: .center, spacing: 48) {
+                    // Header with back button
+                    HStack {
+                        Button(action: onBack) {
+                            HStack {
+                                Image(systemName: "chevron.left")
+                                Text("Back")
+                            }
+                            .foregroundColor(.blue)
+                            .font(.title2)
+                        }
+                        Spacer()
+                    }
+                    .padding(.horizontal, 80)
+                    
                     // Title
                     Text("Hazards")
                         .font(.system(size: 48, weight: .bold))
@@ -40,7 +55,15 @@ struct HazardTilesView: View {
                     }
                     NavigationLink(
                         destination: selectedHazard.map { hazard in
-                            TalksListView(filterType: .hazard, filterValue: hazard, onTalkTap: { talk in onTalksTap(talk.title) })
+                            TalksListView(
+                                filterType: .hazard, 
+                                filterValue: hazard, 
+                                onTalkTap: { talk in onTalksTap(talk.title) },
+                                onBack: {
+                                    selectedHazard = nil
+                                    showTalksList = false
+                                }
+                            )
                         },
                         isActive: $showTalksList
                     ) { EmptyView() }
@@ -50,6 +73,21 @@ struct HazardTilesView: View {
             .onAppear(perform: fetchHazards)
         } else {
             VStack {
+                // Header with back button for iPhone
+                HStack {
+                    Button(action: onBack) {
+                        HStack {
+                            Image(systemName: "chevron.left")
+                            Text("Back")
+                        }
+                        .foregroundColor(.blue)
+                        .font(.headline)
+                    }
+                    Spacer()
+                }
+                .padding(.horizontal)
+                .padding(.top)
+                
                 if isLoading {
                     ProgressView("Loading Hazards...")
                 } else {
@@ -97,5 +135,5 @@ struct HazardTilesView: View {
 }
 
 #Preview {
-    HazardTilesView(onTalksTap: { _ in })
+    HazardTilesView(onTalksTap: { _ in }, onBack: {})
 } 

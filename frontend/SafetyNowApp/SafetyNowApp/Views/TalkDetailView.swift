@@ -28,7 +28,16 @@ struct TalkDetailView: View {
                     .font(.title2)
                     .bold()
                 Spacer()
-                Button(action: {}) {
+                Menu {
+                    Button(action: {
+                        if let pdfURL = createPDF(for: talk.title, description: talk.description) {
+                            shareContent = [pdfURL]
+                            showShareSheet = true
+                        }
+                    }) {
+                        Label("Share", systemImage: "square.and.arrow.up")
+                    }
+                } label: {
                     Image(systemName: "ellipsis")
                         .font(.title2)
                         .foregroundColor(.black)
@@ -112,11 +121,6 @@ struct TalkDetailView: View {
                             }
                         }) {
                             Image(systemName: "square.and.arrow.up")
-                                .foregroundColor(.blue)
-                        }
-                        
-                        Button(action: {}) {
-                            Image(systemName: "ellipsis")
                                 .foregroundColor(.blue)
                         }
                         

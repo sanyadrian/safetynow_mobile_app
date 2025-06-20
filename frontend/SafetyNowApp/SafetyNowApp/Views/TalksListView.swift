@@ -28,6 +28,7 @@ struct TalksListView: View {
     let filterType: TalkFilterType
     let filterValue: String
     let onTalkTap: (TalkModel) -> Void
+    let onBack: () -> Void
     @AppStorage("access_token") var accessToken: String = ""
     @AppStorage("selectedLanguage") var selectedLanguage: String = "en"
     @State private var talks: [TalkModel] = []
@@ -40,6 +41,20 @@ struct TalksListView: View {
         if UIDevice.current.userInterfaceIdiom == .pad {
             ScrollView {
                 VStack(alignment: .center, spacing: 48) {
+                    // Header with back button
+                    HStack {
+                        Button(action: onBack) {
+                            HStack {
+                                Image(systemName: "chevron.left")
+                                Text("Back")
+                            }
+                            .foregroundColor(.blue)
+                            .font(.title2)
+                        }
+                        Spacer()
+                    }
+                    .padding(.horizontal, 80)
+                    
                     // Title
                     Text("Talks List")
                         .font(.system(size: 48, weight: .bold))
@@ -105,6 +120,30 @@ struct TalksListView: View {
             }
         } else {
             VStack(spacing: 0) {
+                // Header with back button for iPhone
+                HStack {
+                    Button(action: onBack) {
+                        HStack {
+                            Image(systemName: "chevron.left")
+                            Text("Back")
+                        }
+                        .foregroundColor(.blue)
+                        .font(.headline)
+                    }
+                    Spacer()
+                }
+                .padding(.horizontal)
+                .padding(.top)
+                
+                // Title for iPhone
+                Text(filterType == .hazard ? 
+                    Translations.translateHazard(filterValue, language: selectedLanguage) :
+                    Translations.translateIndustry(filterValue, language: selectedLanguage))
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.top, 8)
+                
                 if isLoading {
                     ProgressView("Loading Talks...")
                         .frame(maxHeight: .infinity)
@@ -182,10 +221,6 @@ struct TalksListView: View {
                 }
             }
             .background(Color.white.ignoresSafeArea())
-            .navigationTitle(filterType == .hazard ? 
-                Translations.translateHazard(filterValue, language: selectedLanguage) :
-                Translations.translateIndustry(filterValue, language: selectedLanguage))
-            .navigationBarTitleDisplayMode(.inline)
             .onAppear {
                 print("TalksListView appeared on iPhone with filterType: \(filterType), filterValue: \(filterValue)")
                 print("Selected Language: \(selectedLanguage)")
@@ -232,6 +267,6 @@ struct TalksListView: View {
 }
 
 #Preview {
-    TalksListView(filterType: .hazard, filterValue: "Fire", onTalkTap: { _ in })
+    TalksListView(filterType: .hazard, filterValue: "Fire", onTalkTap: { _ in }, onBack: {})
 } 
 
