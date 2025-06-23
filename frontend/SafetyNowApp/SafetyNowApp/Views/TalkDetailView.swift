@@ -90,13 +90,35 @@ struct TalkDetailView: View {
                         }
                     }
                     
-                    Text(talk.description ?? "")
-                        .font(.body)
-                        .foregroundColor(.black)
+                    // Custom rendering for description with subtitles and spacing
+                    if let description = talk.description {
+                        VStack(alignment: .leading, spacing: 0) {
+                            let lines = description.components(separatedBy: .newlines)
+                            ForEach(Array(lines.enumerated()), id: \.offset) { tuple in
+                                let idx = tuple.offset
+                                let line = tuple.element
+                                let trimmed = line.trimmingCharacters(in: .whitespaces)
+                                if trimmed.isEmpty {
+                                    Spacer().frame(height: 10)
+                                } else if trimmed == trimmed.uppercased() && trimmed.rangeOfCharacter(from: .letters) != nil {
+                                    Spacer().frame(height: idx == 0 ? 0 : 16)
+                                    Text(trimmed)
+                                        .font(.body).bold()
+                                        .foregroundColor(.black)
+                                    Spacer().frame(height: 8)
+                                } else {
+                                    Text(trimmed)
+                                        .font(.body)
+                                        .foregroundColor(.black)
+                                    Spacer().frame(height: 6)
+                                }
+                            }
+                        }
                         .padding()
                         .background(Color.white)
                         .cornerRadius(16)
                         .shadow(color: Color(.systemGray4).opacity(0.1), radius: 2, x: 0, y: 1)
+                    }
                     
                     HStack(spacing: 16) {
                         Button(action: {
