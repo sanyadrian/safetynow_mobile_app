@@ -6,7 +6,7 @@ sns = boto3.client('sns', region_name='us-east-1')
 ENDPOINT_ARN = 'YOUR_ENDPOINT_ARN_HERE'
 
 message = {
-    "APNS_SANDBOX": '{ "aps": { "alert": "Hello from SNS!", "sound": "default" } }'
+    "APNS": '{ "aps": { "alert": "Hello from SNS!", "sound": "default" } }'
 }
 
 sns.publish(
