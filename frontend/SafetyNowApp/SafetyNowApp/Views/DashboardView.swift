@@ -4,6 +4,7 @@ import PDFKit
 struct DashboardView: View {
     @AppStorage("access_token") var accessToken: String = ""
     @AppStorage("username") var storedUsername: String = ""
+    @AppStorage("notificationsEnabled") var notificationsEnabled: Bool = false
     @State private var history: [HistoryItem] = []
     @Binding var selectedTab: Tab
     @State private var navigateToFindTalk = false
@@ -51,7 +52,10 @@ struct DashboardView: View {
                                                 .bold()
                                         }
                                         Spacer()
-                                        Image(systemName: "bell")
+                                        Button(action: { notificationsEnabled.toggle() }) {
+                                            Image(systemName: notificationsEnabled ? "bell.fill" : "bell")
+                                                .foregroundColor(notificationsEnabled ? .blue : .gray)
+                                        }
                                     }
                                     .padding(.horizontal, 80)
                                     HStack(spacing: 32) {
@@ -63,23 +67,33 @@ struct DashboardView: View {
                                         }
                                     }
                                     .padding(.horizontal, 80)
-                                    // PROMO BOX
+                                    // PROMO BOX (Unified for iPad and iPhone)
                                     Button(action: { showUpgrade = true }) {
-                                        VStack(alignment: .center, spacing: 8) {
+                                        VStack(alignment: .center, spacing: 12) {
+                                            Image("SafetyNow-LogoArtboard-1-1")
+                                                .resizable()
+                                                .aspectRatio(contentMode: .fit)
+                                                .frame(width: 160, height: 160)
+                                                .padding(.top, 8)
                                             Text(LocalizationManager.shared.localizedString(for: "dashboard.promo_title"))
                                                 .foregroundColor(.blue)
                                                 .bold()
                                                 .font(.title2)
+                                                .multilineTextAlignment(.center)
                                             Text(LocalizationManager.shared.localizedString(for: "dashboard.promo_subtitle"))
                                                 .foregroundColor(.gray)
                                                 .font(.title3)
+                                                .multilineTextAlignment(.center)
                                             Text(LocalizationManager.shared.localizedString(for: "dashboard.promo_action"))
                                                 .font(.title3)
                                                 .foregroundColor(.blue)
                                                 .underline()
+                                                .multilineTextAlignment(.center)
                                         }
-                                        .padding(.horizontal, 80)
+                                        .padding(.horizontal, 24)
+                                        .padding(.vertical, 8)
                                     }
+                                    .frame(maxWidth: .infinity)
                                     .background(Color(.systemGray6))
                                     .cornerRadius(16)
                                     VStack(alignment: .leading, spacing: 16) {
@@ -169,7 +183,10 @@ struct DashboardView: View {
                                             .bold()
                                     }
                                     Spacer()
-                                    Image(systemName: "bell")
+                                    Button(action: { notificationsEnabled.toggle() }) {
+                                        Image(systemName: notificationsEnabled ? "bell.fill" : "bell")
+                                            .foregroundColor(notificationsEnabled ? .blue : .gray)
+                                    }
                                 }
                                 .padding(.horizontal)
 
@@ -183,24 +200,35 @@ struct DashboardView: View {
                                 }
                                 .padding(.horizontal)
 
-                                // PROMO BOX
+                                // PROMO BOX (Unified for iPad and iPhone)
                                 Button(action: { showUpgrade = true }) {
-                                    VStack(alignment: .leading, spacing: 4) {
+                                    VStack(alignment: .center, spacing: 12) {
+                                        Image("SafetyNow-LogoArtboard-1-1")
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fit)
+                                            .frame(width: 160, height: 160)
+                                            .padding(.top, 8)
                                         Text(LocalizationManager.shared.localizedString(for: "dashboard.promo_title"))
                                             .foregroundColor(.blue)
                                             .bold()
+                                            .font(.title2)
+                                            .multilineTextAlignment(.center)
                                         Text(LocalizationManager.shared.localizedString(for: "dashboard.promo_subtitle"))
                                             .foregroundColor(.gray)
+                                            .font(.title3)
+                                            .multilineTextAlignment(.center)
                                         Text(LocalizationManager.shared.localizedString(for: "dashboard.promo_action"))
-                                            .font(.footnote)
+                                            .font(.title3)
                                             .foregroundColor(.blue)
                                             .underline()
+                                            .multilineTextAlignment(.center)
                                     }
-                                    .padding()
-                                    .background(Color(.systemGray6))
-                                    .cornerRadius(16)
-                                    .padding(.horizontal)
+                                    .padding(.horizontal, 24)
+                                    .padding(.vertical, 8)
                                 }
+                                .frame(maxWidth: .infinity)
+                                .background(Color(.systemGray6))
+                                .cornerRadius(16)
 
                                 VStack(alignment: .leading, spacing: 8) {
                                     Text(LocalizationManager.shared.localizedString(for: "dashboard.history"))
@@ -319,6 +347,13 @@ struct DashboardView: View {
                         print("\(error.localizedDescription)")
                     }
                 }
+            }
+        }
+        .onChange(of: notificationsEnabled) { enabled in
+            if enabled {
+                NotificationManager.shared.registerForPushNotifications()
+            } else {
+                NotificationManager.shared.disableNotifications()
             }
         }
     }

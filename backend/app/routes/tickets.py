@@ -37,7 +37,7 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
 def get_access_token():
     try:
         response = requests.post(
-            "https://login.microsoftonline.com/common/oauth2/v2.0/token",
+            f"https://login.microsoftonline.com/{os.getenv('AZURE_TENANT_ID')}/oauth2/v2.0/token",
             data={
                 "client_id": os.getenv("AZURE_CLIENT_ID"),
                 "client_secret": os.getenv("AZURE_CLIENT_SECRET"),

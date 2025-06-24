@@ -9,6 +9,7 @@ import SwiftUI
 
 @main
 struct SafetyNowAppApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @AppStorage("isLoggedIn") var isLoggedIn: Bool = false
     var body: some Scene {
         WindowGroup {

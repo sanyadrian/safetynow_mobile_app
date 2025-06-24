@@ -8,11 +8,11 @@ struct ProfileView: View {
     @AppStorage("username") var username: String = ""
     @AppStorage("email") var email: String = ""
     @AppStorage("isLoggedIn") var isLoggedIn: Bool = true
+    @AppStorage("notificationsEnabled") var notificationsEnabled: Bool = false
     @State private var selectedItem: PhotosPickerItem?
     @State private var selectedImageData: Data?
     @State private var isLoading = false
     @State private var errorMessage: String?
-    @State private var isNotificationsOn = true
     @Binding var selectedTab: Tab
     @State private var showSettings = false
     @State private var showLanguage = false
@@ -86,7 +86,7 @@ struct ProfileView: View {
                                 Text("Notification")
                                     .font(.title3)
                                 Spacer()
-                                Toggle("", isOn: $isNotificationsOn)
+                                Toggle("", isOn: $notificationsEnabled)
                                     .labelsHidden()
                             }
                             .padding(.horizontal, 80)
@@ -194,7 +194,7 @@ struct ProfileView: View {
                             Text("Notification")
                                 .font(.subheadline)
                             Spacer()
-                            Toggle("", isOn: $isNotificationsOn)
+                            Toggle("", isOn: $notificationsEnabled)
                                 .labelsHidden()
                         }
                         .padding(.horizontal)
@@ -327,6 +327,13 @@ struct ProfileView: View {
                         }
                     }
                 }
+            }
+        }
+        .onChange(of: notificationsEnabled) { enabled in
+            if enabled {
+                NotificationManager.shared.registerForPushNotifications()
+            } else {
+                NotificationManager.shared.disableNotifications()
             }
         }
     }

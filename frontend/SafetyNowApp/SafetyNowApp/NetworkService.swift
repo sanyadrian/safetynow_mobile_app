@@ -6,6 +6,19 @@ class NetworkService {
 
     private init() {}
 
+    private func handleTokenExpiryIfNeeded(_ response: URLResponse?) {
+        if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 401 {
+            // Token is invalid/expired, log out user
+            DispatchQueue.main.async {
+                UserDefaults.standard.removeObject(forKey: "access_token")
+                UserDefaults.standard.removeObject(forKey: "profile_image")
+                UserDefaults.standard.removeObject(forKey: "username")
+                UserDefaults.standard.removeObject(forKey: "email")
+                UserDefaults.standard.set(false, forKey: "isLoggedIn")
+            }
+        }
+    }
+
     func login(username: String, password: String, completion: @escaping (Result<TokenResponse, Error>) -> Void) {
         guard let url = URL(string: "\(baseURL)/auth/login") else {
             completion(.failure(NetworkError.invalidURL))
@@ -73,6 +86,8 @@ class NetworkService {
                 print("Decoding error: \(error)")
                 completion(.failure(NetworkError.decodingError))
             }
+
+            self.handleTokenExpiryIfNeeded(response)
         }.resume()
     }
 
@@ -106,6 +121,8 @@ class NetworkService {
             } catch {
                 completion(.failure(NetworkError.decodingError))
             }
+
+            self.handleTokenExpiryIfNeeded(response)
         }.resume()
     }
 
@@ -135,6 +152,8 @@ class NetworkService {
             } catch {
                 completion(.failure(error))
             }
+
+            self.handleTokenExpiryIfNeeded(response)
         }.resume()
     }
 
@@ -175,6 +194,8 @@ class NetworkService {
             default:
                 completion(.failure(NetworkError.serverError))
             }
+
+            self.handleTokenExpiryIfNeeded(response)
         }.resume()
     }
 
@@ -226,6 +247,8 @@ class NetworkService {
             }
 
             completion(.success(()))
+
+            self.handleTokenExpiryIfNeeded(response)
         }.resume()
     }
 
@@ -272,6 +295,8 @@ class NetworkService {
             } catch {
                 completion(.failure(NetworkError.decodingError))
             }
+
+            self.handleTokenExpiryIfNeeded(response)
         }.resume()
     }
 
@@ -319,6 +344,8 @@ class NetworkService {
             default:
                 completion(.failure(NetworkError.serverError))
             }
+
+            self.handleTokenExpiryIfNeeded(response)
         }.resume()
     }
 
@@ -340,6 +367,8 @@ class NetworkService {
                 return
             }
             completion(.success(()))
+
+            self.handleTokenExpiryIfNeeded(response)
         }.resume()
     }
 
@@ -350,7 +379,7 @@ class NetworkService {
         }
         var request = URLRequest(url: url)
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        URLSession.shared.dataTask(with: request) { data, _, error in
+        URLSession.shared.dataTask(with: request) { data, response, error in
             if let error = error {
                 completion(.failure(error))
                 return
@@ -369,6 +398,8 @@ class NetworkService {
             } catch {
                 completion(.failure(error))
             }
+
+            self.handleTokenExpiryIfNeeded(response)
         }.resume()
     }
 
@@ -412,6 +443,8 @@ class NetworkService {
             }
 
             completion(.success(()))
+
+            self.handleTokenExpiryIfNeeded(response)
         }.resume()
     }
 
@@ -458,6 +491,8 @@ class NetworkService {
             }
 
             completion(.success(()))
+
+            self.handleTokenExpiryIfNeeded(response)
         }.resume()
     }
 
@@ -505,6 +540,8 @@ class NetworkService {
             }
 
             completion(.success(()))
+
+            self.handleTokenExpiryIfNeeded(response)
         }.resume()
     }
 
@@ -544,6 +581,49 @@ class NetworkService {
                     completion(.failure(NetworkError.invalidResponse))
                 }
             }
+
+            self.handleTokenExpiryIfNeeded(response)
+        }.resume()
+    }
+
+    func registerDeviceToken(token: String, accessToken: String, completion: @escaping (Result<Void, Error>) -> Void) {
+        guard let url = URL(string: "\(baseURL)/register-device-token/") else {
+            completion(.failure(NetworkError.invalidURL))
+            return
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
+
+        let body = ["device_token": token]
+        do {
+            request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        } catch {
+            completion(.failure(NetworkError.encodingError))
+            return
+        }
+
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+
+            guard let httpResponse = response as? HTTPURLResponse else {
+                completion(.failure(NetworkError.serverError))
+                return
+            }
+
+            switch httpResponse.statusCode {
+            case 200...299:
+                completion(.success(()))
+            default:
+                completion(.failure(NetworkError.serverError))
+            }
+
+            self.handleTokenExpiryIfNeeded(response)
         }.resume()
     }
 }
