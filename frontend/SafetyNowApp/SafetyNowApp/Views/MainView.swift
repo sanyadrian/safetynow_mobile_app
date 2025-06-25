@@ -24,7 +24,7 @@ struct MainView: View {
                         case .hazardTiles:
                              HazardTilesView(
                                 onTalksTap: { value in
-                                    self.subScreen = .talksList(filterType: .hazard, filterValue: value)
+                                self.subScreen = .talksList(filterType: .hazard, filterValue: value)
                                 },
                                 onBack: {
                                     self.subScreen = nil
@@ -33,7 +33,7 @@ struct MainView: View {
                         case .industryTiles:
                             IndustryTilesView(
                                 onTalksTap: { value in
-                                    self.subScreen = .talksList(filterType: .industry, filterValue: value)
+                                self.subScreen = .talksList(filterType: .industry, filterValue: value)
                                 },
                                 onBack: {
                                     self.subScreen = nil
@@ -41,10 +41,10 @@ struct MainView: View {
                             )
                         case .talksList(let filterType, let filterValue):
                             TalksListView(
-                                filterType: filterType,
-                                filterValue: filterValue,
-                                onTalkTap: { talk in
-                                    self.subScreen = .talkDetail(talk: talk, filterType: filterType, filterValue: filterValue)
+                                        filterType: filterType,
+                                        filterValue: filterValue,
+                                        onTalkTap: { talk in
+                                            self.subScreen = .talkDetail(talk: talk, filterType: filterType, filterValue: filterValue)
                                 },
                                 onBack: {
                                     switch filterType {
@@ -53,8 +53,8 @@ struct MainView: View {
                                     case .industry:
                                         self.subScreen = .industryTiles
                                     }
-                                }
-                            )
+                                        }
+                                    )
                         case .talkDetail(let talk, let filterType, let filterValue):
                                     TalkDetailView(talk: talk, onBack: {
                                         self.subScreen = .talksList(filterType: filterType, filterValue: filterValue)

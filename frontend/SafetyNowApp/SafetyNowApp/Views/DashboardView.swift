@@ -227,8 +227,8 @@ struct DashboardView: View {
                                     .padding(.vertical, 8)
                                 }
                                 .frame(maxWidth: .infinity)
-                                .background(Color(.systemGray6))
-                                .cornerRadius(16)
+                                    .background(Color(.systemGray6))
+                                    .cornerRadius(16)
 
                                 VStack(alignment: .leading, spacing: 8) {
                                     Text(LocalizationManager.shared.localizedString(for: "dashboard.history"))

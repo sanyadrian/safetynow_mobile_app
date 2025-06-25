@@ -144,10 +144,16 @@ struct RegisterView: View {
                         // Input Fields
                         Group {
                             TextField("Username", text: $username)
+                                .padding()
+                                .background(Color(.systemGray6))
+                                .cornerRadius(10)
                             TextField("Email", text: $email)
                                 .keyboardType(.emailAddress)
                                 .autocapitalization(.none)
                                 .textInputAutocapitalization(.never)
+                                .padding()
+                                .background(Color(.systemGray6))
+                                .cornerRadius(10)
                             HStack {
                                 Menu {
                                     ForEach(countries) { country in
@@ -173,6 +179,9 @@ struct RegisterView: View {
                             .background(Color(.systemGray6))
                             .cornerRadius(10)
                             SecureField("Password", text: $password)
+                                .padding()
+                                .background(Color(.systemGray6))
+                                .cornerRadius(10)
                         }
                         // Register Button
                         Button(action: register) {

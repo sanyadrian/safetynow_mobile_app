@@ -145,13 +145,6 @@ struct LoginView: View {
                     .padding()
                 }
             }
-            // Navigation links for iPad (outside the Group)
-            NavigationLink(destination: RegisterView(currentIndex: $currentIndex), isActive: $showRegister) {
-                EmptyView()
-            }
-            NavigationLink(destination: ForgotPasswordView(), isActive: $showForgotPassword) {
-                EmptyView()
-            }
         }
     }
 
@@ -166,6 +159,10 @@ struct LoginView: View {
                     UserDefaults.standard.set(response.user.email, forKey: "email")
                     UserDefaults.standard.set(response.user.phone ?? "", forKey: "phone")
                     isLoggedIn = true
+                    
+                    // Register for push notifications after successful login
+                    NotificationManager.shared.registerForPushNotifications()
+                    
                 case .failure(let error):
                     if let networkError = error as? NetworkError {
                         switch networkError {

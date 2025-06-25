@@ -231,13 +231,6 @@ struct ForgotPasswordView: View {
                     }
                     .padding()
                     .navigationBarTitleDisplayMode(.inline)
-                    .toolbar {
-                        ToolbarItem(placement: .navigationBarLeading) {
-                            Button("Cancel") {
-                                dismiss()
-                            }
-                        }
-                    }
                 }
             }
         }

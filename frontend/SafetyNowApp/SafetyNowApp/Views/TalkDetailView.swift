@@ -108,8 +108,8 @@ struct TalkDetailView: View {
                                     Spacer().frame(height: 8)
                                 } else {
                                     Text(trimmed)
-                                        .font(.body)
-                                        .foregroundColor(.black)
+                        .font(.body)
+                        .foregroundColor(.black)
                                     Spacer().frame(height: 6)
                                 }
                             }
