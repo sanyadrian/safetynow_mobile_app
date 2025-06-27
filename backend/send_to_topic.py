@@ -8,14 +8,14 @@ TOPIC_ARN = 'arn:aws:sns:us-east-1:370217917385:SafetyNow-Notifications'
 
 # Message to send to all users
 message = {
+    "default": "New safety talk available! Check it out now.",
     "APNS": json.dumps({
         "aps": {
             "alert": {
                 "title": "SafetyNow",
                 "body": "New safety talk available! Check it out now."
             },
-            "sound": "default",
-            "badge": 1
+            "sound": "default"
         }
     })
 }

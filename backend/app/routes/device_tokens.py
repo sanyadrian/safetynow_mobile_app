@@ -11,8 +11,8 @@ router = APIRouter(prefix="/register-device-token", tags=["device-tokens"])
 sns = boto3.client('sns', region_name='us-east-1')
 
 # Update these with your actual ARNs
-PLATFORM_APPLICATION_ARN = 'arn:aws:sns:us-east-1:370217917385:app/APNS/MyApp-iOS'  # Your actual platform app ARN
-TOPIC_ARN = 'arn:aws:sns:us-east-1:370217917385:SafetyNow-Notifications'  # Your topic ARN
+PLATFORM_APPLICATION_ARN = 'arn:aws:sns:us-east-1:370217917385:app/APNS/MyApp-iOS' 
+TOPIC_ARN = 'arn:aws:sns:us-east-1:370217917385:SafetyNow-Notifications' 
 
 class DeviceTokenRequest(BaseModel):
     device_token: str
