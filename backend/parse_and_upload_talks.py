@@ -9,7 +9,7 @@ def upload_talks():
     try:
         # Get the absolute path to the Excel file
         current_dir = os.path.dirname(os.path.abspath(__file__))
-        file_path = os.path.join(current_dir, 'SafetyTalks.xlsx')
+        file_path = os.path.join(current_dir, 'SafetyTalkAPP.xlsx')
         
         if not os.path.exists(file_path):
             print(f"Error: Excel file not found at {file_path}")
