@@ -7,73 +7,116 @@ struct IndustryTilesView: View {
     @State private var isLoading = true
     @State private var selectedIndustry: String? = nil
     @State private var showTalksList = false
+    @State private var sortOrder: SortOrder = .ascending
     let onTalksTap: (String) -> Void
     let onBack: () -> Void
     
+    enum SortOrder {
+        case ascending, descending
+        
+        var icon: String {
+            switch self {
+            case .ascending: return "arrow.up.arrow.down"
+            case .descending: return "arrow.down.arrow.up"
+            }
+        }
+    }
+    
+    var sortedIndustries: [String] {
+        let translatedIndustries = industries.map { industry in
+            (original: industry, translated: Translations.translateIndustry(industry, language: selectedLanguage))
+        }
+        
+        let sorted = translatedIndustries.sorted { first, second in
+            let comparison = first.translated.localizedCaseInsensitiveCompare(second.translated)
+            return sortOrder == .ascending ? comparison == .orderedAscending : comparison == .orderedDescending
+        }
+        
+        return sorted.map { $0.original }
+    }
+    
     var body: some View {
         if UIDevice.current.userInterfaceIdiom == .pad {
-            ScrollView {
-                VStack(alignment: .center, spacing: 48) {
-                    // Header with back button
-                    HStack {
-                        Button(action: onBack) {
-                            HStack {
-                                Image(systemName: "chevron.left")
-                                Text("Back")
-                            }
-                            .foregroundColor(.blue)
-                            .font(.title2)
+            VStack {
+                // Header with back button and sort button
+                HStack {
+                    Button(action: onBack) {
+                        HStack {
+                            Image(systemName: "chevron.left")
+                            Text("Back")
                         }
-                        Spacer()
+                        .foregroundColor(.blue)
+                        .font(.title2)
                     }
-                    .padding(.horizontal, 80)
+                    Spacer()
                     
-                    // Title
-                    Text("Industries")
-                        .font(.system(size: 48, weight: .bold))
-                        .multilineTextAlignment(.center)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                    if isLoading {
-                        ProgressView("Loading Industries...")
-                    } else {
-                        LazyVGrid(columns: [GridItem(.adaptive(minimum: 180))], spacing: 32) {
-                            ForEach(industries, id: \.self) { industry in
-                                Button(action: {
-                                    selectedIndustry = industry
-                                    showTalksList = true
-                                }) {
-                                    Text(Translations.translateIndustry(industry, language: selectedLanguage))
-                                        .frame(maxWidth: .infinity, minHeight: 100)
-                                        .background(Color.blue.opacity(0.2))
-                                        .cornerRadius(16)
-                                        .foregroundColor(.primary)
-                                        .font(.title2)
-                                }
+                    Button(action: {
+                        sortOrder = sortOrder == .ascending ? .descending : .ascending
+                    }) {
+                        HStack {
+                            Image(systemName: sortOrder.icon)
+                            Text(sortOrder == .ascending ? "A-Z" : "Z-A")
+                        }
+                        .foregroundColor(.blue)
+                        .font(.title2)
+                    }
+                }
+                .padding(.horizontal, 80)
+                .padding(.top)
+                
+                // Title
+                Text("Industries")
+                    .font(.system(size: 48, weight: .bold))
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.bottom, 20)
+                
+                if isLoading {
+                    ProgressView("Loading Industries...")
+                        .font(.title2)
+                } else {
+                    List(sortedIndustries, id: \.self) { industry in
+                        Button(action: {
+                            selectedIndustry = industry
+                            showTalksList = true
+                        }) {
+                            HStack {
+                                Text(Translations.translateIndustry(industry, language: selectedLanguage))
+                                    .font(.title2)
+                                    .foregroundColor(.primary)
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .foregroundColor(.gray)
                             }
                         }
-                        .padding(.horizontal, 80)
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.visible)
                     }
-                    NavigationLink(
-                        destination: selectedIndustry.map { industry in
-                            TalksListView(
-                                filterType: .industry, 
-                                filterValue: industry, 
-                                onTalkTap: { talk in onTalksTap(talk.title) },
-                                onBack: {
-                                    selectedIndustry = nil
-                                    showTalksList = false
-                                }
-                            )
-                        },
-                        isActive: $showTalksList
-                    ) { EmptyView() }
+                    .listStyle(PlainListStyle())
+                    .frame(maxWidth: 600)
                 }
-                .padding(.vertical, 60)
+                
+                NavigationLink(
+                    destination: selectedIndustry.map { industry in
+                        TalksListView(
+                            filterType: .industry, 
+                            filterValue: industry, 
+                            onTalkTap: { talk in onTalksTap(talk.title) },
+                            onBack: {
+                                selectedIndustry = nil
+                                showTalksList = false
+                            },
+                            showBackButton: false
+                        )
+                    },
+                    isActive: $showTalksList
+                ) { EmptyView() }
             }
+            .padding(.vertical, 60)
             .onAppear(perform: fetchIndustries)
         } else {
             VStack {
-                // Header with back button for iPhone
+                // Header with back button and sort button for iPhone
                 HStack {
                     Button(action: onBack) {
                         HStack {
@@ -84,6 +127,17 @@ struct IndustryTilesView: View {
                         .font(.headline)
                     }
                     Spacer()
+                    
+                    Button(action: {
+                        sortOrder = sortOrder == .ascending ? .descending : .ascending
+                    }) {
+                        HStack {
+                            Image(systemName: sortOrder.icon)
+                            Text(sortOrder == .ascending ? "A-Z" : "Z-A")
+                        }
+                        .foregroundColor(.blue)
+                        .font(.headline)
+                    }
                 }
                 .padding(.horizontal)
                 .padding(.top)
@@ -91,23 +145,23 @@ struct IndustryTilesView: View {
                 if isLoading {
                     ProgressView("Loading Industries...")
                 } else {
-                    ScrollView {
-                        LazyVGrid(columns: [GridItem(.adaptive(minimum: 120))], spacing: 20) {
-                            ForEach(industries, id: \.self) { industry in
-                                Button(action: {
-                                    onTalksTap(industry)
-                                }) {
-                                    Text(Translations.translateIndustry(industry, language: selectedLanguage))
-                                        .frame(maxWidth: .infinity, minHeight: 80)
-                                        .background(Color.blue.opacity(0.2))
-                                        .cornerRadius(12)
-                                        .foregroundColor(.primary)
-                                        .font(.headline)
-                                }
+                    List(sortedIndustries, id: \.self) { industry in
+                        Button(action: {
+                            onTalksTap(industry)
+                        }) {
+                            HStack {
+                                Text(Translations.translateIndustry(industry, language: selectedLanguage))
+                                    .font(.headline)
+                                    .foregroundColor(.primary)
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .foregroundColor(.gray)
                             }
                         }
-                        .padding()
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.visible)
                     }
+                    .listStyle(PlainListStyle())
                 }
             }
             .navigationTitle(LocalizationManager.shared.localizedString(for: "findtalk.industry"))

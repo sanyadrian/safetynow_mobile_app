@@ -7,73 +7,116 @@ struct HazardTilesView: View {
     @State private var isLoading = true
     @State private var selectedHazard: String? = nil
     @State private var showTalksList = false
+    @State private var sortOrder: SortOrder = .ascending
     let onTalksTap: (String) -> Void
     let onBack: () -> Void
     
+    enum SortOrder {
+        case ascending, descending
+        
+        var icon: String {
+            switch self {
+            case .ascending: return "arrow.up.arrow.down"
+            case .descending: return "arrow.down.arrow.up"
+            }
+        }
+    }
+    
+    var sortedHazards: [String] {
+        let translatedHazards = hazards.map { hazard in
+            (original: hazard, translated: Translations.translateHazard(hazard, language: selectedLanguage))
+        }
+        
+        let sorted = translatedHazards.sorted { first, second in
+            let comparison = first.translated.localizedCaseInsensitiveCompare(second.translated)
+            return sortOrder == .ascending ? comparison == .orderedAscending : comparison == .orderedDescending
+        }
+        
+        return sorted.map { $0.original }
+    }
+    
     var body: some View {
         if UIDevice.current.userInterfaceIdiom == .pad {
-            ScrollView {
-                VStack(alignment: .center, spacing: 48) {
-                    // Header with back button
-                    HStack {
-                        Button(action: onBack) {
-                            HStack {
-                                Image(systemName: "chevron.left")
-                                Text("Back")
-                            }
-                            .foregroundColor(.blue)
-                            .font(.title2)
+            VStack {
+                // Header with back button and sort button
+                HStack {
+                    Button(action: onBack) {
+                        HStack {
+                            Image(systemName: "chevron.left")
+                            Text("Back")
                         }
-                        Spacer()
+                        .foregroundColor(.blue)
+                        .font(.title2)
                     }
-                    .padding(.horizontal, 80)
+                    Spacer()
                     
-                    // Title
-                    Text("Hazards")
-                        .font(.system(size: 48, weight: .bold))
-                        .multilineTextAlignment(.center)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                    if isLoading {
-                        ProgressView("Loading Hazards...")
-                    } else {
-                        LazyVGrid(columns: [GridItem(.adaptive(minimum: 180))], spacing: 32) {
-                            ForEach(hazards, id: \.self) { hazard in
-                                Button(action: {
-                                    selectedHazard = hazard
-                                    showTalksList = true
-                                }) {
-                                    Text(Translations.translateHazard(hazard, language: selectedLanguage))
-                                        .frame(maxWidth: .infinity, minHeight: 100)
-                                        .background(Color.blue.opacity(0.2))
-                                        .cornerRadius(16)
-                                        .foregroundColor(.primary)
-                                        .font(.title2)
-                                }
+                    Button(action: {
+                        sortOrder = sortOrder == .ascending ? .descending : .ascending
+                    }) {
+                        HStack {
+                            Image(systemName: sortOrder.icon)
+                            Text(sortOrder == .ascending ? "A-Z" : "Z-A")
+                        }
+                        .foregroundColor(.blue)
+                        .font(.title2)
+                    }
+                }
+                .padding(.horizontal, 80)
+                .padding(.top)
+                
+                // Title
+                Text("Hazards")
+                    .font(.system(size: 48, weight: .bold))
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.bottom, 20)
+                
+                if isLoading {
+                    ProgressView("Loading Hazards...")
+                        .font(.title2)
+                } else {
+                    List(sortedHazards, id: \.self) { hazard in
+                        Button(action: {
+                            selectedHazard = hazard
+                            showTalksList = true
+                        }) {
+                            HStack {
+                                Text(Translations.translateHazard(hazard, language: selectedLanguage))
+                                    .font(.title2)
+                                    .foregroundColor(.primary)
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .foregroundColor(.gray)
                             }
                         }
-                        .padding(.horizontal, 80)
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.visible)
                     }
-                    NavigationLink(
-                        destination: selectedHazard.map { hazard in
-                            TalksListView(
-                                filterType: .hazard, 
-                                filterValue: hazard, 
-                                onTalkTap: { talk in onTalksTap(talk.title) },
-                                onBack: {
-                                    selectedHazard = nil
-                                    showTalksList = false
-                                }
-                            )
-                        },
-                        isActive: $showTalksList
-                    ) { EmptyView() }
+                    .listStyle(PlainListStyle())
+                    .frame(maxWidth: 600)
                 }
-                .padding(.vertical, 60)
+                
+                NavigationLink(
+                    destination: selectedHazard.map { hazard in
+                        TalksListView(
+                            filterType: .hazard, 
+                            filterValue: hazard, 
+                            onTalkTap: { talk in onTalksTap(talk.title) },
+                            onBack: {
+                                selectedHazard = nil
+                                showTalksList = false
+                            },
+                            showBackButton: false
+                        )
+                    },
+                    isActive: $showTalksList
+                ) { EmptyView() }
             }
+            .padding(.vertical, 60)
             .onAppear(perform: fetchHazards)
         } else {
             VStack {
-                // Header with back button for iPhone
+                // Header with back button and sort button for iPhone
                 HStack {
                     Button(action: onBack) {
                         HStack {
@@ -84,6 +127,17 @@ struct HazardTilesView: View {
                         .font(.headline)
                     }
                     Spacer()
+                    
+                    Button(action: {
+                        sortOrder = sortOrder == .ascending ? .descending : .ascending
+                    }) {
+                        HStack {
+                            Image(systemName: sortOrder.icon)
+                            Text(sortOrder == .ascending ? "A-Z" : "Z-A")
+                        }
+                        .foregroundColor(.blue)
+                        .font(.headline)
+                    }
                 }
                 .padding(.horizontal)
                 .padding(.top)
@@ -91,23 +145,23 @@ struct HazardTilesView: View {
                 if isLoading {
                     ProgressView("Loading Hazards...")
                 } else {
-                    ScrollView {
-                        LazyVGrid(columns: [GridItem(.adaptive(minimum: 120))], spacing: 20) {
-                            ForEach(hazards, id: \.self) { hazard in
-                                Button(action: {
-                                    onTalksTap(hazard)
-                                }) {
-                                    Text(Translations.translateHazard(hazard, language: selectedLanguage))
-                                        .frame(maxWidth: .infinity, minHeight: 80)
-                                        .background(Color.blue.opacity(0.2))
-                                        .cornerRadius(12)
-                                        .foregroundColor(.primary)
-                                        .font(.headline)
-                                }
+                    List(sortedHazards, id: \.self) { hazard in
+                        Button(action: {
+                            onTalksTap(hazard)
+                        }) {
+                            HStack {
+                                Text(Translations.translateHazard(hazard, language: selectedLanguage))
+                                    .font(.headline)
+                                    .foregroundColor(.primary)
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .foregroundColor(.gray)
                             }
                         }
-                        .padding()
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.visible)
                     }
+                    .listStyle(PlainListStyle())
                 }
             }
             .navigationTitle(LocalizationManager.shared.localizedString(for: "findtalk.hazards"))

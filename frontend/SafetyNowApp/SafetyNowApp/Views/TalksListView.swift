@@ -29,6 +29,7 @@ struct TalksListView: View {
     let filterValue: String
     let onTalkTap: (TalkModel) -> Void
     let onBack: () -> Void
+    let showBackButton: Bool
     @AppStorage("access_token") var accessToken: String = ""
     @AppStorage("selectedLanguage") var selectedLanguage: String = "en"
     @State private var talks: [TalkModel] = []
@@ -37,23 +38,33 @@ struct TalksListView: View {
     @State private var selectedTalk: TalkModel? = nil
     @State private var showDetail = false
     
+    init(filterType: TalkFilterType, filterValue: String, onTalkTap: @escaping (TalkModel) -> Void, onBack: @escaping () -> Void, showBackButton: Bool = true) {
+        self.filterType = filterType
+        self.filterValue = filterValue
+        self.onTalkTap = onTalkTap
+        self.onBack = onBack
+        self.showBackButton = showBackButton
+    }
+    
     var body: some View {
         if UIDevice.current.userInterfaceIdiom == .pad {
             ScrollView {
                 VStack(alignment: .center, spacing: 48) {
-                    // Header with back button
-                    HStack {
-                        Button(action: onBack) {
-                            HStack {
-                                Image(systemName: "chevron.left")
-                                Text("Back")
+                    // Header with back button (only if showBackButton is true)
+                    if showBackButton {
+                        HStack {
+                            Button(action: onBack) {
+                                HStack {
+                                    Image(systemName: "chevron.left")
+                                    Text("Back")
+                                }
+                                .foregroundColor(.blue)
+                                .font(.title2)
                             }
-                            .foregroundColor(.blue)
-                            .font(.title2)
+                            Spacer()
                         }
-                        Spacer()
+                        .padding(.horizontal, 80)
                     }
-                    .padding(.horizontal, 80)
                     
                     // Title
                     Text("Talks List")
