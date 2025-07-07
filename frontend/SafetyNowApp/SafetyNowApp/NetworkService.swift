@@ -626,6 +626,36 @@ class NetworkService {
             self.handleTokenExpiryIfNeeded(response)
         }.resume()
     }
+
+    func getTools(token: String, language: String? = nil, completion: @escaping (Result<[Tool], Error>) -> Void) {
+        var urlString = "\(baseURL)/tools"
+        if let language = language {
+            urlString += "?language=\(language)"
+        }
+        guard let url = URL(string: urlString) else {
+            completion(.failure(NetworkError.invalidURL))
+            return
+        }
+        var request = URLRequest(url: url)
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+            guard let data = data else {
+                completion(.failure(NetworkError.noData))
+                return
+            }
+            do {
+                let tools = try JSONDecoder().decode([Tool].self, from: data)
+                completion(.success(tools))
+            } catch {
+                completion(.failure(NetworkError.decodingError))
+            }
+            self.handleTokenExpiryIfNeeded(response)
+        }.resume()
+    }
 }
 
 extension Data {

@@ -86,8 +86,8 @@ func createPDF(for title: String, description: String?) -> URL? {
         }
     }
 
-    // Save to a temporary file
-    let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("SafetyTalk.pdf")
+    // Save to a temporary file with a unique name
+    let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("SafetyTalk-\(UUID().uuidString).pdf")
     do {
         try data.write(to: tempURL)
         return tempURL

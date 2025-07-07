@@ -1,5 +1,6 @@
 import SwiftUI
 import PDFKit
+import Combine
 
 struct DashboardView: View {
     @AppStorage("access_token") var accessToken: String = ""
@@ -24,10 +25,95 @@ struct DashboardView: View {
     @State private var shouldNavigateToTalkDetail = false
     @State private var showTalkDetail: Bool = false
     @State private var showUpgrade = false
+    // Search state
+    @State private var searchText: String = ""
+    @State private var showSuggestions: Bool = false
+    @State private var suggestions: [SearchSuggestion] = []
+    @State private var navigateToSearchResults = false
+    @State private var searchResults: [SearchSuggestion] = []
+    @State private var searchCancellable: AnyCancellable?
+    @State private var selectedTalk: TalkModel? = nil
+    @State private var selectedTool: Tool? = nil
+
+    enum SearchSuggestion: Identifiable, Hashable {
+        case talk(TalkModel)
+        case tool(String)
+        var id: String {
+            switch self {
+            case .talk(let talk): return "talk-\(talk.id)"
+            case .tool(let tool): return "tool-\(tool)"
+            }
+        }
+        var title: String {
+            switch self {
+            case .talk(let talk): return talk.title
+            case .tool(let tool): return tool
+            }
+        }
+    }
 
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
+                // --- SEARCH BAR ---
+                VStack(spacing: 0) {
+                    HStack {
+                        HStack {
+                            TextField("Search talks or tools...", text: $searchText, onEditingChanged: { editing in
+                                showSuggestions = editing && !searchText.isEmpty
+                            }, onCommit: {
+                                performSearch()
+                            })
+                            .padding(.vertical, 10)
+                            .padding(.leading, 12)
+                            .foregroundColor(.primary)
+                            .accentColor(.blue)
+                            .onChange(of: searchText) { newValue in
+                                if !newValue.isEmpty {
+                                    fetchSuggestions(for: newValue)
+                                    showSuggestions = true
+                                } else {
+                                    suggestions = []
+                                    showSuggestions = false
+                                }
+                            }
+                            Button(action: {
+                                performSearch()
+                            }) {
+                                Image(systemName: "magnifyingglass")
+                                    .foregroundColor(.blue)
+                            }
+                            .padding(.trailing, 12)
+                        }
+                        .background(Color(.systemGray6))
+                        .cornerRadius(12)
+                    }
+                    .padding(.horizontal)
+                    if showSuggestions && !suggestions.isEmpty {
+                        List(suggestions, id: \ .id) { suggestion in
+                            Button(action: {
+                                showSuggestions = false
+                                switch suggestion {
+                                case .talk(let talk):
+                                    selectedTalk = talk
+                                case .tool(let toolTitle):
+                                    // Find the full Tool object for detail view
+                                    fetchToolDetail(for: toolTitle)
+                                }
+                            }) {
+                                HStack {
+                                    Image(systemName: suggestionIcon(for: suggestion))
+                                        .foregroundColor(.blue)
+                                    Text(suggestion.title)
+                                }
+                            }
+                        }
+                        .listStyle(PlainListStyle())
+                        .frame(maxHeight: 200)
+                        .padding(.horizontal)
+                    }
+                }
+                // --- END SEARCH BAR ---
                 Group {
                     if UIDevice.current.userInterfaceIdiom == .pad {
                         ScrollView {
@@ -336,6 +422,9 @@ struct DashboardView: View {
                 ) { EmptyView() }
             }
             NavigationLink(destination: UpgradePlanView(), isActive: $showUpgrade) { EmptyView() }
+            NavigationLink(destination: selectedTalk.map { TalkDetailView(talk: $0) }, isActive: Binding(get: { selectedTalk != nil }, set: { if !$0 { selectedTalk = nil } })) { EmptyView() }
+            NavigationLink(destination: selectedTool.map { ToolDetailView(tool: $0) }, isActive: Binding(get: { selectedTool != nil }, set: { if !$0 { selectedTool = nil } })) { EmptyView() }
+            NavigationLink(destination: SearchResultsView(results: searchResults, query: searchText, onTalkTap: { talk in selectedTalk = talk }, onToolTap: { tool in selectedTool = tool }), isActive: $navigateToSearchResults) { EmptyView() }
         }
         .onAppear {
             NetworkService.shared.getHistory(token: accessToken) { result in
@@ -454,5 +543,124 @@ struct DashboardView: View {
 
     private var placeholderTalk: TalkModel {
         TalkModel(id: -1, title: "", category: "", description: "", hazard: nil, industry: nil, language: "", related_title: "", likeCount: 0, userLiked: false)
+    }
+
+    // Dummy suggestion fetcher (replace with real API calls)
+    func fetchSuggestions(for query: String) {
+        let token = accessToken
+        let language = UserDefaults.standard.string(forKey: "selectedLanguage") ?? "en"
+        var fetchedTalks: [TalkModel] = []
+        var fetchedTools: [Tool] = []
+        let group = DispatchGroup()
+        group.enter()
+        NetworkService.shared.getTalks(token: token, language: language) { result in
+            switch result {
+            case .success(let talks):
+                fetchedTalks = talks
+            case .failure:
+                break
+            }
+            group.leave()
+        }
+        group.enter()
+        NetworkService.shared.getTools(token: token, language: language) { result in
+            switch result {
+            case .success(let tools):
+                fetchedTools = tools
+            case .failure:
+                break
+            }
+            group.leave()
+        }
+        group.notify(queue: .main) {
+            let talkSuggestions = fetchedTalks.filter { $0.title.localizedCaseInsensitiveContains(query) }.map { SearchSuggestion.talk($0) }
+            let toolSuggestions = fetchedTools.filter { $0.title.localizedCaseInsensitiveContains(query) }.map { SearchSuggestion.tool($0.title) }
+            suggestions = talkSuggestions + toolSuggestions
+        }
+    }
+
+    func performSearch() {
+        searchResults = suggestions
+        navigateToSearchResults = true
+        showSuggestions = false
+    }
+
+    func suggestionIcon(for suggestion: SearchSuggestion) -> String {
+        switch suggestion {
+        case .talk: return "text.bubble"
+        case .tool: return "wrench"
+        }
+    }
+
+    func fetchToolDetail(for title: String) {
+        let token = accessToken
+        let language = UserDefaults.standard.string(forKey: "selectedLanguage") ?? "en"
+        NetworkService.shared.getTools(token: token, language: language) { result in
+            switch result {
+            case .success(let tools):
+                if let tool = tools.first(where: { $0.title == title }) {
+                    DispatchQueue.main.async {
+                        selectedTool = tool
+                    }
+                }
+            case .failure:
+                break
+            }
+        }
+    }
+}
+
+// Dummy SearchResultsView
+struct SearchResultsView: View {
+    let results: [DashboardView.SearchSuggestion]
+    let query: String
+    let onTalkTap: (TalkModel) -> Void
+    let onToolTap: (Tool) -> Void
+    @AppStorage("access_token") var accessToken: String = ""
+    @AppStorage("selectedLanguage") var selectedLanguage: String = "en"
+    @State private var tools: [Tool] = []
+    var body: some View {
+        VStack {
+            Text("Results for \"\(query)\"")
+                .font(.title2)
+                .padding()
+            List(results, id: \ .id) { suggestion in
+                Button(action: {
+                    switch suggestion {
+                    case .talk(let talk):
+                        onTalkTap(talk)
+                    case .tool(let toolTitle):
+                        // Find the full Tool object for detail view
+                        fetchToolDetail(for: toolTitle)
+                    }
+                }) {
+                    HStack {
+                        Image(systemName: suggestionIcon(for: suggestion))
+                            .foregroundColor(.blue)
+                        Text(suggestion.title)
+                    }
+                }
+            }
+        }
+    }
+    func suggestionIcon(for suggestion: DashboardView.SearchSuggestion) -> String {
+        switch suggestion {
+        case .talk: return "text.bubble"
+        case .tool: return "wrench"
+        }
+    }
+    func fetchToolDetail(for title: String) {
+        let token = accessToken
+        let language = selectedLanguage
+        NetworkService.shared.getTools(token: token, language: language) { result in
+            switch result {
+            case .success(let tools):
+                if let tool = tools.first(where: { $0.title == title }) {
+                    onToolTap(tool)
+                }
+            case .failure:
+                break
+            }
+        }
     }
 }

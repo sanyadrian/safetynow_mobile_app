@@ -30,9 +30,13 @@ struct TalkDetailView: View {
                 Spacer()
                 Menu {
                     Button(action: {
-                        if let pdfURL = createPDF(for: talk.title, description: talk.description) {
-                            shareContent = [pdfURL]
-                            showShareSheet = true
+                        if let pdfURL = createPDF(for: talk.title, description: talk.description),
+                           FileManager.default.fileExists(atPath: pdfURL.path),
+                           (try? Data(contentsOf: pdfURL))?.count ?? 0 > 0 {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                shareContent = [pdfURL]
+                                showShareSheet = true
+                            }
                         }
                     }) {
                         Label("Share", systemImage: "square.and.arrow.up")
@@ -137,9 +141,13 @@ struct TalkDetailView: View {
                         .disabled(isLoading)
                         
                         Button(action: {
-                            if let pdfURL = createPDF(for: talk.title, description: talk.description) {
-                                shareContent = [pdfURL]
-                                showShareSheet = true
+                            if let pdfURL = createPDF(for: talk.title, description: talk.description),
+                               FileManager.default.fileExists(atPath: pdfURL.path),
+                               (try? Data(contentsOf: pdfURL))?.count ?? 0 > 0 {
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                    shareContent = [pdfURL]
+                                    showShareSheet = true
+                                }
                             }
                         }) {
                             Image(systemName: "square.and.arrow.up")
