@@ -1,5 +1,11 @@
 import SwiftUI
 
+extension View {
+    func hideKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    }
+}
+
 struct FindTalkView: View {
     let categories: [(key: String, icon: String)] = [
         ("hazards", "pencil"),
@@ -25,186 +31,85 @@ struct FindTalkView: View {
     @State private var navigateToSearchResults = false
     @State private var searchResults: [DashboardView.SearchSuggestion] = []
     @State private var selectedTalk: TalkModel? = nil
+    @State private var navigateToTalkDetail = false
     @State private var selectedTool: Tool? = nil
 
     var body: some View {
-        if UIDevice.current.userInterfaceIdiom == .pad {
-            ZStack(alignment: .top) {
-                ScrollView {
-                    VStack(alignment: .center, spacing: 48) {
-                        Text(LocalizationManager.shared.localizedString(for: "findtalk.explore"))
-                            .font(.system(size: 48, weight: .bold))
-                            .multilineTextAlignment(.center)
-                            .frame(maxWidth: .infinity, alignment: .center)
-                        // --- SEARCH BAR ---
-                        VStack(spacing: 0) {
-                            HStack {
-                                HStack {
-                                    TextField("Search talks or tools...", text: $searchText, onEditingChanged: { editing in
-                                        showSuggestions = editing && !searchText.isEmpty
-                                    }, onCommit: {
-                                        performSearch()
-                                    })
-                                    .padding(.vertical, 10)
-                                    .padding(.leading, 12)
-                                    .foregroundColor(.primary)
-                                    .accentColor(.blue)
-                                    .onChange(of: searchText) { newValue in
-                                        if !newValue.isEmpty {
-                                            fetchSuggestions(for: newValue)
-                                            showSuggestions = true
-                                        } else {
-                                            suggestions = []
-                                            showSuggestions = false
-                                        }
-                                    }
-                                    Button(action: {
-                                        performSearch()
-                                    }) {
-                                        Image(systemName: "magnifyingglass")
-                                            .foregroundColor(.blue)
-                                    }
-                                    .padding(.trailing, 12)
-                                }
-                                .background(Color(.systemGray6))
-                                .cornerRadius(12)
-                            }
-                            .padding(.horizontal)
-                        }
-                        // --- END SEARCH BAR ---
-                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 20) {
-                            ForEach(categories, id: \.key) { category in
-                                let title = LocalizationManager.shared.localizedString(for: "findtalk.\(category.key)")
-                                let desc = LocalizationManager.shared.localizedString(for: "findtalk.\(category.key)_desc")
-                                if category.key == "hazards" {
-                                    Button(action: onHazardTap) {
-                                        tileView(title: title, desc: desc, icon: category.icon)
-                                    }
-                                } else if category.key == "industry" {
-                                    Button(action: onIndustryTap) {
-                                        tileView(title: title, desc: desc, icon: category.icon)
-                                    }
-                                } else if category.key == "calendar" {
-                                    Button(action: { showCalendar = true }) {
-                                        tileView(title: title, desc: desc, icon: category.icon)
-                                    }
-                                } else if category.key == "translate" {
-                                    Button(action: { showTranslate = true }) {
-                                        tileView(title: title, desc: desc, icon: category.icon)
-                                    }
-                                } else if category.key == "send_talk" {
-                                    Button(action: { showShareTalkInfo = true }) {
-                                        tileView(title: title, desc: desc, icon: category.icon)
-                                    }
-                                } else if category.key == "tools" {
-                                    Button(action: { showTools = true }) {
-                                        tileView(title: title, desc: desc, icon: category.icon)
-                                    }
-                                } else {
-                                    tileView(title: title, desc: desc, icon: category.icon)
-                                }
-                            }
-                        }
-                        Spacer()
-                        NavigationLink(destination: UpgradePlanView(), isActive: $showUpgrade) { EmptyView() }
-                        NavigationLink(destination: CalendarView(), isActive: $showCalendar) { EmptyView() }
-                        NavigationLink(destination: LanguageSelectionView(), isActive: $showTranslate) { EmptyView() }
-                        NavigationLink(destination: ShareTalkInfoView(), isActive: $showShareTalkInfo) { EmptyView() }
-                        NavigationLink(destination: ToolsView(), isActive: $showTools) { EmptyView() }
-                        NavigationLink(destination: selectedTalk.map { TalkDetailView(talk: $0) }, isActive: Binding(get: { selectedTalk != nil }, set: { if !$0 { selectedTalk = nil } })) { EmptyView() }
-                        NavigationLink(destination: selectedTool.map { ToolDetailView(tool: $0) }, isActive: Binding(get: { selectedTool != nil }, set: { if !$0 { selectedTool = nil } })) { EmptyView() }
-                        NavigationLink(destination: SearchResultsView(results: searchResults, query: searchText, onTalkTap: { talk in selectedTalk = talk }, onToolTap: { tool in selectedTool = tool }), isActive: $navigateToSearchResults) { EmptyView() }
-                        HStack {
-                            Spacer()
-                            Button(action: { showUpgrade = true }) {
-                                Text(LocalizationManager.shared.localizedString(for: "button.access_more"))
-                                    .font(.footnote)
-                                    .foregroundColor(.white)
-                                    .padding(.horizontal, 24)
-                                    .padding(.vertical, 12)
-                                    .background(Color.blue)
-                                    .cornerRadius(20)
-                            }
-                            .padding(.trailing, 32)
-                            .padding(.bottom, 24)
-                        }
-                    }
-                    .padding(.vertical, 60)
-                }
-                // Suggestions dropdown overlay
-                if showSuggestions && !suggestions.isEmpty {
-                    VStack {
-                        Spacer().frame(height: 250) // Adjusted for iPad search bar height
-                        List(suggestions, id: \ .id) { suggestion in
-                            Button(action: {
-                                showSuggestions = false
-                                switch suggestion {
-                                case .talk(let talk):
-                                    selectedTalk = talk
-                                case .tool(let toolTitle):
-                                    fetchToolDetail(for: toolTitle)
-                                }
-                            }) {
-                                HStack {
-                                    Image(systemName: suggestionIcon(for: suggestion))
-                                        .foregroundColor(.blue)
-                                    Text(suggestion.title)
-                                }
-                            }
-                        }
-                        .listStyle(PlainListStyle())
-                        .frame(maxHeight: 200)
-                        .padding(.horizontal)
-                        .background(Color.white)
-                        .cornerRadius(12)
-                        .shadow(radius: 4)
+        VStack(spacing: 0) {
+            // Explore title at the top
+            Text(LocalizationManager.shared.localizedString(for: "findtalk.explore"))
+                .font(.system(size: 48, weight: .bold))
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(.top)
+
+            // Search bar under Explore
+            HStack {
+                TextField("Search talks or tools...", text: $searchText, onEditingChanged: { editing in
+                    showSuggestions = editing && !searchText.isEmpty
+                }, onCommit: {
+                    performSearch()
+                })
+                .padding(.vertical, 10)
+                .padding(.leading, 12)
+                .foregroundColor(.primary)
+                .accentColor(.blue)
+                .onChange(of: searchText) { newValue in
+                    if !newValue.isEmpty {
+                        fetchSuggestions(for: newValue)
+                        showSuggestions = true
+                    } else {
+                        suggestions = []
+                        showSuggestions = false
                     }
                 }
+                Button(action: {
+                    performSearch()
+                }) {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundColor(.blue)
+                }
+                .padding(.trailing, 12)
             }
-        } else {
-            ZStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 20) {
-                    Text(LocalizationManager.shared.localizedString(for: "findtalk.explore"))
-                        .font(.title)
-                        .bold()
-                        .frame(maxWidth: .infinity, alignment: .center)
-                        .padding(.top)
-                    // --- SEARCH BAR ---
-                    VStack(spacing: 0) {
-                        HStack {
-                            HStack {
-                                TextField("Search talks or tools...", text: $searchText, onEditingChanged: { editing in
-                                    showSuggestions = editing && !searchText.isEmpty
-                                }, onCommit: {
-                                    performSearch()
-                                })
-                                .padding(.vertical, 10)
-                                .padding(.leading, 12)
-                                .foregroundColor(.primary)
-                                .accentColor(.blue)
-                                .onChange(of: searchText) { newValue in
-                                    if !newValue.isEmpty {
-                                        fetchSuggestions(for: newValue)
-                                        showSuggestions = true
-                                    } else {
-                                        suggestions = []
-                                        showSuggestions = false
-                                    }
-                                }
-                                Button(action: {
-                                    performSearch()
-                                }) {
-                                    Image(systemName: "magnifyingglass")
-                                        .foregroundColor(.blue)
-                                }
-                                .padding(.trailing, 12)
+            .background(Color(.systemGray6))
+            .cornerRadius(12)
+            .padding(.horizontal)
+            .padding(.top, 8)
+
+            // Suggestions dropdown (if needed)
+            if showSuggestions && !suggestions.isEmpty {
+                List(suggestions, id: \.id) { suggestion in
+                    Button(action: {
+                        showSuggestions = false
+                        self.hideKeyboard()
+                        switch suggestion {
+                        case .talk(let talk):
+                            selectedTalk = talk
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                navigateToTalkDetail = true
                             }
-                            .background(Color(.systemGray6))
-                            .cornerRadius(12)
+                        case .tool(let toolTitle):
+                            fetchToolDetail(for: toolTitle)
                         }
-                        .padding(.horizontal)
+                    }) {
+                        HStack {
+                            Image(systemName: suggestionIcon(for: suggestion))
+                                .foregroundColor(.blue)
+                            Text(suggestion.title)
+                        }
                     }
-                    // --- END SEARCH BAR ---
+                }
+                .listStyle(PlainListStyle())
+                .frame(maxHeight: 200)
+                .padding(.horizontal)
+                .background(Color.white)
+                .cornerRadius(12)
+                .shadow(radius: 4)
+            }
+
+            // The rest of your content in a ScrollView
+            ScrollView {
+                VStack(alignment: .center, spacing: 48) {
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 20) {
                         ForEach(categories, id: \.key) { category in
                             let title = LocalizationManager.shared.localizedString(for: "findtalk.\(category.key)")
@@ -233,20 +138,17 @@ struct FindTalkView: View {
                                 Button(action: { showTools = true }) {
                                     tileView(title: title, desc: desc, icon: category.icon)
                                 }
-                            } else {
-                                tileView(title: title, desc: desc, icon: category.icon)
                             }
                         }
                     }
-                    Spacer()
-                    NavigationLink(destination: UpgradePlanView(), isActive: $showUpgrade) { EmptyView() }
-                    NavigationLink(destination: CalendarView(), isActive: $showCalendar) { EmptyView() }
-                    NavigationLink(destination: LanguageSelectionView(), isActive: $showTranslate) { EmptyView() }
-                    NavigationLink(destination: ShareTalkInfoView(), isActive: $showShareTalkInfo) { EmptyView() }
-                    NavigationLink(destination: ToolsView(), isActive: $showTools) { EmptyView() }
-                    NavigationLink(destination: selectedTalk.map { TalkDetailView(talk: $0) }, isActive: Binding(get: { selectedTalk != nil }, set: { if !$0 { selectedTalk = nil } })) { EmptyView() }
+                    .padding(.horizontal)
+                    .padding(.top, 24)
                     NavigationLink(destination: selectedTool.map { ToolDetailView(tool: $0) }, isActive: Binding(get: { selectedTool != nil }, set: { if !$0 { selectedTool = nil } })) { EmptyView() }
                     NavigationLink(destination: SearchResultsView(results: searchResults, query: searchText, onTalkTap: { talk in selectedTalk = talk }, onToolTap: { tool in selectedTool = tool }), isActive: $navigateToSearchResults) { EmptyView() }
+                    NavigationLink(
+                        destination: selectedTalk.map { TalkDetailView(talk: $0) },
+                        isActive: $navigateToTalkDetail
+                    ) { EmptyView() }
                     HStack {
                         Spacer()
                         Button(action: { showUpgrade = true }) {
@@ -262,37 +164,13 @@ struct FindTalkView: View {
                         .padding(.bottom, 24)
                     }
                 }
-                .background(Color.white.ignoresSafeArea())
-                // Suggestions dropdown overlay
-                if showSuggestions && !suggestions.isEmpty {
-                    VStack {
-                        Spacer().frame(height: 130) // Adjusted for iPhone search bar height
-                        List(suggestions, id: \ .id) { suggestion in
-                            Button(action: {
-                                showSuggestions = false
-                                switch suggestion {
-                                case .talk(let talk):
-                                    selectedTalk = talk
-                                case .tool(let toolTitle):
-                                    fetchToolDetail(for: toolTitle)
-                                }
-                            }) {
-                                HStack {
-                                    Image(systemName: suggestionIcon(for: suggestion))
-                                        .foregroundColor(.blue)
-                                    Text(suggestion.title)
-                                }
-                            }
-                        }
-                        .listStyle(PlainListStyle())
-                        .frame(maxHeight: 200)
-                        .padding(.horizontal)
-                        .background(Color.white)
-                        .cornerRadius(12)
-                        .shadow(radius: 4)
-                    }
-                }
+                .padding(.vertical, 60)
             }
+            .scrollDismissesKeyboard(.interactively)
+        }
+        .ignoresSafeArea(.keyboard, edges: .bottom)
+        .onTapGesture {
+            self.hideKeyboard()
         }
     }
 

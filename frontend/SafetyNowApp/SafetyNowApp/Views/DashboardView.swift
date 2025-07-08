@@ -54,42 +54,50 @@ struct DashboardView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
-                // --- SEARCH BAR ---
+            /*
+            ZStack(alignment: .top) {
                 VStack(spacing: 0) {
-                    HStack {
+                    // --- SEARCH BAR ---
+                    VStack(spacing: 0) {
                         HStack {
-                            TextField("Search talks or tools...", text: $searchText, onEditingChanged: { editing in
-                                showSuggestions = editing && !searchText.isEmpty
-                            }, onCommit: {
-                                performSearch()
-                            })
-                            .padding(.vertical, 10)
-                            .padding(.leading, 12)
-                            .foregroundColor(.primary)
-                            .accentColor(.blue)
-                            .onChange(of: searchText) { newValue in
-                                if !newValue.isEmpty {
-                                    fetchSuggestions(for: newValue)
-                                    showSuggestions = true
-                                } else {
-                                    suggestions = []
-                                    showSuggestions = false
+                            HStack {
+                                TextField("Search talks or tools...", text: $searchText, onEditingChanged: { editing in
+                                    showSuggestions = editing && !searchText.isEmpty
+                                }, onCommit: {
+                                    performSearch()
+                                })
+                                .padding(.vertical, 10)
+                                .padding(.leading, 12)
+                                .foregroundColor(.primary)
+                                .accentColor(.blue)
+                                .onChange(of: searchText) { newValue in
+                                    if !newValue.isEmpty {
+                                        fetchSuggestions(for: newValue)
+                                        showSuggestions = true
+                                    } else {
+                                        suggestions = []
+                                        showSuggestions = false
+                                    }
                                 }
+                                Button(action: {
+                                    performSearch()
+                                }) {
+                                    Image(systemName: "magnifyingglass")
+                                        .foregroundColor(.blue)
+                                }
+                                .padding(.trailing, 12)
                             }
-                            Button(action: {
-                                performSearch()
-                            }) {
-                                Image(systemName: "magnifyingglass")
-                                    .foregroundColor(.blue)
-                            }
-                            .padding(.trailing, 12)
+                            .background(Color(.systemGray6))
+                            .cornerRadius(12)
                         }
-                        .background(Color(.systemGray6))
-                        .cornerRadius(12)
+                        .padding(.horizontal)
                     }
-                    .padding(.horizontal)
-                    if showSuggestions && !suggestions.isEmpty {
+                    // --- END SEARCH BAR ---
+                }
+                // Suggestions dropdown overlay
+                if showSuggestions && !suggestions.isEmpty {
+                    VStack {
+                        Spacer().frame(height: 100) // Adjust this value to match your search bar's vertical position
                         List(suggestions, id: \ .id) { suggestion in
                             Button(action: {
                                 showSuggestions = false
@@ -97,7 +105,6 @@ struct DashboardView: View {
                                 case .talk(let talk):
                                     selectedTalk = talk
                                 case .tool(let toolTitle):
-                                    // Find the full Tool object for detail view
                                     fetchToolDetail(for: toolTitle)
                                 }
                             }) {
@@ -111,150 +118,23 @@ struct DashboardView: View {
                         .listStyle(PlainListStyle())
                         .frame(maxHeight: 200)
                         .padding(.horizontal)
+                        .background(Color.white)
+                        .cornerRadius(12)
+                        .shadow(radius: 4)
                     }
                 }
-                // --- END SEARCH BAR ---
-                Group {
-                    if UIDevice.current.userInterfaceIdiom == .pad {
-                        ScrollView {
-                            VStack(alignment: .center, spacing: 48) {
-                                // Title
-                                Text("Dashboard")
-                                    .font(.system(size: 48, weight: .bold))
-                                    .multilineTextAlignment(.center)
-                                    .frame(maxWidth: .infinity, alignment: .center)
-                                VStack(spacing: 40) {
-                                    HStack {
-                                        Button(action: { showMenu = true }) {
-                                            Image(systemName: "line.horizontal.3")
-                                        }
-                                        Spacer()
-                                        VStack(alignment: .center) {
-                                            Text(LocalizationManager.shared.localizedString(for: "dashboard.welcome_back"))
-                                                .font(.title2)
-                                                .foregroundColor(.gray)
-                                            Text("\(storedUsername)")
-                                                .font(.title)
-                                                .bold()
-                                        }
-                                        Spacer()
-                                        Button(action: { notificationsEnabled.toggle() }) {
-                                            Image(systemName: notificationsEnabled ? "bell.fill" : "bell")
-                                                .foregroundColor(notificationsEnabled ? .blue : .gray)
-                                        }
-                                    }
-                                    .padding(.horizontal, 80)
-                                    HStack(spacing: 32) {
-                                        actionTile(title: LocalizationManager.shared.localizedString(for: "dashboard.find_talk"), systemIcon: "text.bubble") {
-                                            selectedTab = .search
-                                        }
-                                        actionTile(title: LocalizationManager.shared.localizedString(for: "dashboard.talk_to_safetynow"), systemIcon: "mic") {
-                                            showTicketSubmission = true
-                                        }
-                                    }
-                                    .padding(.horizontal, 80)
-                                    // PROMO BOX (Unified for iPad and iPhone)
-                                    Button(action: { showUpgrade = true }) {
-                                        VStack(alignment: .center, spacing: 12) {
-                                            Image("SafetyNow-LogoArtboard-1-1")
-                                                .resizable()
-                                                .aspectRatio(contentMode: .fit)
-                                                .frame(width: 160, height: 160)
-                                                .padding(.top, 8)
-                                            Text(LocalizationManager.shared.localizedString(for: "dashboard.promo_title"))
-                                                .foregroundColor(.blue)
-                                                .bold()
-                                                .font(.title2)
-                                                .multilineTextAlignment(.center)
-                                            Text(LocalizationManager.shared.localizedString(for: "dashboard.promo_subtitle"))
-                                                .foregroundColor(.gray)
-                                                .font(.title3)
-                                                .multilineTextAlignment(.center)
-                                            Text(LocalizationManager.shared.localizedString(for: "dashboard.promo_action"))
-                                                .font(.title3)
-                                                .foregroundColor(.blue)
-                                                .underline()
-                                                .multilineTextAlignment(.center)
-                                        }
-                                        .padding(.horizontal, 24)
-                                        .padding(.vertical, 8)
-                                    }
-                                    .frame(maxWidth: .infinity)
-                                    .background(Color(.systemGray6))
-                                    .cornerRadius(16)
-                                    VStack(alignment: .leading, spacing: 16) {
-                                        Text(LocalizationManager.shared.localizedString(for: "dashboard.history"))
-                                            .font(.title2)
-                                            .bold()
-                                        ForEach(filteredHistory) { item in
-                                            HStack {
-                                                Image(systemName: "doc.text")
-                                                    .foregroundColor(.blue)
-                                                VStack(alignment: .leading) {
-                                                    Text(item.talk_title)
-                                                        .font(.title3)
-                                                }
-                                                Spacer()
-                                                Button(action: {
-                                                    popoverItem = item
-                                                    showPopover = true
-                                                }) {
-                                                    Image(systemName: "ellipsis")
-                                                        .frame(width: 44, height: 44)
-                                                }
-                                                .popover(
-                                                    isPresented: Binding(
-                                                        get: { showPopover && popoverItem?.id == item.id },
-                                                        set: { newValue in
-                                                            showPopover = newValue
-                                                            if !newValue { popoverItem = nil }
-                                                        }
-                                                    ),
-                                                    attachmentAnchor: .rect(.bounds),
-                                                    arrowEdge: .trailing
-                                                ) {
-                                                    VStack(spacing: 16) {
-                                                        Button("Delete from history", role: .destructive) {
-                                                            if let item = popoverItem {
-                                                                deleteFromHistory(item)
-                                                            }
-                                                            showPopover = false
-                                                        }
-                                                        Button("Share") {
-                                                            if let item = popoverItem {
-                                                                shareTalk(item)
-                                                            }
-                                                            showPopover = false
-                                                        }
-                                                        Button("Open") {
-                                                            if let item = popoverItem {
-                                                                openTalkWithPopoverClose(item)
-                                                            }
-                                                            showPopover = false
-                                                        }
-                                                        Button("Cancel", role: .cancel) {
-                                                            showPopover = false
-                                                        }
-                                                    }
-                                                    .padding()
-                                                    .frame(width: 250)
-                                                }
-                                                .id(item.id)
-                                            }
-                                            .padding()
-                                            .background(Color(.systemGray6))
-                                            .cornerRadius(12)
-                                        }
-                                    }
-                                    .padding(.horizontal, 80)
-                                }
-                                .padding(.vertical, 40)
-                            }
-                            .padding(.vertical, 60)
-                        }
-                    } else {
-                        ScrollView {
-                            VStack {
+            }
+            */
+            Group {
+                if UIDevice.current.userInterfaceIdiom == .pad {
+                    ScrollView {
+                        VStack(alignment: .center, spacing: 48) {
+                            // Title
+                            Text("Dashboard")
+                                .font(.system(size: 48, weight: .bold))
+                                .multilineTextAlignment(.center)
+                                .frame(maxWidth: .infinity, alignment: .center)
+                            VStack(spacing: 40) {
                                 HStack {
                                     Button(action: { showMenu = true }) {
                                         Image(systemName: "line.horizontal.3")
@@ -262,10 +142,10 @@ struct DashboardView: View {
                                     Spacer()
                                     VStack(alignment: .center) {
                                         Text(LocalizationManager.shared.localizedString(for: "dashboard.welcome_back"))
-                                            .font(.subheadline)
+                                            .font(.title2)
                                             .foregroundColor(.gray)
                                         Text("\(storedUsername)")
-                                            .font(.headline)
+                                            .font(.title)
                                             .bold()
                                     }
                                     Spacer()
@@ -274,9 +154,8 @@ struct DashboardView: View {
                                             .foregroundColor(notificationsEnabled ? .blue : .gray)
                                     }
                                 }
-                                .padding(.horizontal)
-
-                                HStack(spacing: 16) {
+                                .padding(.horizontal, 80)
+                                HStack(spacing: 32) {
                                     actionTile(title: LocalizationManager.shared.localizedString(for: "dashboard.find_talk"), systemIcon: "text.bubble") {
                                         selectedTab = .search
                                     }
@@ -284,8 +163,7 @@ struct DashboardView: View {
                                         showTicketSubmission = true
                                     }
                                 }
-                                .padding(.horizontal)
-
+                                .padding(.horizontal, 80)
                                 // PROMO BOX (Unified for iPad and iPhone)
                                 Button(action: { showUpgrade = true }) {
                                     VStack(alignment: .center, spacing: 12) {
@@ -313,12 +191,11 @@ struct DashboardView: View {
                                     .padding(.vertical, 8)
                                 }
                                 .frame(maxWidth: .infinity)
-                                    .background(Color(.systemGray6))
-                                    .cornerRadius(16)
-
-                                VStack(alignment: .leading, spacing: 8) {
+                                .background(Color(.systemGray6))
+                                .cornerRadius(16)
+                                VStack(alignment: .leading, spacing: 16) {
                                     Text(LocalizationManager.shared.localizedString(for: "dashboard.history"))
-                                        .font(.title3)
+                                        .font(.title2)
                                         .bold()
                                     ForEach(filteredHistory) { item in
                                         HStack {
@@ -326,27 +203,160 @@ struct DashboardView: View {
                                                 .foregroundColor(.blue)
                                             VStack(alignment: .leading) {
                                                 Text(item.talk_title)
-                                                    .font(.body)
+                                                    .font(.title3)
                                             }
                                             Spacer()
                                             Button(action: {
-                                                selectedHistoryItem = item
-                                                showActionSheet = true
+                                                popoverItem = item
+                                                showPopover = true
                                             }) {
                                                 Image(systemName: "ellipsis")
+                                                    .frame(width: 44, height: 44)
                                             }
+                                            .popover(
+                                                isPresented: Binding(
+                                                    get: { showPopover && popoverItem?.id == item.id },
+                                                    set: { newValue in
+                                                        showPopover = newValue
+                                                        if !newValue { popoverItem = nil }
+                                                    }
+                                                ),
+                                                attachmentAnchor: .rect(.bounds),
+                                                arrowEdge: .trailing
+                                            ) {
+                                                VStack(spacing: 16) {
+                                                    Button("Delete from history", role: .destructive) {
+                                                        if let item = popoverItem {
+                                                            deleteFromHistory(item)
+                                                        }
+                                                        showPopover = false
+                                                    }
+                                                    Button("Share") {
+                                                        if let item = popoverItem {
+                                                            shareTalk(item)
+                                                        }
+                                                        showPopover = false
+                                                    }
+                                                    Button("Open") {
+                                                        if let item = popoverItem {
+                                                            openTalkWithPopoverClose(item)
+                                                        }
+                                                        showPopover = false
+                                                    }
+                                                    Button("Cancel", role: .cancel) {
+                                                        showPopover = false
+                                                    }
+                                                }
+                                                .padding()
+                                                .frame(width: 250)
+                                            }
+                                            .id(item.id)
                                         }
                                         .padding()
                                         .background(Color(.systemGray6))
                                         .cornerRadius(12)
                                     }
                                 }
-                                .padding(.horizontal)
-
-                                Spacer()
+                                .padding(.horizontal, 80)
                             }
-                            .padding(.top)
+                            .padding(.vertical, 40)
                         }
+                        .padding(.vertical, 60)
+                    }
+                } else {
+                    ScrollView {
+                        VStack {
+                            HStack {
+                                Button(action: { showMenu = true }) {
+                                    Image(systemName: "line.horizontal.3")
+                                }
+                                Spacer()
+                                VStack(alignment: .center) {
+                                    Text(LocalizationManager.shared.localizedString(for: "dashboard.welcome_back"))
+                                        .font(.subheadline)
+                                        .foregroundColor(.gray)
+                                    Text("\(storedUsername)")
+                                        .font(.headline)
+                                        .bold()
+                                }
+                                Spacer()
+                                Button(action: { notificationsEnabled.toggle() }) {
+                                    Image(systemName: notificationsEnabled ? "bell.fill" : "bell")
+                                        .foregroundColor(notificationsEnabled ? .blue : .gray)
+                                }
+                            }
+                            .padding(.horizontal)
+
+                            HStack(spacing: 16) {
+                                actionTile(title: LocalizationManager.shared.localizedString(for: "dashboard.find_talk"), systemIcon: "text.bubble") {
+                                    selectedTab = .search
+                                }
+                                actionTile(title: LocalizationManager.shared.localizedString(for: "dashboard.talk_to_safetynow"), systemIcon: "mic") {
+                                    showTicketSubmission = true
+                                }
+                            }
+                            .padding(.horizontal)
+
+                            // PROMO BOX (Unified for iPad and iPhone)
+                            Button(action: { showUpgrade = true }) {
+                                VStack(alignment: .center, spacing: 12) {
+                                    Image("SafetyNow-LogoArtboard-1-1")
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fit)
+                                        .frame(width: 160, height: 160)
+                                        .padding(.top, 8)
+                                    Text(LocalizationManager.shared.localizedString(for: "dashboard.promo_title"))
+                                        .foregroundColor(.blue)
+                                        .bold()
+                                        .font(.title2)
+                                        .multilineTextAlignment(.center)
+                                    Text(LocalizationManager.shared.localizedString(for: "dashboard.promo_subtitle"))
+                                        .foregroundColor(.gray)
+                                        .font(.title3)
+                                        .multilineTextAlignment(.center)
+                                    Text(LocalizationManager.shared.localizedString(for: "dashboard.promo_action"))
+                                        .font(.title3)
+                                        .foregroundColor(.blue)
+                                        .underline()
+                                        .multilineTextAlignment(.center)
+                                }
+                                .padding(.horizontal, 24)
+                                .padding(.vertical, 8)
+                            }
+                            .frame(maxWidth: .infinity)
+                                .background(Color(.systemGray6))
+                                .cornerRadius(16)
+
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text(LocalizationManager.shared.localizedString(for: "dashboard.history"))
+                                    .font(.title3)
+                                    .bold()
+                                ForEach(filteredHistory) { item in
+                                    HStack {
+                                        Image(systemName: "doc.text")
+                                            .foregroundColor(.blue)
+                                        VStack(alignment: .leading) {
+                                            Text(item.talk_title)
+                                                .font(.body)
+                                        }
+                                        Spacer()
+                                        Button(action: {
+                                            selectedHistoryItem = item
+                                            showActionSheet = true
+                                        }) {
+                                            Image(systemName: "ellipsis")
+                                        }
+                                    }
+                                    .padding()
+                                    .background(Color(.systemGray6))
+                                    .cornerRadius(12)
+                                }
+                            }
+                            .padding(.horizontal)
+
+                            Spacer()
+                        }
+                        .padding(.top)
                     }
                 }
             }
@@ -379,8 +389,11 @@ struct DashboardView: View {
                 TicketSubmissionView()
             }
             .sheet(isPresented: $showShareSheet) {
-                ShareSheet(activityItems: shareContent)
+                if let url = shareContent.first as? URL {
+                    ShareSheet(activityItems: [url])
+                }
             }
+            .id((shareContent.first as? URL)?.absoluteString ?? UUID().uuidString)
             .background(
                 NavigationLink(destination: SettingsView(), isActive: $showSettings) { EmptyView() }
                     .hidden()
@@ -575,7 +588,10 @@ struct DashboardView: View {
         group.notify(queue: .main) {
             let talkSuggestions = fetchedTalks.filter { $0.title.localizedCaseInsensitiveContains(query) }.map { SearchSuggestion.talk($0) }
             let toolSuggestions = fetchedTools.filter { $0.title.localizedCaseInsensitiveContains(query) }.map { SearchSuggestion.tool($0.title) }
-            suggestions = talkSuggestions + toolSuggestions
+            DispatchQueue.main.async {
+                suggestions = talkSuggestions + toolSuggestions
+                showSuggestions = !suggestions.isEmpty
+            }
         }
     }
 

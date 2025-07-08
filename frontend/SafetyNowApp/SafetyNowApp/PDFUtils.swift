@@ -28,62 +28,78 @@ func createPDF(for title: String, description: String?) -> URL? {
     let renderer = UIGraphicsPDFRenderer(bounds: pageRect, format: format)
     
     let data = renderer.pdfData { (context) in
-        let cgContext = context.cgContext
-        var currentDescriptionIndex = 0
+        let pageMargin: CGFloat = 72
+        let footerText = "© 2025 | SafetyNow is a Property of Bongarde Media | All rights reserved | https://ilt.safetynow.com/ | 1.800.667.9300"
+        let footerString = NSAttributedString(string: footerText, attributes: footerAttributes)
+        let footerHeight: CGFloat = 36 + footerString.size().height
+        let minY: CGFloat = pageMargin
+        let maxY: CGFloat = pageRect.height - footerHeight
+
         var isFirstPage = true
+        var y: CGFloat = pageMargin
 
-        while currentDescriptionIndex < attributedDescription.length {
-            context.beginPage()
-            
-            var contentStartY: CGFloat = 72
-            
-            // Draw logo and title on the first page
-            if isFirstPage {
-                if let logo = UIImage(named: "SafetyNow-LogoArtboard-1-1") {
-                    let logoMaxWidth: CGFloat = 180
-                    let logoAspect = logo.size.height / logo.size.width
-                    let logoWidth = min(logo.size.width, logoMaxWidth)
-                    let logoHeight = logoWidth * logoAspect
-                    let logoRect = CGRect(x: (pageRect.width - logoWidth) / 2, y: 36, width: logoWidth, height: logoHeight)
-                    logo.draw(in: logoRect)
-                    contentStartY = logoRect.maxY + 24
-                }
-                
-                let titleSize = attributedTitle.boundingRect(with: CGSize(width: pageRect.width - 144, height: .greatestFiniteMagnitude), options: .usesLineFragmentOrigin, context: nil)
-                attributedTitle.draw(in: CGRect(x: 72, y: contentStartY, width: pageRect.width - 144, height: titleSize.height))
-                contentStartY += titleSize.height + 24
-                isFirstPage = false
-            }
-
-            // Footer
-            let footerText = "© 2025 | SafetyNow is a Property of Bongarde Media | All rights reserved | https://ilt.safetynow.com/ | 1.800.667.9300"
-            let footerString = NSAttributedString(string: footerText, attributes: footerAttributes)
+        func drawFooter() {
             let footerSize = footerString.size()
             let footerRect = CGRect(x: (pageRect.width - footerSize.width) / 2, y: pageRect.height - footerSize.height - 36, width: footerSize.width, height: footerSize.height)
             footerString.draw(in: footerRect)
-            
-            // Calculate description frame for the current page
-            let descFrameHeight = footerRect.minY - contentStartY - 24
-            let descFrame = CGRect(x: 72, y: contentStartY, width: pageRect.width - 144, height: descFrameHeight)
-            
-            let framesetter = CTFramesetterCreateWithAttributedString(attributedDescription.attributedSubstring(from: NSRange(location: currentDescriptionIndex, length: attributedDescription.length - currentDescriptionIndex)) as CFAttributedString)
-            let framePath = CGPath(rect: descFrame, transform: nil)
-            
-            // Invert the CTM to draw top-to-bottom
-            cgContext.textMatrix = .identity
-            cgContext.translateBy(x: 0, y: pageRect.height)
-            cgContext.scaleBy(x: 1.0, y: -1.0)
-            
-            let frame = CTFramesetterCreateFrame(framesetter, CFRangeMake(0, 0), framePath, nil)
-            let invertedDescFrame = CGRect(x: 72, y: pageRect.height - descFrame.maxY, width: descFrame.width, height: descFrame.height)
-            let framePathForDrawing = CGPath(rect: invertedDescFrame, transform: nil)
-            let frameForDrawing = CTFramesetterCreateFrame(framesetter, CFRangeMake(0, 0), framePathForDrawing, nil)
-            
-            CTFrameDraw(frameForDrawing, cgContext)
-
-            let visibleRange = CTFrameGetVisibleStringRange(frame)
-            currentDescriptionIndex += visibleRange.length
         }
+
+        func startNewPage() {
+            context.beginPage()
+            y = minY
+            drawFooter()
+        }
+
+        // Start first page
+        context.beginPage()
+        // Draw logo and title on the first page only
+        if let logo = UIImage(named: "SafetyNow-LogoArtboard-1-1") {
+            let logoMaxWidth: CGFloat = 180
+            let logoAspect = logo.size.height / logo.size.width
+            let logoWidth = min(logo.size.width, logoMaxWidth)
+            let logoHeight = logoWidth * logoAspect
+            let logoRect = CGRect(x: (pageRect.width - logoWidth) / 2, y: 36, width: logoWidth, height: logoHeight)
+            logo.draw(in: logoRect)
+            y = logoRect.maxY + 24
+        }
+        let titleSize = attributedTitle.boundingRect(with: CGSize(width: pageRect.width - 2 * pageMargin, height: .greatestFiniteMagnitude), options: .usesLineFragmentOrigin, context: nil)
+        attributedTitle.draw(in: CGRect(x: pageMargin, y: y, width: pageRect.width - 2 * pageMargin, height: titleSize.height))
+        y += titleSize.height + 24
+        drawFooter()
+        isFirstPage = false
+
+        // --- NEW DESCRIPTION RENDERING WITH WRAPPING ---
+        let lines = (description ?? "").components(separatedBy: .newlines)
+        var yPos = y
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineBreakMode = .byWordWrapping
+        paragraphStyle.alignment = .left
+        for (idx, line) in lines.enumerated() {
+            let trimmed = line.trimmingCharacters(in: .whitespaces)
+            if trimmed.isEmpty {
+                yPos += 10 // Spacer for empty lines
+                continue
+            }
+            let isSubtitle = trimmed == trimmed.uppercased() && trimmed.rangeOfCharacter(from: .letters) != nil
+            let font = isSubtitle ? UIFont.boldSystemFont(ofSize: 16) : descFont
+            let attributes: [NSAttributedString.Key: Any] = [
+                .font: font,
+                .paragraphStyle: paragraphStyle
+            ]
+            let attributedLine = NSAttributedString(string: trimmed, attributes: attributes)
+            let textRect = CGRect(x: pageMargin, y: yPos, width: pageRect.width - 2 * pageMargin, height: maxY - yPos)
+            let boundingRect = attributedLine.boundingRect(with: CGSize(width: textRect.width, height: CGFloat.greatestFiniteMagnitude), options: .usesLineFragmentOrigin, context: nil)
+            if yPos + boundingRect.height > maxY {
+                startNewPage()
+                yPos = minY
+            }
+            if isSubtitle {
+                yPos += idx == 0 ? 0 : 16 // Extra space before subtitle, except first
+            }
+            attributedLine.draw(with: CGRect(x: pageMargin, y: yPos, width: pageRect.width - 2 * pageMargin, height: boundingRect.height), options: .usesLineFragmentOrigin, context: nil)
+            yPos += boundingRect.height + (isSubtitle ? 8 : 6)
+        }
+        // --- END NEW DESCRIPTION RENDERING ---
     }
 
     // Save to a temporary file with a unique name

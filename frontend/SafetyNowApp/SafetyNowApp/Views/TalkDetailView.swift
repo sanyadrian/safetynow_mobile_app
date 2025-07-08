@@ -30,13 +30,17 @@ struct TalkDetailView: View {
                 Spacer()
                 Menu {
                     Button(action: {
-                        if let pdfURL = createPDF(for: talk.title, description: talk.description),
-                           FileManager.default.fileExists(atPath: pdfURL.path),
-                           (try? Data(contentsOf: pdfURL))?.count ?? 0 > 0 {
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        if let pdfURL = createPDF(for: talk.title, description: talk.description) {
+                            if FileManager.default.fileExists(atPath: pdfURL.path),
+                               let fileSize = try? FileManager.default.attributesOfItem(atPath: pdfURL.path)[.size] as? UInt64,
+                               fileSize > 0 {
                                 shareContent = [pdfURL]
                                 showShareSheet = true
+                            } else {
+                                print("PDF file does not exist or is empty")
                             }
+                        } else {
+                            print("Failed to create PDF")
                         }
                     }) {
                         Label("Share", systemImage: "square.and.arrow.up")
@@ -141,13 +145,17 @@ struct TalkDetailView: View {
                         .disabled(isLoading)
                         
                         Button(action: {
-                            if let pdfURL = createPDF(for: talk.title, description: talk.description),
-                               FileManager.default.fileExists(atPath: pdfURL.path),
-                               (try? Data(contentsOf: pdfURL))?.count ?? 0 > 0 {
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            if let pdfURL = createPDF(for: talk.title, description: talk.description) {
+                                if FileManager.default.fileExists(atPath: pdfURL.path),
+                                   let fileSize = try? FileManager.default.attributesOfItem(atPath: pdfURL.path)[.size] as? UInt64,
+                                   fileSize > 0 {
                                     shareContent = [pdfURL]
                                     showShareSheet = true
+                                } else {
+                                    print("PDF file does not exist or is empty")
                                 }
+                            } else {
+                                print("Failed to create PDF")
                             }
                         }) {
                             Image(systemName: "square.and.arrow.up")
@@ -194,8 +202,11 @@ struct TalkDetailView: View {
             fetchLikeStatus()
         }
         .sheet(isPresented: $showShareSheet) {
-            ShareSheet(activityItems: shareContent)
+            if let url = shareContent.first as? URL {
+                ShareSheet(activityItems: [url])
+            }
         }
+        .id((shareContent.first as? URL)?.absoluteString ?? UUID().uuidString)
         NavigationLink(destination: UpgradePlanView(), isActive: $showUpgrade) { EmptyView() }
     }
     
