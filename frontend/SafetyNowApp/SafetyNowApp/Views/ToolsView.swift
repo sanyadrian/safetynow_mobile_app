@@ -33,7 +33,9 @@ struct ToolsView: View {
                     ScrollView {
                         VStack(spacing: 16) {
                             ForEach(tools) { tool in
-                                NavigationLink(destination: ToolDetailView(tool: tool)) {
+                                Button(action: {
+                                    openToolModel = tool
+                                }) {
                                     HStack(alignment: .center, spacing: 12) {
                                         Image(systemName: "wrench.and.screwdriver")
                                             .foregroundColor(Color.blue)
@@ -51,6 +53,7 @@ struct ToolsView: View {
                                     .cornerRadius(16)
                                     .shadow(color: Color(.systemGray4).opacity(0.2), radius: 4, x: 0, y: 2)
                                 }
+                                .buttonStyle(PlainButtonStyle())
                             }
                         }
                         .padding(.top, 24)
@@ -64,6 +67,9 @@ struct ToolsView: View {
             .onAppear {
                 fetchTools()
             }
+            .background(
+                NavigationLink(destination: openToolModel.map { ToolDetailView(tool: $0) }, isActive: Binding(get: { openToolModel != nil }, set: { if !$0 { openToolModel = nil } })) { EmptyView() }
+            )
         }
     }
     

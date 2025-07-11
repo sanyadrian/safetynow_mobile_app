@@ -64,47 +64,73 @@ struct FindTalkView: View {
                     }
                 }
                 Button(action: {
+                    showSuggestions = false
+                    self.hideKeyboard()
                     performSearch()
                 }) {
                     Image(systemName: "magnifyingglass")
                         .foregroundColor(.blue)
                 }
                 .padding(.trailing, 12)
+                .buttonStyle(PlainButtonStyle())
+                .zIndex(3) // Highest priority for search button
             }
             .background(Color(.systemGray6))
             .cornerRadius(12)
             .padding(.horizontal)
             .padding(.top, 8)
+            .zIndex(2) // Ensure search bar is above suggestions
+
+            // Small gap to separate search bar from suggestions
+            if showSuggestions && !suggestions.isEmpty {
+                Rectangle()
+                    .fill(Color.clear)
+                    .frame(height: 4)
+                    .zIndex(1)
+            }
 
             // Suggestions dropdown (if needed)
             if showSuggestions && !suggestions.isEmpty {
-                List(suggestions, id: \.id) { suggestion in
-                    Button(action: {
-                        showSuggestions = false
-                        self.hideKeyboard()
-                        switch suggestion {
-                        case .talk(let talk):
-                            selectedTalk = talk
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                navigateToTalkDetail = true
+                VStack(spacing: 0) {
+                    ForEach(suggestions, id: \.id) { suggestion in
+                        Button(action: {
+                            showSuggestions = false
+                            self.hideKeyboard()
+                            switch suggestion {
+                            case .talk(let talk):
+                                selectedTalk = talk
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                    navigateToTalkDetail = true
+                                }
+                            case .tool(let toolTitle):
+                                fetchToolDetail(for: toolTitle)
                             }
-                        case .tool(let toolTitle):
-                            fetchToolDetail(for: toolTitle)
+                        }) {
+                            HStack {
+                                Image(systemName: suggestionIcon(for: suggestion))
+                                    .foregroundColor(.blue)
+                                Text(suggestion.title)
+                                    .foregroundColor(.primary)
+                                Spacer()
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 12)
+                            .contentShape(Rectangle())
                         }
-                    }) {
-                        HStack {
-                            Image(systemName: suggestionIcon(for: suggestion))
-                                .foregroundColor(.blue)
-                            Text(suggestion.title)
+                        .buttonStyle(PlainButtonStyle())
+                        
+                        if suggestion.id != suggestions.last?.id {
+                            Divider()
+                                .padding(.leading, 40)
                         }
                     }
                 }
-                .listStyle(PlainListStyle())
                 .frame(maxHeight: 200)
                 .padding(.horizontal)
                 .background(Color.white)
                 .cornerRadius(12)
                 .shadow(radius: 4)
+                .zIndex(1) // Ensure suggestions are below search bar
             }
 
             // The rest of your content in a ScrollView
@@ -118,26 +144,32 @@ struct FindTalkView: View {
                                 Button(action: onHazardTap) {
                                     tileView(title: title, desc: desc, icon: category.icon)
                                 }
+                                .buttonStyle(PlainButtonStyle())
                             } else if category.key == "industry" {
                                 Button(action: onIndustryTap) {
                                     tileView(title: title, desc: desc, icon: category.icon)
                                 }
+                                .buttonStyle(PlainButtonStyle())
                             } else if category.key == "calendar" {
                                 Button(action: { showCalendar = true }) {
                                     tileView(title: title, desc: desc, icon: category.icon)
                                 }
+                                .buttonStyle(PlainButtonStyle())
                             } else if category.key == "translate" {
                                 Button(action: { showTranslate = true }) {
                                     tileView(title: title, desc: desc, icon: category.icon)
                                 }
+                                .buttonStyle(PlainButtonStyle())
                             } else if category.key == "send_talk" {
                                 Button(action: { showShareTalkInfo = true }) {
                                     tileView(title: title, desc: desc, icon: category.icon)
                                 }
+                                .buttonStyle(PlainButtonStyle())
                             } else if category.key == "tools" {
                                 Button(action: { showTools = true }) {
                                     tileView(title: title, desc: desc, icon: category.icon)
                                 }
+                                .buttonStyle(PlainButtonStyle())
                             }
                         }
                     }
@@ -149,6 +181,7 @@ struct FindTalkView: View {
                         destination: selectedTalk.map { TalkDetailView(talk: $0) },
                         isActive: $navigateToTalkDetail
                     ) { EmptyView() }
+                    NavigationLink(destination: ToolsView(), isActive: $showTools) { EmptyView() }
                     HStack {
                         Spacer()
                         Button(action: { showUpgrade = true }) {
@@ -172,6 +205,18 @@ struct FindTalkView: View {
         .onTapGesture {
             self.hideKeyboard()
         }
+        .sheet(isPresented: $showCalendar) {
+            CalendarView()
+        }
+        .sheet(isPresented: $showTranslate) {
+            LanguageSelectionView()
+        }
+        .sheet(isPresented: $showShareTalkInfo) {
+            ShareTalkInfoView()
+        }
+        .sheet(isPresented: $showUpgrade) {
+            UpgradePlanView()
+        }
     }
 
     private func tileView(title: String, desc: String, icon: String) -> some View {
@@ -192,6 +237,7 @@ struct FindTalkView: View {
         .frame(maxWidth: .infinity)
         .background(Color(.systemGray6))
         .cornerRadius(20)
+        .contentShape(Rectangle()) // Make entire tile tappable
     }
 
     func fetchSuggestions(for query: String) {

@@ -19,34 +19,33 @@ struct ToolDetailView: View {
                         .fontWeight(.bold)
                         .padding(.top, 32)
                     if let description = tool.description, !description.isEmpty {
-                        Text(description)
-                            .font(.body)
+                        VStack(alignment: .leading, spacing: 0) {
+                            let lines = description.components(separatedBy: .newlines)
+                            ForEach(Array(lines.enumerated()), id: \.offset) { tuple in
+                                let idx = tuple.offset
+                                let line = tuple.element
+                                let trimmed = line.trimmingCharacters(in: .whitespaces)
+                                if trimmed.isEmpty {
+                                    Spacer().frame(height: 10)
+                                } else if trimmed == trimmed.uppercased() && trimmed.rangeOfCharacter(from: .letters) != nil {
+                                    Spacer().frame(height: idx == 0 ? 0 : 16)
+                                    Text(trimmed)
+                                        .font(.body).bold()
+                                        .foregroundColor(.black)
+                                    Spacer().frame(height: 8)
+                                } else {
+                                    Text(trimmed)
+                                        .font(.body)
+                                        .foregroundColor(.black)
+                                    Spacer().frame(height: 6)
+                                }
+                            }
+                        }
+                        .padding()
+                        .background(Color.white)
+                        .cornerRadius(16)
+                        .shadow(color: Color(.systemGray4).opacity(0.1), radius: 2, x: 0, y: 1)
                     }
-                    // if !tool.category.isEmpty {
-                    //     Text("Category: \(tool.category)")
-                    //         .font(.subheadline)
-                    //         .foregroundColor(.secondary)
-                    // }
-                    // if let hazard = tool.hazard, !hazard.isEmpty {
-                    //     Text("Hazard: \(hazard)")
-                    //         .font(.subheadline)
-                    //         .foregroundColor(.secondary)
-                    // }
-                    // if let industry = tool.industry, !industry.isEmpty {
-                    //     Text("Industry: \(industry)")
-                    //         .font(.subheadline)
-                    //         .foregroundColor(.secondary)
-                    // }
-                    // if !tool.language.isEmpty {
-                    //     Text("Language: \(tool.language)")
-                    //         .font(.subheadline)
-                    //         .foregroundColor(.secondary)
-                    // }
-                    // if !tool.related_title.isEmpty {
-                    //     Text("Related: \(tool.related_title)")
-                    //         .font(.subheadline)
-                    //         .foregroundColor(.secondary)
-                    // }
                     Spacer(minLength: 24)
                 }
                 .padding(.vertical, 60)
@@ -59,34 +58,33 @@ struct ToolDetailView: View {
                         .fontWeight(.bold)
                         .padding(.top, 32)
                     if let description = tool.description, !description.isEmpty {
-                        Text(description)
-                            .font(.body)
+                        VStack(alignment: .leading, spacing: 0) {
+                            let lines = description.components(separatedBy: .newlines)
+                            ForEach(Array(lines.enumerated()), id: \.offset) { tuple in
+                                let idx = tuple.offset
+                                let line = tuple.element
+                                let trimmed = line.trimmingCharacters(in: .whitespaces)
+                                if trimmed.isEmpty {
+                                    Spacer().frame(height: 10)
+                                } else if trimmed == trimmed.uppercased() && trimmed.rangeOfCharacter(from: .letters) != nil {
+                                    Spacer().frame(height: idx == 0 ? 0 : 16)
+                                    Text(trimmed)
+                                        .font(.body).bold()
+                                        .foregroundColor(.black)
+                                    Spacer().frame(height: 8)
+                                } else {
+                                    Text(trimmed)
+                                        .font(.body)
+                                        .foregroundColor(.black)
+                                    Spacer().frame(height: 6)
+                                }
+                            }
+                        }
+                        .padding()
+                        .background(Color.white)
+                        .cornerRadius(16)
+                        .shadow(color: Color(.systemGray4).opacity(0.1), radius: 2, x: 0, y: 1)
                     }
-                    // if !tool.category.isEmpty {
-                    //     Text("Category: \(tool.category)")
-                    //         .font(.subheadline)
-                    //         .foregroundColor(.secondary)
-                    // }
-                    // if let hazard = tool.hazard, !hazard.isEmpty {
-                    //     Text("Hazard: \(hazard)")
-                    //         .font(.subheadline)
-                    //         .foregroundColor(.secondary)
-                    // }
-                    // if let industry = tool.industry, !industry.isEmpty {
-                    //     Text("Industry: \(industry)")
-                    //         .font(.subheadline)
-                    //         .foregroundColor(.secondary)
-                    // }
-                    // if !tool.language.isEmpty {
-                    //     Text("Language: \(tool.language)")
-                    //         .font(.subheadline)
-                    //         .foregroundColor(.secondary)
-                    // }
-                    // if !tool.related_title.isEmpty {
-                    //     Text("Related: \(tool.related_title)")
-                    //         .font(.subheadline)
-                    //         .foregroundColor(.secondary)
-                    // }
                     Spacer(minLength: 24)
                 }
                 .padding()

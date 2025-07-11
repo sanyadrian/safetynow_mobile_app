@@ -36,9 +36,9 @@ def get_unique_industries(db: Session = Depends(get_db), current_user = Depends(
     industries = db.query(models.Talk.industry).distinct().all()
     return [i[0] for i in industries if i[0]]
 
-@router.get("/by_hazard/{hazard}")
+@router.get("/by_hazard")
 def get_talks_by_hazard(
-    hazard: str,
+    hazard: str = Query(..., description="Hazard name to filter talks"),
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user),
     language: str = Query(None, description="Language code to filter talks")
@@ -61,9 +61,9 @@ def get_talks_by_hazard(
         for t in talks
     ]
 
-@router.get("/by_industry/{industry}")
+@router.get("/by_industry")
 def get_talks_by_industry(
-    industry: str,
+    industry: str = Query(..., description="Industry name to filter talks"),
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user),
     language: str = Query(None, description="Language code to filter talks")

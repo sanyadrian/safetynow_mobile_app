@@ -247,15 +247,23 @@ struct TalksListView: View {
     
     func fetchTalks() {
         isLoading = true
+        // Create a custom character set that excludes slashes and other problematic characters
+        var allowedCharacters = CharacterSet.urlPathAllowed
+        allowedCharacters.remove(charactersIn: "/")
+        let encodedFilterValue = filterValue.addingPercentEncoding(withAllowedCharacters: allowedCharacters) ?? filterValue
+        
+        print("DEBUG: Original filterValue: '\(filterValue)'")
+        print("DEBUG: Encoded filterValue: '\(encodedFilterValue)'")
+        
         let endpoint: String
         switch filterType {
         case .hazard:
-            endpoint = "\(NetworkService.shared.baseURL)/talks/by_hazard/\(filterValue)?language=\(selectedLanguage)"
+            endpoint = "\(NetworkService.shared.baseURL)/talks/by_hazard?hazard=\(encodedFilterValue)&language=\(selectedLanguage)"
         case .industry:
-            endpoint = "\(NetworkService.shared.baseURL)/talks/by_industry/\(filterValue)?language=\(selectedLanguage)"
+            endpoint = "\(NetworkService.shared.baseURL)/talks/by_industry?industry=\(encodedFilterValue)&language=\(selectedLanguage)"
         }
         print("Fetching talks from: \(endpoint)")
-        guard let url = URL(string: endpoint.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "") else { return }
+        guard let url = URL(string: endpoint) else { return }
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
