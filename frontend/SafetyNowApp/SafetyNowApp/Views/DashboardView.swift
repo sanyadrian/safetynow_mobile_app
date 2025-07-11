@@ -23,6 +23,7 @@ struct DashboardView: View {
     @State private var showPopover = false
     @State private var popoverItem: HistoryItem? = nil
     @State private var shouldNavigateToTalkDetail = false
+    @State private var searchResultTalk: TalkModel? = nil
     @State private var showTalkDetail: Bool = false
     @State private var showUpgrade = false
     // Search state
@@ -436,8 +437,14 @@ struct DashboardView: View {
             }
             NavigationLink(destination: UpgradePlanView(), isActive: $showUpgrade) { EmptyView() }
             NavigationLink(destination: selectedTalk.map { TalkDetailView(talk: $0) }, isActive: Binding(get: { selectedTalk != nil }, set: { if !$0 { selectedTalk = nil } })) { EmptyView() }
+            NavigationLink(destination: searchResultTalk.map { TalkDetailView(talk: $0) }, isActive: Binding(get: { searchResultTalk != nil }, set: { if !$0 { searchResultTalk = nil } })) { EmptyView() }
             NavigationLink(destination: selectedTool.map { ToolDetailView(tool: $0) }, isActive: Binding(get: { selectedTool != nil }, set: { if !$0 { selectedTool = nil } })) { EmptyView() }
-            NavigationLink(destination: SearchResultsView(results: searchResults, query: searchText, onTalkTap: { talk in selectedTalk = talk }, onToolTap: { tool in selectedTool = tool }), isActive: $navigateToSearchResults) { EmptyView() }
+            NavigationLink(destination: SearchResultsView(results: searchResults, query: searchText, onTalkTap: { talk in 
+                print("DEBUG: Talk tapped in search results: \(talk.title)")
+                searchResultTalk = talk
+                navigateToSearchResults = false // Close search results when navigating to talk
+                print("DEBUG: searchResultTalk set to: \(searchResultTalk?.title ?? "nil")")
+            }, onToolTap: { tool in selectedTool = tool }), isActive: $navigateToSearchResults) { EmptyView() }
         }
         .onAppear {
             NetworkService.shared.getHistory(token: accessToken) { result in

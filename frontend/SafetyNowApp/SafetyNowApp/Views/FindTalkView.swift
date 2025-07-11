@@ -32,6 +32,7 @@ struct FindTalkView: View {
     @State private var searchResults: [DashboardView.SearchSuggestion] = []
     @State private var selectedTalk: TalkModel? = nil
     @State private var navigateToTalkDetail = false
+    @State private var pendingSelectedTalk: TalkModel? = nil
     @State private var selectedTool: Tool? = nil
 
     var body: some View {
@@ -176,7 +177,17 @@ struct FindTalkView: View {
                     .padding(.horizontal)
                     .padding(.top, 24)
                     NavigationLink(destination: selectedTool.map { ToolDetailView(tool: $0) }, isActive: Binding(get: { selectedTool != nil }, set: { if !$0 { selectedTool = nil } })) { EmptyView() }
-                    NavigationLink(destination: SearchResultsView(results: searchResults, query: searchText, onTalkTap: { talk in selectedTalk = talk }, onToolTap: { tool in selectedTool = tool }), isActive: $navigateToSearchResults) { EmptyView() }
+                    NavigationLink(destination: SearchResultsView(results: searchResults, query: searchText, onTalkTap: { talk in 
+                        pendingSelectedTalk = talk
+                        // Do NOT set navigateToSearchResults = false here, so the search results remain in the stack
+                    }, onToolTap: { tool in selectedTool = tool }), isActive: $navigateToSearchResults) { EmptyView() }
+                    .onChange(of: pendingSelectedTalk) { newValue in
+                        if let talk = newValue {
+                            selectedTalk = talk
+                            navigateToTalkDetail = true
+                            pendingSelectedTalk = nil
+                        }
+                    }
                     NavigationLink(
                         destination: selectedTalk.map { TalkDetailView(talk: $0) },
                         isActive: $navigateToTalkDetail

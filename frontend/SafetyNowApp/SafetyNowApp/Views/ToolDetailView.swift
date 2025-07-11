@@ -47,9 +47,39 @@ struct ToolDetailView: View {
                         .shadow(color: Color(.systemGray4).opacity(0.1), radius: 2, x: 0, y: 1)
                     }
                     Spacer(minLength: 24)
+                    
+                    // Share button for iPad
+                    HStack(spacing: 16) {
+                        Button(action: {
+                            if let pdfURL = createPDF(for: tool.title, description: tool.description) {
+                                if FileManager.default.fileExists(atPath: pdfURL.path),
+                                   let fileSize = try? FileManager.default.attributesOfItem(atPath: pdfURL.path)[.size] as? UInt64,
+                                   fileSize > 0 {
+                                    shareContent = [pdfURL]
+                                    showShareSheet = true
+                                } else {
+                                    print("PDF file does not exist or is empty")
+                                }
+                            } else {
+                                print("Failed to create PDF")
+                            }
+                        }) {
+                            Image(systemName: "square.and.arrow.up")
+                                .foregroundColor(.blue)
+                        }
+                        
+                        Spacer()
+                    }
+                    .padding(.horizontal, 80)
                 }
                 .padding(.vertical, 60)
             }
+            .sheet(isPresented: $showShareSheet) {
+                if let url = shareContent.first as? URL {
+                    ShareSheet(activityItems: [url])
+                }
+            }
+            .id((shareContent.first as? URL)?.absoluteString ?? UUID().uuidString)
         } else {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
@@ -95,8 +125,16 @@ struct ToolDetailView: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
                         if let pdfURL = createPDF(for: tool.title, description: tool.description) {
-                            shareContent = [pdfURL]
-                            showShareSheet = true
+                            if FileManager.default.fileExists(atPath: pdfURL.path),
+                               let fileSize = try? FileManager.default.attributesOfItem(atPath: pdfURL.path)[.size] as? UInt64,
+                               fileSize > 0 {
+                                shareContent = [pdfURL]
+                                showShareSheet = true
+                            } else {
+                                print("PDF file does not exist or is empty")
+                            }
+                        } else {
+                            print("Failed to create PDF")
                         }
                     }) {
                         Image(systemName: "square.and.arrow.up")
@@ -105,8 +143,11 @@ struct ToolDetailView: View {
             }
             .background(Color.white.ignoresSafeArea())
             .sheet(isPresented: $showShareSheet) {
-                ShareSheet(activityItems: shareContent)
+                if let url = shareContent.first as? URL {
+                    ShareSheet(activityItems: [url])
+                }
             }
+            .id((shareContent.first as? URL)?.absoluteString ?? UUID().uuidString)
         }
     }
 } 
