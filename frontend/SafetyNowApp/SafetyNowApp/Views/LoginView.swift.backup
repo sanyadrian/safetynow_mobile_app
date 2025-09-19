@@ -5,7 +5,6 @@ struct LoginView: View {
     @State private var username = ""
     @State private var password = ""
     @State private var loginMessage = ""
-        
     @AppStorage("profile_image") var profileImage: String = ""
     @AppStorage("access_token") var accessToken: String = ""
     @AppStorage("username") var storedUsername: String = ""
@@ -150,20 +149,6 @@ struct LoginView: View {
     }
 
     func login() {
-        // Add validation before network call
-        guard !username.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            loginMessage = "Please enter a username"
-            return
-        }
-        
-        guard !password.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            loginMessage = "Please enter a password"
-            return
-        }
-        
-        // Clear any previous error messages
-        loginMessage = ""
-        
         NetworkService.shared.login(username: username, password: password) { result in
             DispatchQueue.main.async {
                 switch result {
